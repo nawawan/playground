@@ -1,4 +1,4 @@
-import MazeCreatorPage from "./presentation/pages/maze-creator/MazeCreatorPage";
+import MazeCreatorPage from "./presentation/routes/maze-creator/MazeCreatorPage";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
