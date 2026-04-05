@@ -1,4 +1,4 @@
-import { Box, Button, ButtonBase, Divider, Typography } from "@mui/material";
+import { Box, Button, ButtonBase, Divider, Grid, Typography } from "@mui/material";
 
 export type HomePageProps = {
   contents: {
@@ -13,7 +13,13 @@ export type HomePageProps = {
 export const HomePage = (props: HomePageProps) => {
   const { contents, onLoginClick, onContentClick } = props;
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{ 
+      minHeight: "100vh",
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
@@ -22,23 +28,19 @@ export const HomePage = (props: HomePageProps) => {
           mb: 4,
         }}
       >
-        <Typography variant="h5">nawa&apos;s page</Typography>
+        <Typography variant="h4">nawa&apos;s page</Typography>
         <Button variant="outlined" onClick={onLoginClick}>
           ログイン
         </Button>
       </Box>
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6">Contents</Typography>
+        <Typography variant="h5">Contents</Typography>
         <Divider sx={{ mt: 1 }} />
       </Box>
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: 2,
-        }}
+      <Grid container spacing={2}
       >
         {contents.map((content) => (
+          <Grid size={6}>
           <ButtonBase
             key={content.id}
             onClick={() => onContentClick?.(content.id)}
@@ -59,8 +61,9 @@ export const HomePage = (props: HomePageProps) => {
               {content.description}
             </Typography>
           </ButtonBase>
+          </Grid>
         ))}
-      </Box>
+      </Grid>
     </Box>
   );
 }
