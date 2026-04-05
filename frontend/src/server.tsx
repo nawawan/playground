@@ -27,7 +27,7 @@ app.get('/maze', (c) => {
 });
 
 app.get('/maze/*', (c) => {
-  return fetchAsset(c.req.raw, c.env.ASSETS, '/maze.html');
+  return fetchAsset(c.req.raw, c.env.ASSETS, 'src/maze-creator/maze.html');
 });
 
 app.notFound((c) => {

@@ -9,7 +9,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        maze: 'maze.html',
+        maze: 'src/maze-creator/maze.html',
       },
     },
   },
