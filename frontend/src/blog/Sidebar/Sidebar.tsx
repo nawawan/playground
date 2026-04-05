@@ -3,7 +3,7 @@ import { Box, Divider, Stack, Typography } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import XIcon from "@mui/icons-material/X";
-import ToggleButton from "../../../primitive/ToggleButton/ToggleButton";
+import ToggleButton from "../../presentation/primitive/ToggleButton/ToggleButton";
 
 type SidebarProps = {
     years: string[],
