@@ -13,6 +13,8 @@ dist-ssr
 *.local
 design
 
+**/wasm/target/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

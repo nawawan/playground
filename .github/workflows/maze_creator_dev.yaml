@@ -22,14 +22,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
       - run: cd frontend && npm ci
       - name: Run linter
         run: cd frontend && npm run lint
       - name: Run rustfmt
-        run: cd frontend/wasm && cargo fmt -- --check
+        run: cd frontend/src/maze-creator/wasm && cargo fmt -- --check
   test:
     runs-on: ubuntu-latest
     steps:
@@ -40,7 +40,7 @@ jobs:
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
       - name: Run tests
-        run: cd frontend/wasm && cargo test
+        run: cd frontend/src/maze-creator/wasm && cargo test
   build:
     needs: [test]
     runs-on: [ubuntu-latest]
@@ -54,11 +54,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
-      - run: cd frontend/wasm && rustup target add wasm32-unknown-unknown && cargo install wasm-pack
-      - run: cd frontend/wasm && LOG_LEVEL=Info wasm-pack build --target bundler --out-dir ../src/wasm
+      - run: cd frontend/src/maze-creator/wasm && rustup target add wasm32-unknown-unknown && cargo install wasm-pack
+      - run: cd frontend/src/maze-creator/wasm && LOG_LEVEL=Info wasm-pack build --target bundler --out-dir ../wasm/pkg
       - run: cd frontend && npm ci && npm run build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -77,7 +77,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
       - run: npm install wrangler -g
       - name: Download artifact
         uses: actions/download-artifact@v5
@@ -85,7 +87,7 @@ jobs:
           name: maze-creator-frontend
           path: frontend/dist
       - name: Deploy to Cloudflare Workers
-        run: cd frontend && npm run preview
+        run: cd frontend && npm ci && npm run preview
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID}}
