@@ -24,7 +24,7 @@ jobs:
       - name: Run linter
         run: cd frontend && npm run lint
       - name: Run rustfmt
-        run: cd frontend/wasm && cargo fmt -- --check
+        run: cd frontend/maze-creator/rust && cargo fmt -- --check
   test:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
       - name: Run tests
-        run: cd frontend/wasm && cargo test
+        run: cd frontend/maze-creator/rust && cargo test
   build:
     needs: [test]
     runs-on: [ubuntu-latest]
@@ -52,8 +52,8 @@ jobs:
           node-version: '22'
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
-      - run: cd frontend/wasm && rustup target add wasm32-unknown-unknown && cargo install wasm-pack
-      - run: cd frontend/wasm && LOG_LEVEL=Info wasm-pack build --target bundler --out-dir ../src/wasm
+      - run: cd frontend/maze-creator/rust && rustup target add wasm32-unknown-unknown && cargo install wasm-pack
+      - run: cd frontend/maze-creator/rust && LOG_LEVEL=Info wasm-pack build --target bundler --out-dir ../wasm
       - run: cd frontend && npm ci && npm run build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
