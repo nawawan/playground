@@ -13,7 +13,7 @@ dist-ssr
 *.local
 design
 
-**/rust/target/**
+**/wasm/target/**
 
 # Editor directories and files
 .vscode/*
