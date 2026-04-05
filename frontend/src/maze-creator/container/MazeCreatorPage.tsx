@@ -21,7 +21,7 @@ import Grid from "@mui/material/Grid";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
-import { draw_maze, MazeType } from "../wasm/wasm";
+import { draw_maze, MazeType } from "../rust/pkg/wasm.js";
 
 type GridParams = {
   cellSize: number;

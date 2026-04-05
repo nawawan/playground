@@ -6,6 +6,13 @@ import topLevelAwait from "vite-plugin-top-level-await";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), wasm(), topLevelAwait()],
+  build: {
+    rollupOptions: {
+      input: {
+        maze: 'maze.html',
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,

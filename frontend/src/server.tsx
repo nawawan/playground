@@ -1,25 +1,37 @@
 import { Hono } from 'hono';
-import type { FC } from 'hono/jsx'
 
-const app = new Hono();
+type Bindings = {
+  ASSETS: {
+    fetch: typeof fetch;
+  };
+};
 
-const renderHtmlTemplate = (entry: string) => `
-  <!doctype html>
-  <html lang="ja">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Maze Creator</title>
-    </head>
-    <body>
-      <div id="root"></div>
-      <script type="module" src="${entry}"></script>
-    </body>
-  </html>
-`
+const app = new Hono<{ Bindings: Bindings }>();
+
+const fetchAsset = (request: Request, assets: Bindings['ASSETS'], path?: string) => {
+  const assetUrl = new URL(request.url);
+
+  if (path) {
+    assetUrl.pathname = path;
+  }
+
+  return assets.fetch(new Request(assetUrl, request));
+};
+
+app.get('/', (c) => {
+  return c.redirect('/maze/');
+});
+
+app.get('/maze', (c) => {
+  return c.redirect('/maze/');
+});
 
 app.get('/maze/*', (c) => {
-  return c.html(renderHtmlTemplate('/src/maze-creator/main.tsx'));
+  return fetchAsset(c.req.raw, c.env.ASSETS, '/maze.html');
+});
+
+app.notFound((c) => {
+  return fetchAsset(c.req.raw, c.env.ASSETS);
 });
 
 export default app;

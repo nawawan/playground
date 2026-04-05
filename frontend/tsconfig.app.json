@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "src/maze-creator/wasm"]
+  "include": ["src", "src/maze-creator/rust"]
 }
