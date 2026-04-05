@@ -13,8 +13,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     contents: [
-      { id: "1", title: "ブログ", date: "10日前" },
-      { id: "2", title: "Maze Creator", date: "10日前" },
+      { id: "1", title: "ブログ", description: "ブログの内容" },
+      { id: "2", title: "Maze Creator", description: "迷路作成するやつ" },
     ],
   },
 };

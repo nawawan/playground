@@ -1,16 +1,16 @@
 import { Box, Button, ButtonBase, Divider, Typography } from "@mui/material";
 
-type HomePageProps = {
+export type HomePageProps = {
   contents: {
     id: string;
     title: string;
-    date: string;
+    description: string;
   }[];
   onLoginClick?: () => void;
   onContentClick?: (id: string) => void;
 };
 
-function HomePage(props: HomePageProps) {
+export const HomePage = (props: HomePageProps) => {
   const { contents, onLoginClick, onContentClick } = props;
   return (
     <Box sx={{ p: 4 }}>
@@ -56,7 +56,7 @@ function HomePage(props: HomePageProps) {
               {content.title}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {content.date}
+              {content.description}
             </Typography>
           </ButtonBase>
         ))}

@@ -8,30 +8,18 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-const fetchAsset = (request: Request, assets: Bindings['ASSETS'], path?: string) => {
-  const assetUrl = new URL(request.url);
 
-  if (path) {
-    assetUrl.pathname = path;
-  }
+app.get('/apps/*', async (c) => {
+  const asset = await c.env.ASSETS.fetch(c.req.raw)
+  if (asset.status !== 404) return asset;
 
-  return assets.fetch(new Request(assetUrl, request));
-};
+  return c.env.ASSETS.fetch(
+    new Request(new URL('index.html', c.req.url))
+  )
+})
 
-app.get('/', (c) => {
-  return c.redirect('/maze/');
-});
-
-app.get('/maze', (c) => {
-  return c.redirect('/maze/');
-});
-
-app.get('/maze/*', (c) => {
-  return fetchAsset(c.req.raw, c.env.ASSETS, 'src/maze-creator/maze.html');
-});
-
-app.notFound((c) => {
-  return fetchAsset(c.req.raw, c.env.ASSETS);
-});
+// app.get('/blog', (c) => {
+//   return c.redirect('/maze/');
+// });
 
 export default app;
