@@ -10,17 +10,17 @@ export type SidebarProps = {
     additionalYears? : string[],
     onClickGitHub?: () => void,
     onClickX?: () => void,
-    onCkickHome?: () => void,
+    onClickHome?: () => void,
     onClickYear?: (year: string) => void;
 };
 
 function Sidebar(props: SidebarProps) {
-    const { years, additionalYears, onClickGitHub, onClickX, onCkickHome } = props;
+    const { years, additionalYears, onClickGitHub, onClickX, onClickHome } = props;
 
     return (
         <Stack spacing={2}>
             <Stack direction="row" spacing={1}>
-                <HomeOutlinedIcon onClick={onCkickHome} />
+                <HomeOutlinedIcon onClick={onClickHome} />
                 <GitHubIcon onClick={onClickGitHub} />
                 <XIcon onClick={onClickX} />
             </Stack>

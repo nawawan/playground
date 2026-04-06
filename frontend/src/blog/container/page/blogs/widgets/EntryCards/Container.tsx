@@ -7,3 +7,5 @@ export const EntryCardsContainer = () => {
         <EntryCard {...generatedProps} />
     );
 }
+
+export default EntryCardsContainer;

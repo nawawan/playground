@@ -15,7 +15,7 @@ export const Default: Story = {
     args: {
         years: ["2025年", "2024年", "2023年"],
         additionalYears: ["2022年", "2021年", "2020年"],
-        onCkickHome: () => alert("ホームアイコンがクリックされました"),
+        onClickHome: () => alert("ホームアイコンがクリックされました"),
         onClickGitHub: () => alert("GitHubアイコンがクリックされました"),
         onClickX: () => alert("Xアイコンがクリックされました"),
         onClickYear: (year: string) => action(`${year}がクリックされました`),

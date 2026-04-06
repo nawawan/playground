@@ -7,3 +7,5 @@ export const SidebarContainer = () => {
     const generatedProps = useGenerateProps();
     return <Sidebar {...generatedProps} />;
 }
+
+export default SidebarContainer;
