@@ -6,8 +6,8 @@ export type EntryCardProps = {
         title: string,
         outline: string,
     }[],
-    onClick: (id: string) => void;
-}
+    onClick: (id: string) => void,
+};
 
 export const EntryCard = (props: EntryCardProps) => {
     const { posts, onClick } = props;

@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import { type EntryCardProps } from "../../../../../presentation/EntryCards/EntryCard";
 
 export const useGenerateProps = (): EntryCardProps => {
+    const navigate  = useNavigate();
 
     // 一旦ダミーデータを返すが、将来的にはAPIからデータを取得する想定
     return {
@@ -20,6 +22,9 @@ export const useGenerateProps = (): EntryCardProps => {
                 title: "ブログエントリー3",
                 outline: "ブログエントリー3の概要"
             }
-        ]
+        ],
+        onClick: (id: string) => {
+            navigate(`blogs/${id}`);
+        }
     }
 }
