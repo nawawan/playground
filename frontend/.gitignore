@@ -27,6 +27,8 @@ design
 *.sw?
 .vite
 .env
+.wrangler
+.storybook
 
 *storybook.log
 storybook-static
