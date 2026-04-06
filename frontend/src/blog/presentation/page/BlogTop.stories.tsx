@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import BlogTop  from './BlogTop';
-import * as EntryCardStories from "./EntryCards/EntryCard.stories";
-import * as SidebarStories from "./Sidebar/Sidebar.stories";
-import EntryCard from "./EntryCards/EntryCard";
-import Sidebar from './Sidebar/Sidebar';
+import * as EntryCardStories from "../EntryCards/EntryCard.stories";
+import * as SidebarStories from "../Sidebar/Sidebar.stories";
+import EntryCard from "../EntryCards/EntryCard";
+import Sidebar from '../Sidebar/Sidebar';
 
 const meta = {
     title : "BlogTop",
