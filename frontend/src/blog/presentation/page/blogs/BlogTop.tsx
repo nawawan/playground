@@ -8,12 +8,12 @@ import {
 } from "@mui/material";
 import type { ReactNode } from "react";
 
-type BlogTopProps = {
+export type BlogTopProps = {
   blogEntries: ReactNode,
   sidebar: ReactNode
 }
 
-function BlogTop(props: BlogTopProps) {
+export const BlogTop = (props: BlogTopProps) => {
   return (
     <Box
       sx={{

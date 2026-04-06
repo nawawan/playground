@@ -1,6 +1,6 @@
 import {Stack, Typography, Paper} from "@mui/material";
 
-type EntryCardProps = {
+export type EntryCardProps = {
     posts: {
         id: string,
         title: string,
@@ -8,7 +8,7 @@ type EntryCardProps = {
     }[];
 }
 
-function EntryCard(props: EntryCardProps) {
+export const EntryCard = (props: EntryCardProps) => {
     const { posts } = props;
     return (
         <Stack spacing={2}>
