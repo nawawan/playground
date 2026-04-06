@@ -13,8 +13,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-        years: ["2025年の記事", "2024年の記事", "2023年の記事"],
-        additionalYears: ["2022年の記事", "2021年の記事", "2020年の記事"],
+        years: ["2025年", "2024年", "2023年"],
+        additionalYears: ["2022年", "2021年", "2020年"],
         onCkickHome: () => alert("ホームアイコンがクリックされました"),
         onClickGitHub: () => alert("GitHubアイコンがクリックされました"),
         onClickX: () => alert("Xアイコンがクリックされました"),

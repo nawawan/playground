@@ -31,7 +31,7 @@ function Sidebar(props: SidebarProps) {
                 {years.map((year) => (
                     <Box component="li" key={year} sx={{ listStyle: "none" }}>
                         <Button onClick={() => props.onClickYear?.(year)}>
-                            {year}
+                            {`${year}の記事`}
                         </Button>
                     </Box>
                 ))}
