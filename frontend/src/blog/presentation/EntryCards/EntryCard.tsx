@@ -5,11 +5,12 @@ export type EntryCardProps = {
         id: string,
         title: string,
         outline: string,
-    }[];
+    }[],
+    onClick: (id: string) => void;
 }
 
 export const EntryCard = (props: EntryCardProps) => {
-    const { posts } = props;
+    const { posts, onClick } = props;
     return (
         <Stack spacing={2}>
             {posts.map((post) => (
@@ -21,6 +22,7 @@ export const EntryCard = (props: EntryCardProps) => {
                   px: 2,
                   py: 2,
                 }}
+                onClick={() => onClick(post.id)}
                 >
                 <Typography variant="subtitle1" fontWeight={600}>
                     {post.title}

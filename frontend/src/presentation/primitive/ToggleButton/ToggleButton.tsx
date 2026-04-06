@@ -6,7 +6,8 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 type ToggleButtonProps = {
     displayText?: string
-    additionalContents?: string[]
+    additionalContents?: string[],
+    onClick?: (content: string) => void,
 };
 
 const expandedContentId = "additional-contents-collapse";
@@ -30,10 +31,12 @@ function ToggleButton(props: ToggleButtonProps) {
                 {isExpanded ? "閉じる" : (displayText ?? "もっと見る")}
             </Button>
             <Collapse id={expandedContentId} in={isExpanded} timeout="auto" unmountOnExit>
-                <Stack component="ul" spacing={1} sx={{ m: 0, p: 0 }}>
+                <Stack component="ul" sx={{ m: 0, p: 0 }}>
                 {additionalContents?.map((content) => (
                     <Box component="li" key={content} sx={{ listStyle: "none" }}>
-                        <Typography variant="body1">{content}</Typography>
+                        <Button onClick={() => props.onClick?.(content)}>
+                            {content}
+                        </Button>
                     </Box>
                 ))}
                 </Stack>
