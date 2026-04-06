@@ -6,7 +6,7 @@ export const useGenerateProps = (): HomePageProps => {
     return {
         contents: [
             { id: 'maze', title: 'Maze Creator', description: '迷路作成するやつ' },
-            { id: 'blog', title: 'ブログ', description: '日々の出来事をつらつらと' },
+            { id: 'blogs', title: 'ブログ', description: '日々の出来事をつらつらと' },
         ],
         onContentClick: (id: string) => {
             navigate(`/${id}`);

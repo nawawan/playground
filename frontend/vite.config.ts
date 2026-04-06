@@ -10,7 +10,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         home: 'index.html',
+        blogClient: './src/blog.tsx'
       },
+      output: {
+        entryFileNames: 'assets/[name].js'
+      }
     },
   },
   server: {

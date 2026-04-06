@@ -24,7 +24,7 @@ export const useGenerateProps = (): EntryCardProps => {
             }
         ],
         onClick: (id: string) => {
-            navigate(`blogs/${id}`);
+            navigate(`/blogs/${id}`);
         }
     }
 }

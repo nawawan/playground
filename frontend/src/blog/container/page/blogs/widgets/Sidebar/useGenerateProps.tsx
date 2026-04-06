@@ -10,7 +10,7 @@ export const useGenerateProps = (): SidebarProps => {
         years: ["2026", "2025", "2024"],
         additionalYears: ["2023", "2022", "2021"],
         onClickHome: () => {
-            navigate("/home");
+            navigate("/");
         },
         onClickGitHub: () => {
             window.open("https://github.com/nawawan", "_blank");

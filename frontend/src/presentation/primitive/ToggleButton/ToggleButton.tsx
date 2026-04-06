@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Button, Collapse, Box, Typography, Stack } from "@mui/material";
+import { Button, Collapse, Box, Stack } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
