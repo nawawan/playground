@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import React from 'react';
+import { StaticRouter } from 'react-router-dom';
 import { renderToString } from 'react-dom/server';
 import { BlogTopContainer } from './blog/container/page/blogs/Container';
 
@@ -23,7 +23,10 @@ app.get('/apps/*', async (c) => {
 })
 
 app.get('/blogs', (c) => {
-  const htmlContent = renderToString(<BlogTopContainer />);
+  const htmlContent = renderToString(
+    <StaticRouter location="/blogs">
+      <BlogTopContainer />
+    </StaticRouter>);
   return c.html(`
       <html>
         <head>
