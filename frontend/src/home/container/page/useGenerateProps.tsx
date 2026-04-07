@@ -9,11 +9,7 @@ export const useGenerateProps = (): HomePageProps => {
             { id: 'blogs', title: 'ブログ', description: '日々の出来事をつらつらと' },
         ],
         onContentClick: (id: string) => {
-            if (id === 'blogs') {
-                window.location.href = '/blogs';
-            } else {
-                navigate(`/${id}`);
-            }
+            navigate(`/${id}`);
         },
         onLoginClick: () => {
             alert('ログイン機能はまだ実装されていません。');

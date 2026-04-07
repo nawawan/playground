@@ -15,7 +15,7 @@ export type SidebarProps = {
 };
 
 function Sidebar(props: SidebarProps) {
-    const { years, additionalYears, onClickGitHub, onClickX, onClickHome } = props;
+    const { years, additionalYears, onClickGitHub, onClickX, onClickHome, onClickYear } = props;
 
     return (
         <Stack spacing={2}>
@@ -30,14 +30,14 @@ function Sidebar(props: SidebarProps) {
             <Stack component="ul" sx={{ m: 0, p: 0 }}>
                 {years.map((year) => (
                     <Box component="li" key={year} sx={{ listStyle: "none" }}>
-                        <Button onClick={() => props.onClickYear?.(year)}>
+                        <Button onClick={() => onClickYear?.(year)}>
                             {`${year}の記事`}
                         </Button>
                     </Box>
                 ))}
             </Stack>
             {additionalYears && 
-                <ToggleButton additionalContents={additionalYears} />
+                <ToggleButton additionalContents={additionalYears} onClick={onClickYear} />
             }
         </Stack>
     )

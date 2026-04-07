@@ -11,6 +11,9 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+app.get('/assets/*', (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
 
 app.get('/blogs', (c) => {
   const htmlContent = renderToString(
