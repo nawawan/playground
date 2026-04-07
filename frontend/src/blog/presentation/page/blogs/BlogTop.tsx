@@ -4,26 +4,27 @@ import {
   Divider,
   Paper,
   Stack,
+  Grid,
   Typography,
 } from "@mui/material";
 import type { ReactNode } from "react";
 
-type BlogTopProps = {
+export type BlogTopProps = {
   blogEntries: ReactNode,
   sidebar: ReactNode
 }
 
-function BlogTop(props: BlogTopProps) {
+export const BlogTop = (props: BlogTopProps) => {
   return (
     <Box
       sx={{
         minHeight: "100vh",
+        width: "100%",
         background: "linear-gradient(180deg, #f4f4f4 0%, #ededed 100%)",
-        py: { xs: 4, md: 6 },
         px: 2,
       }}
     >
-      <Container maxWidth="md">
+      <Container>
         <Paper
           elevation={0}
           sx={{
@@ -40,7 +41,8 @@ function BlogTop(props: BlogTopProps) {
               <Divider sx={{ mt: 2 }} />
             </Box>
 
-            <Box
+            <Grid 
+              container
               sx={{
                 display: "grid",
                 gridTemplateColumns: { xs: "1fr", md: "1fr 200px" },
@@ -49,7 +51,7 @@ function BlogTop(props: BlogTopProps) {
             >
               {props.blogEntries}
               {props.sidebar}
-            </Box>
+            </Grid>
           </Stack>
         </Paper>
       </Container>

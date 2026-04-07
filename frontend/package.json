@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "vite",
+    "dev:worker": "wrangler dev",
     "build": "tsc -b && vite build",
     "deploy": "wrangler deploy --env production",
     "preview": "wrangler deploy --env preview",
@@ -21,7 +22,7 @@
     "hono": "^4.12.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.13.1",
+    "react-router-dom": "^7.14.0",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.5.0",
     "wrangler": "^4.34.0"

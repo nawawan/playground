@@ -28,6 +28,7 @@ export const Default: Story = {
                 title: "title3",
                 outline: "test3用"
             },
-        ]
+        ],
+        onClick: (id: string) => alert(`記事ID: ${id}がクリックされました`),
     }
 }

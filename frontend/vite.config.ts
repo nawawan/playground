@@ -9,8 +9,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        maze: 'src/maze-creator/maze.html',
+        home: 'index.html',
+        blogClient: './src/blog.tsx'
       },
+      output: {
+        entryFileNames: 'assets/[name].js'
+      }
     },
   },
   server: {
