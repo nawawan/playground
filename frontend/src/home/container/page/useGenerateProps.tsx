@@ -1,8 +1,12 @@
-import { type HomePageProps } from '../../presentation/page/HomePage';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
+
+import { type HomePageProps } from '../../presentation/page/HomePage';
+import { LoginDialogContainer } from './widgets/LoginDialog/Container';
 
 export const useGenerateProps = (): HomePageProps => {
     const navigate = useNavigate();
+    const [open, setOpen] = React.useState(false);
     return {
         contents: [
             { id: 'maze', title: 'Maze Creator', description: '迷路作成するやつ' },
@@ -12,10 +16,9 @@ export const useGenerateProps = (): HomePageProps => {
             navigate(`/${id}`);
         },
         onLoginClick: () => {
-            navigate('/admin');
-            alert('ログイン機能はまだ実装されていません。');
+            setOpen(true);
         },
-        LoginDialog: <div>ログインダイアログ</div>,
+        LoginDialog: <LoginDialogContainer open={open} onClose={() => {setOpen(false)}} />,
     };
 };
 
