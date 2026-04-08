@@ -8,10 +8,11 @@ export type HomePageProps = {
   }[];
   onLoginClick?: () => void;
   onContentClick?: (id: string) => void;
+  LoginDialog: React.ReactNode;
 };
 
 export const HomePage = (props: HomePageProps) => {
-  const { contents, onLoginClick, onContentClick } = props;
+  const { contents, onLoginClick, onContentClick, LoginDialog } = props;
   return (
     <Box sx={{ 
       minHeight: "100vh",
@@ -33,6 +34,7 @@ export const HomePage = (props: HomePageProps) => {
           ログイン
         </Button>
       </Box>
+      {LoginDialog}
       <Box sx={{ mb: 2 }}>
         <Typography variant="h5">Contents</Typography>
         <Divider sx={{ mt: 1 }} />

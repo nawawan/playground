@@ -16,5 +16,6 @@ export const Default: Story = {
       { id: "1", title: "ブログ", description: "ブログの内容" },
       { id: "2", title: "Maze Creator", description: "迷路作成するやつ" },
     ],
+    LoginDialog: <div>ログインダイアログ</div>,
   },
 };

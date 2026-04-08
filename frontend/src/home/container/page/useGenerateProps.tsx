@@ -12,8 +12,10 @@ export const useGenerateProps = (): HomePageProps => {
             navigate(`/${id}`);
         },
         onLoginClick: () => {
+            navigate('/admin');
             alert('ログイン機能はまだ実装されていません。');
-        }
+        },
+        LoginDialog: <div>ログインダイアログ</div>,
     };
 };
 
