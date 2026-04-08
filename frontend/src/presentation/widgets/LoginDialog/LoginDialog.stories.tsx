@@ -15,7 +15,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function LoginDialogDemo(props: { onLogin?: (u: string, p: string) => void }) {
+const LoginDialogDemo = (props: { onLogin?: (u: string, p: string) => void }) => {
     const [open, setOpen] = React.useState(false);
 
     return (
