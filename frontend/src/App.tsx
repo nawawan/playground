@@ -1,7 +1,7 @@
 import MazeCreatorPage from "./maze-creator/container/MazeCreatorPage";
 import HomePageContainer from "./home/container/page/Container";
-import { BlogTopContainer } from "./blog/container/page/blogs/Container";
-import AdminPage from "./admin/container/page/Container";
+import { BlogTopContainer } from "./blog/container/page/Container";
+import AdminHomeContainer from "./admin/container/page/Container";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
@@ -14,7 +14,7 @@ function App() {
         <Route path="/blogs" element={<BlogTopContainer />} />
         <Route path="/maze" element={<MazeCreatorPage />} />
 
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin" element={<AdminHomeContainer />} />
       </Routes>
     </Router>
   );

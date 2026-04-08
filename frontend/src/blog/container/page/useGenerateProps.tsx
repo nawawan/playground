@@ -1,4 +1,4 @@
-import { type BlogTopProps } from "../../../presentation/page/blogs/BlogTop";
+import { type BlogTopProps } from "../../presentation/page/blogs/BlogTop";
 
 import EntryCardsContainer from "./widgets/EntryCards/Container";
 import SidebarContainer from "./widgets/Sidebar/Container";
