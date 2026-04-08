@@ -17,13 +17,13 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-type LoginDialogProps = {
+export type LoginDialogProps = {
     open: boolean;
     onClose: () => void;
     onLogin: (username: string, password: string) => void;
 };
 
-function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
+export const LoginDialog = ({ open, onClose, onLogin }: LoginDialogProps) => {
     const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
 

@@ -1,4 +1,4 @@
-import { type AdminHomeProps } from "../presentation/AdminHome";
+import { type AdminHomeProps } from "../../presentation/page/AdminHome";
 export const useGenerateProps = (): AdminHomeProps => {
     // 本来はAPIからpost一覧を取得するが、一旦ダミーデータを返す
     return {
