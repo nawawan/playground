@@ -4,7 +4,7 @@ frontend/src/stories
 backend/target
 backend/.env
 
-infrastracture/**/.terraform
+infrastructure/**/.terraform
 
 **/.claude
 
