@@ -27,7 +27,7 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_DEV }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_DEV }}
-          project_id: ${{ GCP_PROJECT_ID_DEV }}
+          project_id: ${{ vars.GCP_PROJECT_ID_DEV }}
       - name: Terraform Init
         run: terraform init
         working-directory: infrastructure/dev
