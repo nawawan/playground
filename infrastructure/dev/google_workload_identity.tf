@@ -25,7 +25,7 @@ resource "google_iam_workload_identity_pool_provider" "nawawan_dev_github_provid
 
   attribute_condition = <<EOT
     assertion.repository == "nawawan/playground" &&
-    assertion.ref == "refs/heads/main" &&
+    assertion.ref.startsWith("refs/heads/") &&
     assertion.ref_type == "branch"
   EOT
 }
