@@ -1,13 +1,10 @@
 import { type LoginDialogProps } from "../../../../../presentation/widgets/LoginDialog/LoginDialog";
-import { useNavigate } from 'react-router-dom';
-
 export type DialogProps = {
     open: boolean,
     onClose: () => void,
 }
 
 export const useGenerateProps = (props: DialogProps): LoginDialogProps => {
-    const navigate = useNavigate();
     const { open, onClose } = props;
     return {
         open: open,
