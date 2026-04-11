@@ -12,6 +12,8 @@ on:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    environment:
+      name: google_cloud
     permissions:
       contents: read
       id-token: write
