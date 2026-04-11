@@ -13,3 +13,8 @@ resource "google_project_service" "sts_dev" {
   project = var.project
   service = "sts.googleapis.com"
 }
+
+resource "google_project_service" "cloudresourcemanager_dev" {
+  project = var.project
+  service = "cloudresourcemanager.googleapis.com"
+}
