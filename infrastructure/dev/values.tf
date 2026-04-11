@@ -1,11 +1,11 @@
 variable "project" {
-    default = "nawawan-dev"
+  default = "nawawan-dev"
 }
 
 variable "region" {
-    default = "asia-northeast1"
-}   
+  default = "asia-northeast1"
+}
 
 variable "zone" {
-    default = "asia-northeast1-a"
+  default = "asia-northeast1-a"
 }
