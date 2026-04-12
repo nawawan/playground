@@ -17,8 +17,3 @@ resource "google_service_account_iam_member" "nawawan_dev_reader_member" {
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.nawawan_dev_pool.name}/attribute.repository/nawawan/playground"
 }
-
-resource "google_compute_network" "nawawan_dev_network" {
-  provider = google
-  name     = "nawawan-dev-network"
-}
