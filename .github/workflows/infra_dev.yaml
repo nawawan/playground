@@ -36,6 +36,3 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
         working-directory: infrastructure/dev
-      - name: Terraform Apply (must failed)
-        run: terraform apply -auto-approve
-        working-directory: infrastructure/dev
