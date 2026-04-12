@@ -1,5 +1,5 @@
-name: Maze Creator CICD
-run-name: deploy maze-creator app to cloudflare workers
+name: frontend CICD
+run-name: deploy frontend app to cloudflare workers
 on:
   workflow_dispatch:
   release:

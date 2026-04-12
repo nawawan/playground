@@ -1,0 +1,38 @@
+name: infrastructure CICD
+run-name: plan infrastructure changes to cloud
+on:
+  workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - "frontend/**"
+      - "backend/**"
+      - "README.md"
+      - ".github/**"
+      - ".gitignore"
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    environment:
+      name: google_cloud
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.10.5
+      - name: Setup GCP credentials
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER_DEV }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT_DEV_READER }}
+          project_id: ${{ vars.GCP_PROJECT_ID_DEV }}
+      - name: Terraform Init
+        run: terraform init
+        working-directory: infrastructure/dev
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: infrastructure/dev
