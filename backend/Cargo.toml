@@ -23,7 +23,7 @@ serde = "1.0.228"
 serde_json = "1.0.148"
 sqlx = { version = "0.8.6", features = [
     "postgres",
-    "runtime-tokio-native-tls",
+    "runtime-tokio-rustls",
     "chrono",
     "json",
     "uuid",
