@@ -4,7 +4,7 @@ resource "google_service_account" "nawawan_dev_reader" {
   display_name  = "Nawawan Dev Reader"
 }
 
-resource "google_project_iam_member" "nawawan_dev_reader_member" {
+resource "google_project_iam_member" "nawawan_dev_project_reader_member" {
   provider = google
   project  = var.project
   role     = "roles/viewer"
@@ -25,7 +25,7 @@ resource "google_service_account" "nawawan_dev_editor" {
   display_name  = "Nawawan Dev Editor"
 }
 
-resource "google_project_iam_member" "nawawan_dev_editor_member" {
+resource "google_project_iam_member" "nawawan_dev_project_editor_member" {
   provider = google
   project  = var.project
   role     = "roles/editor"
