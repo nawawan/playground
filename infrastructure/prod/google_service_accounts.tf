@@ -53,18 +53,3 @@ resource "google_storage_bucket_iam_member" "nawawan_prod_editor_state_bucket" {
   role     = "roles/storage.objectAdmin"
   member   = "serviceAccount:${google_service_account.nawawan_prod_editor.email}"
 }
-
-
-// sa for secret manager access
-resource "google_service_account" "nawawan_prod_secret_manager" {
-  provider     = google
-  account_id   = "nawawan-secret-manager"
-  display_name = "Nawawan Prod Secret Manager"
-}
-
-resource "google_project_iam_member" "nawawan_prod_secret_manager_member" {
-  provider = google
-  project  = var.project
-  role     = "roles/secretmanager.secretAccessor"
-  member   = "serviceAccount:${google_service_account.nawawan_prod_secret_manager.email}"
-}

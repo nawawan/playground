@@ -18,3 +18,13 @@ resource "google_project_service" "cloudresourcemanager_prod" {
   project = var.project
   service = "cloudresourcemanager.googleapis.com"
 }
+
+resource "google_project_service" "cloudbuild_prod" {
+  project = var.project
+  service = "cloudbuild.googleapis.com"
+}
+
+resource "google_project_service" "secretmanager_prod" {
+  project = var.project
+  service = "secretmanager.googleapis.com"
+}
