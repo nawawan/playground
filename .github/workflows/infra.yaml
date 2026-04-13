@@ -31,7 +31,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT_DEV_READER }}
           project_id: ${{ vars.GCP_PROJECT_ID_DEV }}
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -migrate-state -force-copy
         working-directory: infrastructure/dev
       - name: Terraform Plan
         run: terraform plan
@@ -57,7 +57,7 @@ jobs:
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT_PROD_READER }}
           project_id: ${{ vars.GCP_PROJECT_ID_PROD }}
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -migrate-state -force-copy
         working-directory: infrastructure/prod
       - name: Terraform Plan
         run: terraform plan
