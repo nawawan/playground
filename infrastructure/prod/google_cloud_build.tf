@@ -27,6 +27,7 @@ resource "google_cloudbuildv2_repository" "playground_repository" {
 }
 
 resource "google_cloudbuild_trigger" "cloudbuild_trigger" {
+    provider = google-beta
     project = var.project
     location = var.region
     name = "cloudbuild-trigger"
@@ -40,17 +41,11 @@ resource "google_cloudbuild_trigger" "cloudbuild_trigger" {
       }
     }
 
-    build {
-        step {
-            name = "gcr.io/cloud-builders/docker"
-            args = [
-                "build", 
-                "-t", 
-                "${var.region}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.nawawan_prod_repository.repository_id}/nawawan-playground:$$SHORT_SHA",
-                "."
-            ]
-        }
+    filename = "cloudbuild.yaml"
 
-        images = ["${var.region}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.nawawan_prod_repository.repository_id}/nawawan-playground:$$SHORT_SHA"]
+    substitutions = {
+        _REGION     = var.region
+        _PROJECT     = var.project
+        _REPO_ID     = google_artifact_registry_repository.nawawan_prod_repository.repository_id
     }
 }

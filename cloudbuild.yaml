@@ -1,0 +1,15 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${_PROJECT}/${_REPO_ID}/nawawan-playground:$SHORT_SHA'
+      - './backend/Dockerfile'
+
+images:
+  - '${_REGION}-docker.pkg.dev/${_PROJECT}/${_REPO_ID}/nawawan-playground:$SHORT_SHA'
+
+substitutions:
+  _REGION: asia-northeast1
+  _PROJECT: nawawan
+  _REPO_ID: nawawan-prod-repository
