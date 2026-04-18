@@ -11,6 +11,10 @@ terraform {
   }
 }
 
+data "google_project" "nawawan" {
+    project_id = var.project
+}
+
 provider "google" {
   project = var.project
   region  = var.region
