@@ -13,6 +13,6 @@ provider "google" {
   zone    = var.zone
 }
 
-data "google_project" "nawawan-prod" {
+data "google_project" "nawawan_prod" {
     project_id = var.project_prod
 }

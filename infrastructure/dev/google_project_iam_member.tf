@@ -1,6 +1,6 @@
 # prodのArtifact RegistryをdevのService AccountでアクセスできるようにするためのIAM設定 
 resource "google_project_iam_member" "dev_sa_prod_artifact_registry_reader" {
-  project = data.google_project.nawawan-prod.project_id
+  project = data.google_project.nawawan_prod.project_id
   role    = "roles/artifactregistry.reader"
   member  = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
 }
@@ -29,7 +29,7 @@ resource "google_project_iam_member" "nawawan_dev_project_editor_member" {
 
 # prodのArtifact RegistryをdevのService AccountでアクセスできるようにするためのIAM設定 
 resource "google_project_iam_member" "dev_sa_prod_artifact_registry_editor" {
-  project = data.google_project.nawawan-prod.project_id
+  project = data.google_project.nawawan_prod.project_id
   role    = "roles/artifactregistry.reader"
   member  = "serviceAccount:${google_service_account.nawawan_dev_editor.email}"
 }
