@@ -33,6 +33,8 @@ resource "google_cloudbuild_trigger" "cloudbuild_trigger" {
   name        = "cloudbuild-trigger"
   description = "Cloud Build trigger for GitHub repository"
 
+  service_account = "projects/${var.project}/serviceAccounts/${data.google_project.nawawan.number}-compute@developer.gserviceaccount.com"
+
   repository_event_config {
     repository = google_cloudbuildv2_repository.playground_repository.id
 
