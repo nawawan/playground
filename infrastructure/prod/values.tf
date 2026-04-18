@@ -11,6 +11,10 @@ variable "zone" {
 }
 
 variable "github_token" {
-    type = string
-    sensitive = true
+  type      = string
+  sensitive = true
+}
+
+variable "github_repository_uri" {
+  default = "https://github.com/nawawan/playground.git"
 }

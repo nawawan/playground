@@ -1,6 +1,6 @@
 terraform {
-    backend "gcs" {
-        bucket  = "nawawan-terraform-state"
-        prefix  = "prod/terraform/state"
-    }
+  backend "gcs" {
+    bucket = "nawawan-terraform-state"
+    prefix = "prod/terraform/state"
+  }
 }
