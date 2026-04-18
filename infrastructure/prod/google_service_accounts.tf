@@ -43,7 +43,7 @@ resource "google_service_account_iam_member" "nawawan_prod_editor_member" {
 resource "google_storage_bucket_iam_member" "nawawan_prod_reader_state_bucket" {
   provider = google
   bucket   = "nawawan-terraform-state"
-  role     = "roles/storage.objectAdmin"
+  role     = "roles/storage.legacyBucketReader"
   member   = "serviceAccount:${google_service_account.nawawan_prod_reader.email}"
 }
 
