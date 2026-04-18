@@ -6,7 +6,7 @@ COPY . /usr/workspace/
 
 RUN cargo build --release --target x86_64-unknown-linux-musl --out-dir /usr/workspace/target/release
 
-FROM alpine:latest
+FROM scratch:latest
 
 COPY --from=builder /usr/workspace/target/release/backend ./
 
