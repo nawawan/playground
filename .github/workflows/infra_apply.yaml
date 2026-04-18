@@ -77,7 +77,7 @@ jobs:
       - name: Setup GCP credentials
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER_PROD_EDITOR }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER_EDITOR }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT_PROD_EDITOR }}
           project_id: ${{ vars.GCP_PROJECT_ID_PROD }}
       - name: Terraform Init
