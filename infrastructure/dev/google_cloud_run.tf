@@ -6,6 +6,10 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
   name     = "nawawan-dev-service"
   ingress = "INGRESS_TRAFFIC_ALL"
 
+  depends_on = [
+    google_project_iam_member.dev_cloud_run_service_agent_prod_artifact_registry_reader
+  ]
+
   scaling {
     max_instance_count = 3
   }

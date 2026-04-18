@@ -5,6 +5,12 @@ resource "google_project_iam_member" "dev_sa_prod_artifact_registry_reader" {
   member  = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
 }
 
+resource "google_project_iam_member" "dev_cloud_run_service_agent_prod_artifact_registry_reader" {
+  project = data.google_project.nawawan_prod.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:service-${data.google_project.nawawan_dev.number}@serverless-robot-prod.iam.gserviceaccount.com"
+}
+
 resource "google_project_iam_member" "dev_prod_reader_for_reader" {
     project = data.google_project.nawawan_prod.project_id
     role = "roles/viewer"
