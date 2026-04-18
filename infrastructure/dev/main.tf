@@ -12,3 +12,7 @@ provider "google" {
   region  = var.region
   zone    = var.zone
 }
+
+data "google_project" "nawawan-prod" {
+    project_id = var.project_prod
+}
