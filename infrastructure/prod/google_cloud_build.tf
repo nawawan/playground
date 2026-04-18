@@ -26,7 +26,7 @@ resource "google_cloudbuildv2_repository" "playground_repository" {
   remote_uri        = var.github_repository_uri
 }
 
-resource "google_cloudbuild_trigger" "cloudbuild_trigger" {
+resource "google_cloudbuild_trigger" "cloudbuild_trigger_push" {
   provider    = google-beta
   project     = var.project
   location    = var.region
@@ -46,7 +46,7 @@ resource "google_cloudbuild_trigger" "cloudbuild_trigger" {
   filename = "cloudbuild.yaml"
 }
 
-resource "google_cloudbuild_trigger" "cloudbuild_trigger" {
+resource "google_cloudbuild_trigger" "cloudbuild_trigger_pr" {
   provider    = google-beta
   project     = var.project
   location    = var.region
