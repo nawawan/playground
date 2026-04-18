@@ -5,6 +5,18 @@ resource "google_project_iam_member" "dev_sa_prod_artifact_registry_reader" {
   member  = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
 }
 
+resource "google_project_iam_member" "dev_prod_reader_for_reader" {
+    project = data.google_project.nawawan_prod
+    role = "roles/viewer"
+    member = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
+}
+
+
+resource "google_project_iam_member" "dev_prod_reader_for_editor" {
+    project = data.google_project.nawawan_prod
+    role = "roles/viewer"
+    member = "serviceAccount:${google_service_account.nawawan_dev_editor.email}"
+}
 # CI上で用いるSAのdevのprojectへの権限(読み取り専用)
 resource "google_project_iam_member" "nawawan_dev_project_reader_member" {
   provider = google
