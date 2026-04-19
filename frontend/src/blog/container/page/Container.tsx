@@ -1,7 +1,7 @@
 
 import { BlogTop } from "../../presentation/page/blogs/BlogTop";
 
-import { useGenerateProps } from "./blogs/useGenerateProps";
+import { useGenerateProps } from "./useGenerateProps";
 
 export const BlogTopContainer = () => {
     const generatedProps = useGenerateProps();
