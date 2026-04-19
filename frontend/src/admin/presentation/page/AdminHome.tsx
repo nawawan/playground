@@ -7,7 +7,7 @@ type Blog = {
   date: string;
 };
 
-type AdminHomeProps = {
+export type AdminHomeProps = {
   posts: Blog[];
   onWriteClick?: () => void;
   onPostClick?: (id: string) => void;

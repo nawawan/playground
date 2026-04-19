@@ -1,4 +1,4 @@
-import EntryCard from "../../../../../presentation/EntryCards/EntryCard";
+import EntryCard from "../../../../presentation/EntryCards/EntryCard";
 import { useGenerateProps } from "./useGenerateProps";
 
 export const EntryCardsContainer = () => {
