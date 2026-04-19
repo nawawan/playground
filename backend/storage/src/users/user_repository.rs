@@ -8,10 +8,11 @@ use uuid::Uuid;
 #[async_trait]
 impl UserRepository for Repository {
     async fn get_user_by_email(&self, email: &str) -> Result<User, RepoError> {
-        let row = sqlx::query(
+        let user = sqlx::query_as!(
+            User,
             "SELECT id, name, email, role FROM users WHERE email = $1",
+            email
         )
-        .bind(email)
         .fetch_one(&self.pool)
         .await
         .map_err(|e| match e {
@@ -24,12 +25,6 @@ impl UserRepository for Repository {
             )),
         })?;
 
-        use sqlx::Row;
-        Ok(User {
-            id: row.try_get::<Uuid, _>("id").map_err(|e| RepoError::Internal(e.to_string()))?,
-            name: row.try_get("name").map_err(|e| RepoError::Internal(e.to_string()))?,
-            email: row.try_get("email").map_err(|e| RepoError::Internal(e.to_string()))?,
-            role: row.try_get("role").map_err(|e| RepoError::Internal(e.to_string()))?,
-        })
+        Ok(user)
     }
 }
