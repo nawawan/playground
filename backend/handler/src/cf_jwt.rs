@@ -29,13 +29,19 @@ pub async fn verify_cf_jwt(
     let header = decode_header(token).map_err(|e| JwtError::InvalidToken(e.to_string()))?;
     let kid = header.kid.ok_or(JwtError::MissingKid)?;
 
-    let jwks = cache.get_keys().await.map_err(|e| JwtError::JwksFetch(e.to_string()))?;
+    let jwks = cache
+        .get_keys()
+        .await
+        .map_err(|e| JwtError::JwksFetch(e.to_string()))?;
     let jwk = find_jwk_by_kid(&jwks.keys, &kid);
 
     let jwk = if let Some(k) = jwk {
         k.clone()
     } else {
-        let refreshed = cache.refresh().await.map_err(|e| JwtError::JwksFetch(e.to_string()))?;
+        let refreshed = cache
+            .refresh()
+            .await
+            .map_err(|e| JwtError::JwksFetch(e.to_string()))?;
         find_jwk_by_kid(&refreshed.keys, &kid)
             .ok_or_else(|| JwtError::UnknownKid(kid.clone()))?
             .clone()

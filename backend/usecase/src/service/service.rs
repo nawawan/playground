@@ -10,7 +10,15 @@ pub struct Service {
 }
 
 impl Service {
-    pub fn new(config: Config, repository: Box<dyn Repositories>, jwks_cache: Arc<JwksCache>) -> Self {
-        Self { config, repository, jwks_cache }
+    pub fn new(
+        config: Config,
+        repository: Box<dyn Repositories>,
+        jwks_cache: Arc<JwksCache>,
+    ) -> Self {
+        Self {
+            config,
+            repository,
+            jwks_cache,
+        }
     }
 }

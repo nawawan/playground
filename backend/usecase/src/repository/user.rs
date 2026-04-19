@@ -1,5 +1,5 @@
-use crate::errors::repo_error::RepoError;
 use super::super::model::user::User;
+use crate::errors::repo_error::RepoError;
 use async_trait::async_trait;
 
 #[async_trait]

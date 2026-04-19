@@ -11,7 +11,11 @@ pub struct Repository {
 
 impl Repository {
     pub fn new(pool: PgPool, r2_client: Client, config: Config) -> Self {
-        Self { pool, r2_client, config }
+        Self {
+            pool,
+            r2_client,
+            config,
+        }
     }
 }
 
