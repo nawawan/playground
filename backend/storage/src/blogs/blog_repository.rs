@@ -14,7 +14,6 @@ use bytes::Bytes;
 #[async_trait]
 impl BlogRepository for Repository {
     async fn get_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
-        // let rows = self.client.query("SELECT * FROM blogs", &[]).await.unwrap();
         return vec![];
     }
 
@@ -102,12 +101,8 @@ impl BlogRepository for Repository {
 #[cfg(test)]
 mod tests {
 
-    use crate::redis::RedisClient;
-    use shared::config::RedisConfig;
-
     use super::*;
     use anyhow::Result;
-    use anyhow::anyhow;
     use aws_config::BehaviorVersion;
     use aws_sdk_s3::Client;
     use shared::config::Config;
@@ -118,17 +113,11 @@ mod tests {
         let repo = Repository::new(
             pool,
             Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await),
-            RedisClient::new(RedisConfig {
-                host: "test".to_string(),
-                port: "6937".to_string(),
-            })
-            .map_err(|e| anyhow!("uni"))
-            .expect("test"),
             Config {
                 host: "test".into(),
                 env: "dev".into(),
-                token_ttl: 300,
-                refresh_ttl: 900,
+                cf_access_team_domain: "test.cloudflareaccess.com".into(),
+                cf_access_aud: "test_aud".into(),
             },
         );
 
@@ -147,17 +136,11 @@ mod tests {
         let repo = Repository::new(
             pool,
             Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await),
-            RedisClient::new(RedisConfig {
-                host: "test".to_string(),
-                port: "6937".to_string(),
-            })
-            .map_err(|e| anyhow!("uni"))
-            .expect("test"),
             Config {
                 host: "test".into(),
                 env: "dev".into(),
-                token_ttl: 300,
-                refresh_ttl: 900,
+                cf_access_team_domain: "test.cloudflareaccess.com".into(),
+                cf_access_aud: "test_aud".into(),
             },
         );
         let blog = Blog {

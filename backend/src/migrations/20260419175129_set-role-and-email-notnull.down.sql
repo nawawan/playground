@@ -1,0 +1,3 @@
+-- Add down migration script here
+ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
+ALTER TABLE users ALTER COLUMN role DROP NOT NULL;
