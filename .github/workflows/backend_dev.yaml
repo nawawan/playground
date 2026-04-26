@@ -15,19 +15,20 @@ jobs:
   check-skip:
     runs-on: ubuntu-latest
     outputs:
-      skip: ${{ steps.check.outputs.skip }}
+      skip: ${{ steps.check.outputs.skip || 'false' }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
       - id: check
+        continue-on-error: true
         run: |
           MSG=$(git log -1 --format='%s')
-          if echo "$MSG" | grep -qi '[skip ci]'; then
-            echo "skip=true" >> $GITHUB_OUTPUT
+          if echo "$MSG" | grep -qi 'skip ci'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
           else
-            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
   lint:
     runs-on: ubuntu-latest
