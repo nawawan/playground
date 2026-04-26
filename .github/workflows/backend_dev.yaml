@@ -12,8 +12,27 @@ on:
       - "cloudbuild.yaml"
 
 jobs:
+  check-skip:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - id: check
+        run: |
+          MSG=$(git log -1 --format='%s')
+          if echo "$MSG" | grep -qi '[skip ci]'; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
   lint:
     runs-on: ubuntu-latest
+    needs: [check-skip]
+    if: needs.check-skip.outputs.skip != 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,6 +50,8 @@ jobs:
         working-directory: backend
   test:
     runs-on: ubuntu-latest
+    needs: [check-skip]
+    if: needs.check-skip.outputs.skip != 'true'
     services:
       postgres:
         image: postgres:16-alpine
@@ -71,8 +92,8 @@ jobs:
         run: cd backend && SQLX_OFFLINE=true cargo test --workspace
   build:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    needs: [lint, test]
+    needs: [check-skip, lint, test]
+    if: needs.check-skip.outputs.skip != 'true'
     environment:
       name: google_cloud
     permissions:
