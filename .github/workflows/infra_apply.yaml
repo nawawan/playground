@@ -86,8 +86,6 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
         working-directory: infrastructure/prod
-        env:
-          TF_VAR_github_token: ${{ secrets.TOKEN_FOR_CLOUDBUILD }}
   apply-prod:
     runs-on: ubuntu-latest
     needs: plan-prod
@@ -113,7 +111,5 @@ jobs:
         run: terraform init -migrate-state -force-copy
         working-directory: infrastructure/prod
       - name: Terraform Apply
-        env:
-          TF_VAR_github_token: ${{ secrets.TOKEN_FOR_CLOUDBUILD }}
         run: terraform apply --auto-approve
         working-directory: infrastructure/prod

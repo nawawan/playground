@@ -14,7 +14,7 @@ resource "google_cloudbuildv2_connection" "cloudbuild_connection" {
 
     authorizer_credential {
       
-      oauth_token_secret_version = "projects/${var.project}/secrets/github-token-secret/versions/14"
+      oauth_token_secret_version = "projects/${var.project}/secrets/${google_secret_manager_secret.github_token.name}/versions/latest"
     }
   }
 }
