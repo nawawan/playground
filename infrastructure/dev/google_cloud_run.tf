@@ -59,22 +59,14 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
             version = "latest"
           }
         }
+      }    
+      env {
+        name = "CF_ACCESS_TEAM_DOMAIN"
+        value = "nawawan.cloudflareaccess.com"
       }
       env {
-        name  = "REDIS_HOST"
-        value = "localhost"
-      }
-      env {
-        name  = "REDIS_PORT"
-        value = 6379
-      }
-      env {
-        name  = "TOKEN_TTL"
-        value = 300
-      }
-      env {
-        name  = "REFRESH_TTL"
-        value = 86400
+        name = "CF_ACCESS_AUD"
+        value = "756ccca02f1b6db0c85afe0ff0edf345ee5a8bed3b56d65f6b6178e9d2bc3b5a"
       }
       env {
         name  = "BLOG_PAGE"
