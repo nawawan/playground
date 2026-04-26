@@ -5,8 +5,6 @@ resource "google_cloudbuildv2_connection" "cloudbuild_connection" {
   depends_on = [
     google_project_service.cloudbuild_prod,
     google_project_service.secretmanager_prod,
-    google_project_iam_member.cloud_build_secret_accessor,
-    google_secret_manager_secret_iam_member.cloud_build_github_token_accessor
   ]
 
   github_config {

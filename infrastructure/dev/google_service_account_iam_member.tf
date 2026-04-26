@@ -11,18 +11,3 @@ resource "google_service_account_iam_member" "nawawan_dev_editor_member" {
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.nawawan_dev_pool.name}/attribute.repository/nawawan/playground"
 }
-
-# tfState用のGCSバケットへのアクセス権限
-resource "google_storage_bucket_iam_member" "nawawan_dev_reader_state_bucket" {
-  provider = google
-  bucket   = "nawawan-dev-terraform-state"
-  role     = "roles/storage.objectAdmin"
-  member   = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
-}
-
-resource "google_storage_bucket_iam_member" "nawawan_dev_editor_state_bucket" {
-  provider = google
-  bucket   = "nawawan-dev-terraform-state"
-  role     = "roles/storage.objectAdmin"
-  member   = "serviceAccount:${google_service_account.nawawan_dev_editor.email}"
-}
