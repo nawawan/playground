@@ -10,6 +10,10 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
     max_instance_count = 3
   }
 
+  lifecycle {
+    ignore_changes = [template[0].containers[0].image]
+  }
+
   template {
     containers {
       image = "asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:latest"
