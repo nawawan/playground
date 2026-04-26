@@ -111,7 +111,5 @@ jobs:
         run: terraform init -migrate-state -force-copy
         working-directory: infrastructure/prod
       - name: Terraform Apply
-        env:
-          TF_VAR_github_token: ${{ secrets.TOKEN_FOR_CLOUDBUILD }}
         run: terraform apply --auto-approve
         working-directory: infrastructure/prod
