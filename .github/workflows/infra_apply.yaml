@@ -30,7 +30,7 @@ jobs:
         run: terraform init
         working-directory: infrastructure/dev
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -lock=false
         working-directory: infrastructure/dev
   apply-dev:
     runs-on: ubuntu-latest
@@ -84,7 +84,7 @@ jobs:
         run: terraform init
         working-directory: infrastructure/prod
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -lock=false
         working-directory: infrastructure/prod
   apply-prod:
     runs-on: ubuntu-latest
