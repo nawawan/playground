@@ -1,28 +1,3 @@
-# prodのArtifact RegistryをdevのService AccountでアクセスできるようにするためのIAM設定 
-resource "google_project_iam_member" "dev_sa_prod_artifact_registry_reader" {
-  project = data.google_project.nawawan_prod.project_id
-  role    = "roles/artifactregistry.reader"
-  member  = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
-}
-
-resource "google_project_iam_member" "dev_cloud_run_service_agent_prod_artifact_registry_reader" {
-  project = data.google_project.nawawan_prod.project_id
-  role    = "roles/artifactregistry.reader"
-  member  = "serviceAccount:service-${data.google_project.nawawan_dev.number}@serverless-robot-prod.iam.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "dev_prod_reader_for_reader" {
-    project = data.google_project.nawawan_prod.project_id
-    role = "roles/viewer"
-    member = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
-}
-
-
-resource "google_project_iam_member" "dev_prod_reader_for_editor" {
-    project = data.google_project.nawawan_prod.project_id
-    role = "roles/viewer"
-    member = "serviceAccount:${google_service_account.nawawan_dev_editor.email}"
-}
 # CI上で用いるSAのdevのprojectへの権限(読み取り専用)
 resource "google_project_iam_member" "nawawan_dev_project_reader_member" {
   provider = google
@@ -45,9 +20,28 @@ resource "google_project_iam_member" "nawawan_dev_project_editor_member" {
   member   = "serviceAccount:${google_service_account.nawawan_dev_editor.email}"
 }
 
-# prodのArtifact RegistryをdevのService AccountでアクセスできるようにするためのIAM設定 
-resource "google_project_iam_member" "dev_sa_prod_artifact_registry_editor" {
-  project = data.google_project.nawawan_prod.project_id
-  role    = "roles/artifactregistry.reader"
-  member  = "serviceAccount:${google_service_account.nawawan_dev_editor.email}"
+# prodのSAへのdevのprojectへの権限(読み取り専用)
+locals {
+  prod_sa_emails = [
+    "serviceAccount:nawawan-prod-reader@nawawan.iam.gserviceaccount.com",
+    "serviceAccount:nawawan-prod-editor@nawawan.iam.gserviceaccount.com"
+  ]
+}
+resource "google_project_iam_member" "nawawan_prod_for_project" {
+  for_each = toset(local.prod_sa_emails)
+  project = var.project
+  role    = "roles/viewer"
+  member  = each.value
+}
+
+resource "google_project_iam_member" "nawawan_prod_editor_for_resource" {
+  project = var.project
+  role    = "roles/resourcemanager.projectIamAdmin"
+  member  = "serviceAccount:nawawan-prod-editor@nawawan.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "nawawan_prod_editor_for_secret" {
+  project = var.project
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:nawawan-prod-editor@nawawan.iam.gserviceaccount.com"
 }

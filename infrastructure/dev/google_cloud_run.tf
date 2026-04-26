@@ -2,16 +2,16 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
   provider = google
   project  = var.project
   location = var.region
-  deletion_protection = true
+  deletion_protection = false
   name     = "nawawan-dev-service"
   ingress = "INGRESS_TRAFFIC_ALL"
 
-  depends_on = [
-    google_project_iam_member.dev_cloud_run_service_agent_prod_artifact_registry_reader
-  ]
-
   scaling {
     max_instance_count = 3
+  }
+
+  lifecycle {
+    ignore_changes = [template[0].containers[0].image]
   }
 
   template {

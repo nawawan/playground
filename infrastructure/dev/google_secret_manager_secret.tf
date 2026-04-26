@@ -10,18 +10,6 @@ resource "google_secret_manager_secret" "dev_database_url" {
     }
 }
 
-resource "google_secret_manager_secret" "dev_password_pepper" {
-    secret_id = "dev-password-pepper"
-
-    labels = {
-        label = "dev-password-pepper"
-    }
-
-    replication {
-      auto {}
-    }
-}
-
 resource "google_secret_manager_secret" "dev_cloudflare_access_key_id" {
     secret_id = "dev_cloudflare_access_key_id"
 

@@ -4,9 +4,11 @@ WORKDIR /usr/workspace/src
 
 COPY . /usr/workspace/
 
-RUN cargo build --release --target x86_64-unknown-linux-musl --out-dir /usr/workspace/target/release
+ENV CARGO_TARGET_DIR=/usr/workspace/target
 
-FROM rust:1.92.0-alpine
+RUN cargo build --release
+
+FROM alpine:3.20
 
 COPY --from=builder /usr/workspace/target/release/backend ./
 
