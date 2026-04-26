@@ -51,7 +51,11 @@ impl IntoResponse for UsecaseError {
                 (StatusCode::UNAUTHORIZED, "UNAUTHORIZED", self.error.message)
             }
             ErrorStatus::Invalid => (StatusCode::BAD_REQUEST, "INVALID", self.error.message),
-            ErrorStatus::PermissionDenied => (StatusCode::FORBIDDEN, "PERMISSION_DENIED", self.error.message),
+            ErrorStatus::PermissionDenied => (
+                StatusCode::FORBIDDEN,
+                "PERMISSION_DENIED",
+                self.error.message,
+            ),
         };
 
         (status, Json(ErrorBody { code, message })).into_response()

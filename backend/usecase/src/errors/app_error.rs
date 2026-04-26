@@ -7,7 +7,7 @@ pub enum ErrorStatus {
     InternalError,
     Unauthorized,
     Invalid,
-    PermissionDenied
+    PermissionDenied,
 }
 
 impl fmt::Display for ErrorStatus {

@@ -96,9 +96,11 @@ impl Handler {
 }
 
 fn validate_admmin(user: &AuthorizedUser) -> Result<(), UsecaseError> {
-    if user.user.role == "admin"  {
+    if user.user.role == "admin" {
         Ok(())
     } else {
-        Err(UsecaseError::permission_denied("User does not have admin role"))
+        Err(UsecaseError::permission_denied(
+            "User does not have admin role",
+        ))
     }
 }
