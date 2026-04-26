@@ -45,7 +45,8 @@ async fn main() {
         .nest("/health", create_health_router(pool))
         .nest("/api", create_blog_router(service))
         .fallback(fallback);
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000")
+    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
         .await
         .expect("error: failed to bind to address");
     let shutdown = ShutdownManager::new();
