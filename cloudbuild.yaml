@@ -9,6 +9,9 @@ steps:
 images:
   - '${_REGION}-docker.pkg.dev/${_PROJECT}/${_REPO_ID}/nawawan-playground:$SHORT_SHA'
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 substitutions:
   _REGION: asia-northeast1
   _PROJECT: nawawan

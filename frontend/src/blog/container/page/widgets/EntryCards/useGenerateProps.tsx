@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { type EntryCardProps } from "../../../../../presentation/EntryCards/EntryCard";
+import { type EntryCardProps } from "../../../../presentation/EntryCards/EntryCard";
 
 export const useGenerateProps = (): EntryCardProps => {
     const navigate  = useNavigate();

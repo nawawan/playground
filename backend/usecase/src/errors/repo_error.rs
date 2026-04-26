@@ -1,6 +1,3 @@
-use std::default;
-
-use redis::RedisError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -11,15 +8,4 @@ pub enum RepoError {
     Internal(String),
     #[error("not found")]
     NotFound(String),
-}
-
-impl From<RedisError> for RepoError {
-    fn from(error: RedisError) -> Self {
-        RepoError::Internal(
-            error
-                .detail()
-                .map(String::from)
-                .unwrap_or("internal".to_string()),
-        )
-    }
 }

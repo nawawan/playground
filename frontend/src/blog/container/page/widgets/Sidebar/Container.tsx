@@ -1,4 +1,4 @@
-import Sidebar from "../../../../../presentation/Sidebar/Sidebar";
+import Sidebar from "../../../../presentation/Sidebar/Sidebar";
 
 import { useGenerateProps } from "./useGenerateProps";
 

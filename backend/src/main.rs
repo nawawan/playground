@@ -8,14 +8,14 @@ use serde_json;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::env;
-use storage::redis::RedisClient;
 use tracing::info;
 use tracing_subscriber;
 
 use std::sync::Arc;
 
 use handler::handler::*;
-use shared::config::{Config, RedisConfig};
+use shared::config::Config;
+use shared::jwks_cache::JwksCache;
 use storage::repository::*;
 use usecase::service::service::*;
 
@@ -27,33 +27,23 @@ async fn main() {
 
     let pool = initialize_db().await;
     let r2_client = initialize_cloud_storage().await;
-    let redis_client = initialize_redis();
     let config = Config {
         host: env::var("PAGE_HOST").expect("PAGE_HOST must be set"),
         env: env::var("ENV").expect("ENV must be set"),
-        token_ttl: env::var("TOKEN_TTL")
-            .expect("TOKEN_TTL must be set")
-            .parse::<u64>()
-            .unwrap_or(300),
-        refresh_ttl: env::var("REFRESH_TTL")
-            .expect("REFRESH_TTL must be set")
-            .parse::<u64>()
-            .unwrap_or(300),
+        cf_access_team_domain: env::var("CF_ACCESS_TEAM_DOMAIN")
+            .expect("CF_ACCESS_TEAM_DOMAIN must be set"),
+        cf_access_aud: env::var("CF_ACCESS_AUD").expect("CF_ACCESS_AUD must be set"),
     };
 
-    let repository = Box::new(Repository::new(
-        pool.clone(),
-        r2_client,
-        redis_client,
-        config.clone(),
-    ));
-    let service = Arc::new(Service::new(config, repository));
+    let jwks_cache = JwksCache::new(config.cf_access_team_domain.clone());
+
+    let repository = Box::new(Repository::new(pool.clone(), r2_client, config.clone()));
+    let service = Arc::new(Service::new(config, repository, jwks_cache));
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .nest("/health", create_health_router(pool))
-        .nest("/api", create_blog_router(service.clone()))
-        .nest("/users", create_users_router(service))
+        .nest("/api", create_blog_router(service))
         .fallback(fallback);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000")
         .await
@@ -83,14 +73,6 @@ fn create_blog_router(service: Arc<Service>) -> Router {
         .with_state(service);
 
     Router::new().nest("/blogs", blog_routers)
-}
-
-fn create_users_router(service: Arc<Service>) -> Router {
-    Router::new()
-        .route("/admin/login", post(Handler::login_admin))
-        .route("/logout", post(Handler::logout))
-        .fallback(api_fallback)
-        .with_state(service)
 }
 
 fn create_health_router(pool: PgPool) -> Router {
@@ -129,15 +111,6 @@ async fn initialize_cloud_storage() -> Client {
         .load()
         .await;
     Client::new(&config)
-}
-
-fn initialize_redis() -> RedisClient {
-    let config = RedisConfig {
-        host: env::var("REDIS_HOST").expect("REDIS_HOST must be set"),
-        port: env::var("REDIS_PORT").expect("REDIS_PORT must be set"),
-    };
-
-    RedisClient::new(config).expect("creating redis client failed")
 }
 
 async fn fallback() -> (StatusCode, &'static str) {
