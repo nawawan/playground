@@ -42,6 +42,6 @@ resource "google_project_iam_member" "dev_prod_reader_for_editor" {
 
 resource "google_project_iam_member" "dev_sa_prod_artifact_registry_editor" {
   project = "nawawan"
-  role    = "roles/artifactregistry.reader"
+  role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:nawawan-dev-editor@nawawan-dev.iam.gserviceaccount.com"
 }

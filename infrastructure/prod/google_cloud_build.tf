@@ -25,44 +25,43 @@ resource "google_cloudbuildv2_repository" "playground_repository" {
   remote_uri        = var.github_repository_uri
 }
 
-resource "google_cloudbuild_trigger" "cloudbuild_trigger_push" {
-  provider    = google-beta
-  project     = var.project
-  location    = var.region
-  name        = "cloudbuild-trigger"
-  description = "Cloud Build trigger for GitHub repository"
+# resource "google_cloudbuild_trigger" "cloudbuild_trigger_push" {
+#   provider    = google-beta
+#   project     = var.project
+#   location    = var.region
+#   name        = "cloudbuild-trigger"
+#   description = "Cloud Build trigger for GitHub repository"
 
-  service_account = "projects/${var.project}/serviceAccounts/${data.google_project.nawawan.number}-compute@developer.gserviceaccount.com"
+#   service_account = "projects/${var.project}/serviceAccounts/${data.google_project.nawawan.number}-compute@developer.gserviceaccount.com"
 
-  repository_event_config {
-    repository = google_cloudbuildv2_repository.playground_repository.id
+#   repository_event_config {
+#     repository = google_cloudbuildv2_repository.playground_repository.id
 
-    push {
-      branch = "^main$"
-    }
-  }
+#     push {
+#       branch = "^main$"
+#     }
+#   }
 
-  filename = "cloudbuild.yaml"
-}
+#   filename = "cloudbuild.yaml"
+# }
 
-resource "google_cloudbuild_trigger" "cloudbuild_trigger_pr" {
-  provider    = google-beta
-  project     = var.project
-  location    = var.region
-  name        = "cloudbuild-trigger"
-  description = "Cloud Build trigger for GitHub repository for pull requests"
+# resource "google_cloudbuild_trigger" "cloudbuild_trigger_pr" {
+#   provider    = google-beta
+#   project     = var.project
+#   location    = var.region
+#   name        = "cloudbuild-trigger"
+#   description = "Cloud Build trigger for GitHub repository for pull requests"
 
-  service_account = "projects/${var.project}/serviceAccounts/${data.google_project.nawawan.number}-compute@developer.gserviceaccount.com"
+#   service_account = "projects/${var.project}/serviceAccounts/${data.google_project.nawawan.number}-compute@developer.gserviceaccount.com"
 
-  repository_event_config {
-    repository = google_cloudbuildv2_repository.playground_repository.id
+#   repository_event_config {
+#     repository = google_cloudbuildv2_repository.playground_repository.id
 
-    pull_request {
-      branch       = "^main$"
-      invert_regex = true
-    }
-  }
+#     pull_request {
+#       branch       = "^main$"
+#     }
+#   }
 
-  filename = "cloudbuild.yaml"
-}
+#   filename = "cloudbuild.yaml"
+# }
 

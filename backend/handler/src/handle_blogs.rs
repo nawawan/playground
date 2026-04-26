@@ -37,10 +37,15 @@ impl Handler {
     }
 
     pub async fn create_blog(
-        _: AuthorizedUser,
+        user: AuthorizedUser,
         state: State<Arc<Service>>,
         Json(req): Json<CreateBlogRequest>,
     ) -> Result<Json<BlogResponse>, UsecaseError> {
+        if let Err(e) = validate_admmin(&user) {
+            error!("Permission denied: {}", e.error.message);
+            return Err(e);
+        }
+
         let blog_req = BlogRequest {
             title: req.title,
             content: req.content,
@@ -57,10 +62,15 @@ impl Handler {
     }
 
     pub async fn upload_blog_image(
-        _: AuthorizedUser,
+        user: AuthorizedUser,
         state: State<Arc<Service>>,
         mut multipart: Multipart,
     ) -> Result<Json<ImageResponse>, UsecaseError> {
+        if let Err(e) = validate_admmin(&user) {
+            error!("Permission denied: {}", e.error.message);
+            return Err(e);
+        }
+
         while let Some(field) = multipart
             .next_field()
             .await
@@ -82,5 +92,15 @@ impl Handler {
                 .map_err(UsecaseError::from);
         }
         Err(UsecaseError::bad_request("No image field in multipart"))
+    }
+}
+
+fn validate_admmin(user: &AuthorizedUser) -> Result<(), UsecaseError> {
+    if user.user.role == "admin" {
+        Ok(())
+    } else {
+        Err(UsecaseError::permission_denied(
+            "User does not have admin role",
+        ))
     }
 }

@@ -9,7 +9,7 @@ on:
       - "README.md"
       - ".github/**"
       - ".gitignore"
-      - "cloudbuild"
+      - "cloudbuild.yaml"
 jobs:
   plan-dev:
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -35,7 +35,7 @@ jobs:
         run: terraform init
         working-directory: infrastructure/dev
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -lock=false
         working-directory: infrastructure/dev
   plan-prod:
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -61,5 +61,5 @@ jobs:
         run: terraform init
         working-directory: infrastructure/prod
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -lock=false
         working-directory: infrastructure/prod

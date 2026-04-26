@@ -7,6 +7,7 @@ pub enum ErrorStatus {
     InternalError,
     Unauthorized,
     Invalid,
+    PermissionDenied,
 }
 
 impl fmt::Display for ErrorStatus {
@@ -17,6 +18,7 @@ impl fmt::Display for ErrorStatus {
             ErrorStatus::InternalError => write!(f, "Internal Error"),
             ErrorStatus::Unauthorized => write!(f, "Unauthorized"),
             ErrorStatus::Invalid => write!(f, "Invalid"),
+            ErrorStatus::PermissionDenied => write!(f, "Permission Denied"),
         }
     }
 }
@@ -88,6 +90,19 @@ impl AppError {
             None => AppError {
                 status: ErrorStatus::Invalid,
                 message: "Invalid request".into(),
+            },
+        }
+    }
+
+    pub fn permission_denied(message: Option<&str>) -> Self {
+        match message {
+            Some(msg) => AppError {
+                status: ErrorStatus::PermissionDenied,
+                message: msg.into(),
+            },
+            None => AppError {
+                status: ErrorStatus::PermissionDenied,
+                message: "Permission denied".into(),
             },
         }
     }
