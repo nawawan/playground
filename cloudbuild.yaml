@@ -16,6 +16,3 @@ substitutions:
   _REGION: asia-northeast1
   _PROJECT: nawawan
   _REPO_ID: nawawan-prod-repository
-
-options:
-  logging: CLOUD_LOGGING_ONLY
