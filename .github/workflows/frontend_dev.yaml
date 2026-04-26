@@ -63,7 +63,7 @@ jobs:
       - run: cd frontend/src/maze-creator/wasm && LOG_LEVEL=Info wasm-pack build --target bundler --out-dir ../wasm/pkg
       - run: cd frontend && npm ci && npm run build
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: maze-creator-frontend
           path: frontend/dist
