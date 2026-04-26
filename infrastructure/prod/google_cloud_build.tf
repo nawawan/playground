@@ -5,15 +5,13 @@ resource "google_cloudbuildv2_connection" "cloudbuild_connection" {
   depends_on = [
     google_project_service.cloudbuild_prod,
     google_project_service.secretmanager_prod,
-    google_project_iam_member.cloud_build_secret_accessor,
-    google_secret_manager_secret_iam_member.cloud_build_github_token_accessor
   ]
 
   github_config {
     app_installation_id = 84909474
 
     authorizer_credential {
-      
+
       oauth_token_secret_version = "${google_secret_manager_secret.github_token.id}/versions/latest"
     }
   }
@@ -60,8 +58,8 @@ resource "google_cloudbuild_trigger" "cloudbuild_trigger_pr" {
     repository = google_cloudbuildv2_repository.playground_repository.id
 
     pull_request {
-    branch       = "^main$"
-    invert_regex = true
+      branch       = "^main$"
+      invert_regex = true
     }
   }
 
