@@ -9,7 +9,7 @@ on:
       - "README.md"
       - ".github/**"
       - ".gitignore"
-      - "cloudbuild"
+      - "cloudbuild.yaml"
 jobs:
   plan-dev:
     runs-on: ubuntu-latest
