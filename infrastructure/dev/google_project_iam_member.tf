@@ -7,9 +7,9 @@ resource "google_project_iam_member" "nawawan_dev_project_reader_member" {
 }
 
 resource "google_project_iam_member" "nawawan_dev_secret_accessor" {
-    project = var.project
-    role = "roles/secretmanager.secretAccessor"
-    member = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
+  project = var.project
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.nawawan_dev_reader.email}"
 }
 
 # CIのapply用SAのdevのprojectへの権限(編集者)
@@ -29,9 +29,9 @@ locals {
 }
 resource "google_project_iam_member" "nawawan_prod_for_project" {
   for_each = toset(local.prod_sa_emails)
-  project = var.project
-  role    = "roles/viewer"
-  member  = each.value
+  project  = var.project
+  role     = "roles/viewer"
+  member   = each.value
 }
 
 resource "google_project_iam_member" "nawawan_prod_editor_for_resource" {

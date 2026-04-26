@@ -13,7 +13,7 @@ resource "google_cloudbuildv2_connection" "cloudbuild_connection" {
     app_installation_id = 84909474
 
     authorizer_credential {
-      
+
       oauth_token_secret_version = "${google_secret_manager_secret.github_token.id}/versions/latest"
     }
   }
@@ -60,8 +60,8 @@ resource "google_cloudbuild_trigger" "cloudbuild_trigger_pr" {
     repository = google_cloudbuildv2_repository.playground_repository.id
 
     pull_request {
-    branch       = "^main$"
-    invert_regex = true
+      branch       = "^main$"
+      invert_regex = true
     }
   }
 
