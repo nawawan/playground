@@ -23,6 +23,16 @@ impl UsecaseError {
             error: AppError::unauthorized(Some(message)),
         }
     }
+    pub fn not_found(message: &str) -> Self {
+        UsecaseError {
+            error: AppError::not_found(Some(message)),
+        }
+    }
+    pub fn permission_denied(message: &str) -> Self {
+        UsecaseError {
+            error: AppError::permission_denied(Some(message)),
+        }
+    }
 }
 
 impl IntoResponse for UsecaseError {
@@ -41,6 +51,7 @@ impl IntoResponse for UsecaseError {
                 (StatusCode::UNAUTHORIZED, "UNAUTHORIZED", self.error.message)
             }
             ErrorStatus::Invalid => (StatusCode::BAD_REQUEST, "INVALID", self.error.message),
+            ErrorStatus::PermissionDenied => (StatusCode::FORBIDDEN, "PERMISSION_DENIED", self.error.message),
         };
 
         (status, Json(ErrorBody { code, message })).into_response()
