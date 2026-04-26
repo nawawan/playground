@@ -15,6 +15,8 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
   }
 
   template {
+    service_account = google_service_account.nawawan_dev_reader.email
+
     containers {
       image = "asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:latest"
 
