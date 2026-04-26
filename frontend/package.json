@@ -23,9 +23,9 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.14.0",
-    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-top-level-await": "^1.2.2",
     "vite-plugin-wasm": "^3.5.0",
-    "wrangler": "^4.34.0"
+    "wrangler": "^4.85.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.3",
