@@ -6,15 +6,14 @@ export type HomePageProps = {
     title: string;
     description: string;
   }[];
-  onLoginClick?: () => void;
+  onAdminClick?: () => void;
   onContentClick?: (id: string) => void;
-  LoginDialog: React.ReactNode;
 };
 
 export const HomePage = (props: HomePageProps) => {
-  const { contents, onLoginClick, onContentClick, LoginDialog } = props;
+  const { contents, onAdminClick, onContentClick } = props;
   return (
-    <Box sx={{ 
+    <Box sx={{
       minHeight: "100vh",
       width: "100%",
       display: "flex",
@@ -30,11 +29,10 @@ export const HomePage = (props: HomePageProps) => {
         }}
       >
         <Typography variant="h4">nawa&apos;s page</Typography>
-        <Button variant="outlined" onClick={onLoginClick}>
-          ログイン
+        <Button variant="outlined" onClick={onAdminClick}>
+          管理者
         </Button>
       </Box>
-      {LoginDialog}
       <Box sx={{ mb: 2 }}>
         <Typography variant="h5">Contents</Typography>
         <Divider sx={{ mt: 1 }} />
