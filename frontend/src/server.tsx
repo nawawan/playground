@@ -3,6 +3,8 @@ import { StaticRouter } from 'react-router-dom';
 import { renderToString } from 'react-dom/server';
 import { BlogTopContainer } from './blog/container/page/Container';
 
+import blogs from './backend/pages/blogs';
+
 type Bindings = {
   ASSETS: {
     fetch: typeof fetch;
@@ -38,8 +40,7 @@ app.get('/blogs', (c) => {
   )
 })
 
-// app.get('/blog', (c) => {
-//   return c.redirect('/maze/');
-// });
+
+app.route('/api/blogs', blogs);
 
 export default app;

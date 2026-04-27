@@ -17,6 +17,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@hono/zod-validator": "^0.7.6",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "hono": "^4.12.10",
@@ -25,7 +26,8 @@
     "react-router-dom": "^7.14.0",
     "vite-plugin-top-level-await": "^1.2.2",
     "vite-plugin-wasm": "^3.5.0",
-    "wrangler": "^4.85.0"
+    "wrangler": "^4.85.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.3",
