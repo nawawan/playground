@@ -9,6 +9,7 @@ type Bindings = {
   ASSETS: {
     fetch: typeof fetch;
   };
+  API_URL: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
