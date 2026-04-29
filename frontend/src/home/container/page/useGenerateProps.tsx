@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import { type HomePageProps } from '../../presentation/page/HomePage';
+import { CheckAuthorizedUser } from '../../../helper/CheckUser';
 
 export const useGenerateProps = (): HomePageProps => {
     const navigate = useNavigate();
@@ -12,8 +13,13 @@ export const useGenerateProps = (): HomePageProps => {
         onContentClick: (id: string) => {
             navigate(`/${id}`);
         },
-        onAdminClick: () => {
-            window.location.href = '/admin';
+        onAdminClick: async () => {
+            const isAuthorized = await CheckAuthorizedUser();
+            if (isAuthorized) {
+                navigate('/admin');
+            } else {
+                window.location.href = '/admin';
+            }
         },
     };
 };
