@@ -13,7 +13,7 @@ export const useGenerateProps = (): HomePageProps => {
             navigate(`/${id}`);
         },
         onAdminClick: () => {
-            navigate('/admin');
+            window.location.href = '/admin';
         },
     };
 };
