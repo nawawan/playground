@@ -1,0 +1,5 @@
+# .github/CODEOWNERS
+.github/  @nawawan
+frontend/ @nawawan
+backend/ @nawawan
+infrastructure/ @nawawan
