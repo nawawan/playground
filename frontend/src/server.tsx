@@ -3,10 +3,13 @@ import { StaticRouter } from 'react-router-dom';
 import { renderToString } from 'react-dom/server';
 import { BlogTopContainer } from './blog/container/page/Container';
 
+import blogs from './backend/pages/blogs';
+
 type Bindings = {
   ASSETS: {
     fetch: typeof fetch;
   };
+  API_URL: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -38,8 +41,12 @@ app.get('/blogs', (c) => {
   )
 })
 
-// app.get('/blog', (c) => {
-//   return c.redirect('/maze/');
-// });
+
+app.route('/api/blogs', blogs);
+
+app.get('*', (c) => {
+  const url = new URL('/', c.req.url);
+  return c.env.ASSETS.fetch(new Request(url.toString()));
+});
 
 export default app;

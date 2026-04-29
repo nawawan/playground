@@ -1,0 +1,19 @@
+name = "nawawan"
+main = "src/server.tsx"
+compatibility_date = "2026-03-17"
+
+[vars]
+API_URL = "https://nawawan-dev-service-444290623091.asia-northeast1.run.app:8080"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+[env.preview]
+workers_dev = true
+
+[env.production]
+workers_dev = false
+routes = [
+  { pattern = "nawawan.com/*" },
+]
