@@ -44,4 +44,9 @@ app.get('/blogs', (c) => {
 
 app.route('/api/blogs', blogs);
 
+app.get('*', (c) => {
+  const url = new URL('/index.html', c.req.url);
+  return c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
+});
+
 export default app;
