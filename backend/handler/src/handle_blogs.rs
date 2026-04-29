@@ -25,8 +25,8 @@ impl Handler {
         let month = params.get("month");
 
         let service = state.0.clone();
-
-        service.get_blogs(year, month);
+        
+        let blogs = service.get_blogs(year, month);
 
         Json(serde_json::json!({
             "status": "success",

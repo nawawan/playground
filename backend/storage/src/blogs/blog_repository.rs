@@ -14,7 +14,16 @@ use bytes::Bytes;
 #[async_trait]
 impl BlogRepository for Repository {
     async fn get_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
-        return vec![];
+        let mut builder = sqlx::QueryBuilder::new("SELECT id, title, content_key, status FROM blogs WHERE 1=1");
+        filter.apply(&mut builder);
+        builder
+            .build_query_as::<Blog>()
+            .fetch_all(&self.pool)
+            .await
+            .unwrap_or_else(|e| {
+                error!("Failed to get blogs: {}", e);
+                vec![]
+            })
     }
 
     async fn create_draft(&self, tx: &mut Transaction<'_>) -> Result<String, RepoError> {

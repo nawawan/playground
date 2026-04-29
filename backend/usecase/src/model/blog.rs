@@ -20,21 +20,37 @@ impl fmt::Display for BlogStatus {
     }
 }
 
-#[derive(Debug, Clone)]
+impl TryFrom<String> for BlogStatus {
+    type Error = String;
+    fn try_from(s: String) -> Result<Self, Self::Error> {
+        match s.as_str() {
+            "DRAFT" => Ok(BlogStatus::Draft),
+            "PUBLISHED" => Ok(BlogStatus::Published),
+            _ => Err(format!("Unknown blog status: {}", s)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
 pub struct Blog {
     pub id: Uuid,
     pub title: String,
     pub content_key: String,
+    #[sqlx(try_from = "String")]
     pub status: BlogStatus,
 }
 
 #[derive(Debug, Clone)]
-pub struct BlogRequest {
+pub struct CreateBlogRequest {
     pub title: String,
     pub content: String,
 }
 
 pub struct BlogFilter {
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+    pub order_by: Option<String>,
+    pub order_desc: Option<bool>,
     pub start: Option<NaiveDateTime>,
     pub end: Option<NaiveDateTime>,
 }
@@ -42,7 +58,31 @@ pub struct BlogFilter {
 impl BlogFilter {
     pub fn new(year: Option<&String>, month: Option<&String>) -> Self {
         let (start, end) = converter_string_to_datetime(year, month);
-        Self { start, end }
+        Self { start, end, order_by: None, limit: None, offset: None, order_desc: None }
+    }
+
+    pub fn apply(&self, query: &mut sqlx::QueryBuilder<sqlx::Postgres>) {
+        if let Some(start) = self.start {
+            query.push(" AND created_at >= ").push_bind(start);
+        }
+        if let Some(end) = self.end {
+            query.push(" AND created_at <= ").push_bind(end);
+        }
+        if let Some(order_by) = &self.order_by {
+            query.push(" ORDER BY ").push(order_by);
+            if self.order_desc == Some(true) {
+                query.push(" DESC");
+            } else {
+                query.push(" ASC");
+            }
+        }
+
+        if let Some(limit) = self.limit {
+            query.push(" LIMIT ").push_bind(limit);
+        }
+        if let Some(offset) = self.offset {
+            query.push(" OFFSET ").push_bind(offset);
+        }
     }
 }
 
