@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import type { BlogProps } from "../../../presentation/page/blog_id/Blog";
 import SidebarContainer from "../blogs/widgets/Sidebar/Container";
