@@ -12,9 +12,6 @@ export const Unauthorized = () => {
         gap: 2,
       }}
     >
-      <Typography variant="h4" fontWeight={600}>
-        401
-      </Typography>
       <Typography variant="h6" color="text.secondary">
         認証済みユーザではありません
       </Typography>
