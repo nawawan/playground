@@ -1,14 +1,16 @@
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Unauthorized from "../errors/Unauthorized";
 import { CheckAuthorizedUser } from "../helper/CheckUser";
 
 export const RequireAuth = () => {
-    const isAuthorized = CheckAuthorizedUser();
+    const [state, setState] = useState<"loading" | "authorized" | "unauthorized">("loading");
 
-    console.log('isAuthorized', isAuthorized);
+    useEffect(() => {
+        CheckAuthorizedUser().then(ok => setState(ok ? "authorized" : "unauthorized"));
+    }, []);
 
-    if (!isAuthorized) {
-        return <Unauthorized />;
-    }
+    if (state === "loading") return null;
+    if (state === "unauthorized") return <Unauthorized />;
     return <Outlet />;
 };

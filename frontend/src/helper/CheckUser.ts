@@ -1,18 +1,14 @@
 // 認証済み(ログインユーザー)は管理者しかいない。
-// そのため、JWTがないユーザだけ弾く
-export const CheckAuthorizedUser = () => {
+// CF_Authorization は HttpOnly のため JS から読めないので /cdn-cgi/access/get-identity で検証する
+let _cached: boolean | null = null;
+
+export const CheckAuthorizedUser = async (): Promise<boolean> => {
+    if (_cached !== null) return _cached;
     try {
-
-        console.log('document.cookie', document.cookie);
-        const cfToken = document.cookie
-            .split(';')
-            .map(c => c.trim())
-            .find(c => c.startsWith('CF_Authorization='))
-            ?.split('=')[1];
-
-        console.log('cfToken', cfToken);
-        return !!cfToken;
+        const res = await fetch('/cdn-cgi/access/get-identity');
+        _cached = res.ok;
     } catch {
-        return false;
+        _cached = false;
     }
-}
+    return _cached;
+};
