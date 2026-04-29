@@ -1,4 +1,4 @@
-import { type SidebarProps } from "../../../../presentation/Sidebar/Sidebar";
+import { type SidebarProps } from "../../../../../presentation/Sidebar/Sidebar";
 
 export const useGenerateProps = (): SidebarProps => {
     // 本当はDBからブログを取得する想定だが、一旦決め打ちで年月を返す

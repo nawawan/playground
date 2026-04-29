@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { StaticRouter } from 'react-router-dom';
 import { renderToString } from 'react-dom/server';
-import { BlogTopContainer } from './blog/container/page/Container';
+import { BlogTopContainer } from './blog/container/page/blogs/Container';
 
 import blogs from './backend/pages/blogs';
 

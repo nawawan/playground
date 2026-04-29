@@ -1,6 +1,6 @@
 import MazeCreatorPage from "./maze-creator/container/MazeCreatorPage";
 import HomePageContainer from "./home/container/page/Container";
-import { BlogTopContainer } from "./blog/container/page/Container";
+import { BlogTopContainer } from "./blog/container/page/blogs/Container";
 import AdminHomeContainer from "./admin/container/page/Container";
 import { RequireAuth } from "./auth/RequireAuth";
 
