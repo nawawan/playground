@@ -18,7 +18,7 @@ use usecase::service::blog::blog_service::BlogService;
 use usecase::service::service::Service;
 
 impl Handler {
-    pub async fn get_blogs(
+    pub async fn list_blogs(
         Query(params): Query<HashMap<String, String>>,
         state: State<Arc<Service>>,
     ) -> Json<serde_json::Value> {
@@ -40,16 +40,17 @@ impl Handler {
     pub async fn get_blog(        
         state: State<Arc<Service>>,
         Json(req): Json<GetBlogRequest>
-    ) -> Json<serde_json::Value> {
+    ) -> Result<Json<serde_json::Value>, UsecaseError> {
         let service = state.0.clone();
 
-        let blog = service.get_blog(req.id).await;
-        Json(serde_json::json!({
+        let blog = service.get_blog(req.id).await?;
+
+        Ok(Json(serde_json::json!({
             "status": "success",
             "data": {
-                "blog": null
+                "blog": BlogResponse::from(blog)
             }
-        }))
+        })))
 
     }
 

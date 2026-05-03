@@ -67,8 +67,8 @@ async fn main() {
 
 fn create_blog_router(service: Arc<Service>) -> Router {
     let blog_routers = Router::new()
-        .route("/", get(Handler::get_blogs).post(Handler::create_blog))
-        .route("/{id}", get(|| async { "Blog get by ID" }))
+        .route("/", get(Handler::list_blogs).post(Handler::create_blog))
+        .route("/{id}", get(Handler::get_blog))
         .route("/images", post(Handler::upload_blog_image))
         .fallback(api_fallback)
         .with_state(service);
