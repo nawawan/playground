@@ -6,9 +6,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::error;
 
-use crate::model::image::ImageResponse;
 use crate::extractor::AuthorizedUser;
-use crate::model::blog::{GetBlogRequest, BlogResponse};
+use crate::model::blog::{BlogResponse, GetBlogRequest};
+use crate::model::image::ImageResponse;
 
 use super::error::UsecaseError;
 use super::handler::Handler;
@@ -26,7 +26,7 @@ impl Handler {
         let month = params.get("month");
 
         let service = state.0.clone();
-        
+
         let blogs = service.list_blogs(year, month).await;
 
         Json(serde_json::json!({
@@ -37,9 +37,9 @@ impl Handler {
         }))
     }
 
-    pub async fn get_blog(        
+    pub async fn get_blog(
         state: State<Arc<Service>>,
-        Json(req): Json<GetBlogRequest>
+        Json(req): Json<GetBlogRequest>,
     ) -> Result<Json<serde_json::Value>, UsecaseError> {
         let service = state.0.clone();
 
@@ -51,7 +51,6 @@ impl Handler {
                 "blog": BlogResponse::from(blog)
             }
         })))
-
     }
 
     pub async fn create_blog(

@@ -20,7 +20,6 @@ impl fmt::Display for BlogStatus {
     }
 }
 
-
 impl From<String> for BlogStatus {
     fn from(status: String) -> Self {
         match status.as_str() {
@@ -30,7 +29,6 @@ impl From<String> for BlogStatus {
         }
     }
 }
-
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct Blog {
@@ -59,7 +57,14 @@ pub struct BlogFilter {
 impl BlogFilter {
     pub fn new(year: Option<&String>, month: Option<&String>) -> Self {
         let (start, end) = converter_string_to_datetime(year, month);
-        Self { start, end, order_by: None, limit: None, offset: None, order_desc: None }
+        Self {
+            start,
+            end,
+            order_by: None,
+            limit: None,
+            offset: None,
+            order_desc: None,
+        }
     }
 
     pub fn apply(&self, query: &mut sqlx::QueryBuilder<sqlx::Postgres>) {
