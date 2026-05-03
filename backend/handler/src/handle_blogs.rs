@@ -26,14 +26,30 @@ impl Handler {
 
         let service = state.0.clone();
         
-        let blogs = service.get_blogs(year, month);
+        let blogs = service.list_blogs(year, month).await;
 
         Json(serde_json::json!({
             "status": "success",
             "data": {
-                "id": params.get("id").unwrap_or(&"unknown".to_string())
+                "blogs": blogs.into_iter().map(BlogResponse::from).collect::<Vec<_>>()
             }
         }))
+    }
+
+    pub async fn get_blog(        
+        state: State<Arc<Service>>,
+        Json(req): Json<CreateBlogRequest>
+    ) -> Json<serde_json::Value> {
+        let service = state.0.clone();
+
+        let blog = service.get_blog(req.id).await;
+        Json(serde_json::json!({
+            "status": "success",
+            "data": {
+                "blog": null
+            }
+        }))
+
     }
 
     pub async fn create_blog(

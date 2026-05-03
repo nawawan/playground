@@ -1,5 +1,5 @@
 use crate::errors::app_error::AppError;
-use crate::model::blog::{Blog, BlogFilter, BlogStatus, CreateBlogRequest};
+use crate::model::blog::{Blog, BlogFilter, BlogStatus, BlogRequest};
 use crate::model::image::Image;
 
 use super::super::service::Service;
@@ -11,19 +11,30 @@ use uuid::Uuid;
 
 #[async_trait]
 pub trait BlogService {
-    async fn get_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog>;
-    async fn create_blog(&self, blog: CreateBlogRequest) -> Result<Blog, AppError>;
+    async fn get_blog(&self, id: String) -> Result<Blog, AppError>;
+    async fn list_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog>;
+    async fn create_blog(&self, blog: BlogRequest) -> Result<Blog, AppError>;
     async fn create_draft(&self) -> Result<String, AppError>;
     async fn upload_blog_image(&self, image_data: Bytes) -> Result<Image, AppError>;
 }
 
 #[async_trait]
 impl BlogService for Service {
-    async fn get_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog>{
+    async fn list_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog>{
         let filter = BlogFilter::new(year, month);
         let blogs = self.repository.get_blogs(filter).await;
 
         blogs
+    }
+
+    async fn get_blog(&self, id: String) -> Result<Blog, AppError> {
+        let blog = self.repository.get_blog(id)
+            .await
+            .map_err(|e| {
+                error!("Failed to get blog by id: {}, err: {}", id, e);
+                AppError::internal(Some("Failed to get blog"))
+            })?;
+        Ok(blog)
     }
 
     async fn create_draft(&self) -> Result<String, AppError> {
@@ -36,7 +47,7 @@ impl BlogService for Service {
         Ok(id)
     }
 
-    async fn create_blog(&self, blog_req: CreateBlogRequest) -> Result<Blog, AppError> {
+    async fn create_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
         let uuid = Uuid::now_v7();
         let blog_url = env::var("BLOG_PAGE");
 
