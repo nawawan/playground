@@ -7,7 +7,8 @@ use std::sync::Arc;
 use tracing::error;
 
 use crate::model::image::ImageResponse;
-use crate::{extractor::AuthorizedUser, model::blog::BlogResponse};
+use crate::extractor::AuthorizedUser;
+use crate::model::blog::{GetBlogRequest, BlogResponse};
 
 use super::error::UsecaseError;
 use super::handler::Handler;
@@ -38,7 +39,7 @@ impl Handler {
 
     pub async fn get_blog(        
         state: State<Arc<Service>>,
-        Json(req): Json<CreateBlogRequest>
+        Json(req): Json<GetBlogRequest>
     ) -> Json<serde_json::Value> {
         let service = state.0.clone();
 

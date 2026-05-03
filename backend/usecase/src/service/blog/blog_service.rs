@@ -1,5 +1,6 @@
 use crate::errors::app_error::AppError;
 use crate::model::blog::{Blog, BlogFilter, BlogStatus, BlogRequest};
+use crate::model::helper::uuid_from_string;
 use crate::model::image::Image;
 
 use super::super::service::Service;
@@ -22,13 +23,13 @@ pub trait BlogService {
 impl BlogService for Service {
     async fn list_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog>{
         let filter = BlogFilter::new(year, month);
-        let blogs = self.repository.get_blogs(filter).await;
+        let blogs = self.repository.list_blogs(filter).await;
 
         blogs
     }
 
     async fn get_blog(&self, id: String) -> Result<Blog, AppError> {
-        let blog = self.repository.get_blog(id)
+        let blog = self.repository.get_blog(uuid_from_string(&id)?)
             .await
             .map_err(|e| {
                 error!("Failed to get blog by id: {}, err: {}", id, e);

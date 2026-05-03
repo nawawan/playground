@@ -20,16 +20,17 @@ impl fmt::Display for BlogStatus {
     }
 }
 
-impl TryFrom<String> for BlogStatus {
-    type Error = String;
-    fn try_from(s: String) -> Result<Self, Self::Error> {
-        match s.as_str() {
-            "DRAFT" => Ok(BlogStatus::Draft),
-            "PUBLISHED" => Ok(BlogStatus::Published),
-            _ => Err(format!("Unknown blog status: {}", s)),
+
+impl From<String> for BlogStatus {
+    fn from(status: String) -> Self {
+        match status.as_str() {
+            "DRAFT" => BlogStatus::Draft,
+            "PUBLISHED" => BlogStatus::Published,
+            _ => panic!("Unknown blog status: {}", status),
         }
     }
 }
+
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 pub struct Blog {
