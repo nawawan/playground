@@ -9,7 +9,8 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait BlogRepository: Send + Sync {
-    async fn get_blogs(&self, filter: BlogFilter) -> Vec<Blog>;
+    async fn get_blog(&self, id: String) -> Result<Blog, RepoError>;
+    async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog>;
     async fn create_draft(&self, tx: &mut Transaction<'_>) -> Result<String, RepoError>;
     async fn create_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError>;
     async fn upload_image(&self, blog_id: String, image_data: Bytes) -> Result<Image, RepoError>;

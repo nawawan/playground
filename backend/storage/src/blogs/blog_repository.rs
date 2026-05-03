@@ -13,7 +13,25 @@ use bytes::Bytes;
 
 #[async_trait]
 impl BlogRepository for Repository {
-    async fn get_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
+    async fn get_blog(&self, id: String) -> Result<Blog, RepoError> {
+        sqlx::query_as!(
+            Blog,
+            "SELECT id, title, content_key, status FROM blogs WHERE id = $1",
+            id
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| {
+            if e == sqlx::Error::RowNotFound {
+                error!("Blog not found with id: {}", id);
+                return RepoError::NotFound(format!("Blog not found with id: {}", id));
+            }
+            error!("Failed to get blog by id: {}, err: {}", id, e);
+            RepoError::Internal("Failed to get blog".to_string())
+        })
+    }
+
+    async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
         let mut builder = sqlx::QueryBuilder::new("SELECT id, title, content_key, status FROM blogs WHERE 1=1");
         filter.apply(&mut builder);
         builder

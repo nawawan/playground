@@ -7,6 +7,16 @@ pub struct CreateBlogRequest {
 }
 
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+pub struct GetBlogRequest {
+    pub id: String,
+}
+
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+pub struct GetBlogResponse {
+    pub blog: BlogResponse,
+}
+
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct BlogResponse {
     pub id: String,
     pub title: String,
