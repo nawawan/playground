@@ -1,6 +1,6 @@
 use axum::{
     Json,
-    extract::{Multipart, Query, State},
+    extract::{Multipart, Path, Query, State},
 };
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -39,12 +39,11 @@ impl Handler {
 
     pub async fn get_blog(
         state: State<Arc<Service>>,
-        Json(req): Json<GetBlogRequest>,
+        Path( blog_id ): Path<String>,
     ) -> Result<Json<serde_json::Value>, UsecaseError> {
         let service = state.0.clone();
 
-        let blog = service.get_blog(req.id).await?;
-
+        let blog = service.get_blog(blog_id).await?;
         Ok(Json(serde_json::json!({
             "status": "success",
             "data": {
