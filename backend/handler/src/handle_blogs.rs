@@ -39,7 +39,7 @@ impl Handler {
 
     pub async fn get_blog(
         state: State<Arc<Service>>,
-        Path( blog_id ): Path<String>,
+        Path(blog_id): Path<String>,
     ) -> Result<Json<serde_json::Value>, UsecaseError> {
         let service = state.0.clone();
 
