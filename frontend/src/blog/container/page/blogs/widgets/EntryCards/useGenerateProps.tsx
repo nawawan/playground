@@ -17,24 +17,21 @@ export const useGenerateProps = (): EntryCardProps => {
 
     useEffect(() => {
         const fetchData = async () => {
-            fetch("/api/blogs")
-                .then((res) => {
-                    if (!res.ok) throw new Error("Failed to fetch blogs");
-                    return res.json() as Promise<BlogResponse[]>;
-                })
-                .then((data) => {
-                    setPosts(
-                        data.map((blog) => ({
-                            id: String(blog.id),
-                            title: blog.title,
-                            outline: blog.content,
-                        }))
-                    );
-                })
-                .catch((e) => {
-                    Sentry.captureException(new Error("Failed to fetch blogs: " + e.message));
-                    setPosts([]);
-                });
+            try {
+                const res = await fetch("/api/blogs");
+                if (!res.ok) throw new Error("Failed to fetch blogs");
+                const data = (await res.json()) as { blogs: BlogResponse[] };
+                setPosts(
+                    data.blogs.map((blog) => ({
+                        id: String(blog.id),
+                        title: blog.title,
+                        outline: blog.content,
+                    }))
+                );
+            } catch (e) {
+                Sentry.captureException(new Error("Failed to fetch blogs: " + (e instanceof Error ? e.message : String(e))));
+                setPosts([]);
+            }
         };
         fetchData();
     }, []);
