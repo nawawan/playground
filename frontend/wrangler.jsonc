@@ -1,0 +1,31 @@
+{
+  "name": "nawawan",
+  "main": "src/server.tsx",
+  "compatibility_date": "2026-03-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "API_URL": "https://nawawan-dev-service-444290623091.asia-northeast1.run.app",
+    "DSN": "https://54edfa7ae3ff6c3962b2089c7cf85591@o4511330126135296.ingest.us.sentry.io/4511330155364352"
+  },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "r2_buckets": [
+    {
+      "binding": "BLOG_BUCKET",
+      "bucket_name": "blog-assets"
+    }
+  ],
+  "env": {
+    "preview": {
+      "workers_dev": true
+    },
+    "production": {
+      "workers_dev": false,
+      "routes": [
+        { "pattern": "nawawan.com/*" }
+      ]
+    }
+  }
+}
