@@ -3,17 +3,11 @@ import { BlogService } from '../service/BlogService';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 
+import { type BlogResponse } from '../../shared/types/blog';
+
 type Env = {
     API_URL: string;
-}
-
-type BlogResponse = {
-    id: number;
-    title: string;
-    content: string;
-    createdAt: string;
-    updatedAt: string;
-}
+};
 
 
 const blogs = new Hono<{ Bindings: Env }>();

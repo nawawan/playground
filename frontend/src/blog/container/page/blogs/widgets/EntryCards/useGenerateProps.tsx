@@ -2,14 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { type EntryCardProps } from "../../../../../presentation/EntryCards/EntryCard";
-
-type BlogResponse = {
-    id: number;
-    title: string;
-    content: string;
-    createdAt: string;
-    updatedAt: string;
-};
+import { type BlogResponse } from "../../../../../../shared/types/blog";
 
 export const useGenerateProps = (): EntryCardProps => {
     const navigate = useNavigate();
@@ -21,6 +14,8 @@ export const useGenerateProps = (): EntryCardProps => {
                 const res = await fetch("/api/blogs");
                 if (!res.ok) throw new Error("Failed to fetch blogs");
                 const data = (await res.json()) as { blogs: BlogResponse[] };
+                console.log(data);
+                console.log("Fetched blogs:", data.blogs);
                 setPosts(
                     data.blogs.map((blog) => ({
                         id: String(blog.id),
