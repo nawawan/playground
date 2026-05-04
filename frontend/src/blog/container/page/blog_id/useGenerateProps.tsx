@@ -9,9 +9,13 @@ import { type BlogDetails } from "../../../../shared/types/blog";
 
 const useGenerateProps = (): BlogProps => {
     const [blog, setBlog] = useState<BlogDetails>();
-    const blogId = useParams();
+    const { blogId } = useParams<{ blogId: string }>();
 
     useEffect(() => {
+        if (!blogId) {
+            return;
+        }
+
         const fetchBlog = async () => {
             try {
                 const response = await fetch(`/api/blogs/${blogId}`);
