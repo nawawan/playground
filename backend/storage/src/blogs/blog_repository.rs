@@ -2,19 +2,47 @@ use super::super::repository::*;
 use aws_sdk_s3::error::ProvideErrorMetadata;
 use aws_sdk_s3::primitives::ByteStream;
 use tracing::error;
+
 use usecase::errors::repo_error::RepoError;
-use usecase::model::blog::{Blog, BlogFilter};
+use usecase::model::blog::{self, Blog, BlogFilter};
 use usecase::model::image::Image;
 use usecase::repository::blog::BlogRepository;
 use usecase::repository::types::Transaction;
 
 use async_trait::async_trait;
 use bytes::Bytes;
+use uuid::Uuid;
 
 #[async_trait]
 impl BlogRepository for Repository {
-    async fn get_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
-        return vec![];
+    async fn get_blog(&self, id: Uuid) -> Result<Blog, RepoError> {
+        let blog = sqlx::query_as!(
+            Blog,
+            "SELECT id, title, content_key, status FROM blogs WHERE id = $1",
+            id
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| {
+            error!("Failed to get blog by id: {}, err: {}", id, e);
+            RepoError::Internal("Failed to get blog".to_string())
+        })?;
+
+        Ok(blog)
+    }
+
+    async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
+        let mut builder =
+            sqlx::QueryBuilder::new("SELECT id, title, content_key, status FROM blogs WHERE 1=1");
+        filter.apply(&mut builder);
+        builder
+            .build_query_as::<Blog>()
+            .fetch_all(&self.pool)
+            .await
+            .unwrap_or_else(|e| {
+                error!("Failed to get blogs: {}", e);
+                vec![]
+            })
     }
 
     async fn create_draft(&self, tx: &mut Transaction<'_>) -> Result<String, RepoError> {

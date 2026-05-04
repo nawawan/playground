@@ -1,13 +1,14 @@
 use axum::{
     Json,
-    extract::{Multipart, Query, State},
+    extract::{Multipart, Path, Query, State},
 };
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::error;
 
+use crate::extractor::AuthorizedUser;
+use crate::model::blog::{BlogResponse, GetBlogRequest};
 use crate::model::image::ImageResponse;
-use crate::{extractor::AuthorizedUser, model::blog::BlogResponse};
 
 use super::error::UsecaseError;
 use super::handler::Handler;
@@ -17,7 +18,7 @@ use usecase::service::blog::blog_service::BlogService;
 use usecase::service::service::Service;
 
 impl Handler {
-    pub async fn get_blogs(
+    pub async fn list_blogs(
         Query(params): Query<HashMap<String, String>>,
         state: State<Arc<Service>>,
     ) -> Json<serde_json::Value> {
@@ -26,14 +27,29 @@ impl Handler {
 
         let service = state.0.clone();
 
-        service.get_blogs(year, month);
+        let blogs = service.list_blogs(year, month).await;
 
         Json(serde_json::json!({
             "status": "success",
             "data": {
-                "id": params.get("id").unwrap_or(&"unknown".to_string())
+                "blogs": blogs.into_iter().map(BlogResponse::from).collect::<Vec<_>>()
             }
         }))
+    }
+
+    pub async fn get_blog(
+        state: State<Arc<Service>>,
+        Path(blog_id): Path<String>,
+    ) -> Result<Json<serde_json::Value>, UsecaseError> {
+        let service = state.0.clone();
+
+        let blog = service.get_blog(blog_id).await?;
+        Ok(Json(serde_json::json!({
+            "status": "success",
+            "data": {
+                "blog": BlogResponse::from(blog)
+            }
+        })))
     }
 
     pub async fn create_blog(
