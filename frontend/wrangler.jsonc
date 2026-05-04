@@ -2,6 +2,7 @@
   "name": "nawawan",
   "main": "src/server.tsx",
   "compatibility_date": "2026-03-17",
+  "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "API_URL": "https://nawawan-dev-service-444290623091.asia-northeast1.run.app"
   },

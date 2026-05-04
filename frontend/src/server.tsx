@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { StaticRouter } from 'react-router-dom';
 import { renderToString } from 'react-dom/server';
+import * as Sentry from '@sentry/cloudflare';
 import { BlogTopContainer } from './blog/container/page/blogs/Container';
 import BlogContainer from './blog/container/page/blog_id/Container';
 
@@ -42,7 +43,7 @@ app.get('/blogs', (c) => {
   )
 })
 
-app.get('/blogs/:blogId', (c) => {
+app.get('/blogs/:id', (c) => {
   const htmlContent = renderToString(
     <StaticRouter location={c.req.path}>
       <BlogContainer />
@@ -72,4 +73,10 @@ app.get('*', (c) => {
   return c.env.ASSETS.fetch(new Request(url.toString()));
 });
 
-export default app;
+export default Sentry.withSentry(
+  (env: Bindings) => ({
+    dsn: "https://54edfa7ae3ff6c3962b2089c7cf85591@o4511330126135296.ingest.us.sentry.io/4511330155364352",
+    tracesSampleRate: 1.0,
+  }),
+  app
+);
