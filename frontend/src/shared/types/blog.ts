@@ -1,7 +1,6 @@
 export type BlogResponse = {
-    id: number;
+    id: string;
     title: string;
-    content: string;
-    createdAt: string;
-    updatedAt: string;
+    content_key: string;
+    status: string;
 };

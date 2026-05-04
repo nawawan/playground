@@ -4,7 +4,7 @@ export type EntryCardProps = {
     posts: {
         id: string,
         title: string,
-        outline: string,
+        outline: string | undefined,
     }[],
     onClick: (id: string) => void,
 };

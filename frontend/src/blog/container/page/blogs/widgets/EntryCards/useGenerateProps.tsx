@@ -13,14 +13,12 @@ export const useGenerateProps = (): EntryCardProps => {
             try {
                 const res = await fetch("/api/blogs");
                 if (!res.ok) throw new Error("Failed to fetch blogs");
-                const data = (await res.json()) as { blogs: BlogResponse[] };
-                console.log(data);
-                console.log("Fetched blogs:", data.blogs);
+                const data = (await res.json()) as BlogResponse[];
                 setPosts(
-                    data.blogs.map((blog) => ({
-                        id: String(blog.id),
+                    data.map((blog) => ({
+                        id: blog.id,
                         title: blog.title,
-                        outline: blog.content,
+                        outline: undefined,
                     }))
                 );
             } catch (e) {

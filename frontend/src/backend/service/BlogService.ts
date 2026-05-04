@@ -1,14 +1,16 @@
+import { type BlogResponse } from "../../shared/types/blog";
 
 export const BlogService = {
-    async getBlogs(apiUrl: string) {
+    async getBlogs(apiUrl: string) : Promise<BlogResponse[]> {
         const response = await fetch(`${apiUrl}/api/blogs`);
         if (!response.ok) {
             throw new Error('Failed to fetch blogs');
         }
-        return await response.json();
+        const json = await response.json();
+        return json.data.blogs;
     },
 
-    async createBlog(apiUrl: string, title: string, content: string) {
+    async createBlog(apiUrl: string, title: string, content: string) : Promise<BlogResponse> {
         const response = await fetch(`${apiUrl}/api/blogs`, {
             method: 'POST',
             headers: {
@@ -19,15 +21,17 @@ export const BlogService = {
         if (!response.ok) {
             throw new Error('Failed to create blog');
         }
-        return await response.json();
+        const json = await response.json();
+        return json.data.blog;
     },
 
-    async getBlogById(apiUrl: string, id: number) {
+    async getBlogById(apiUrl: string, id: number): Promise<BlogResponse> {
         const response = await fetch(`${apiUrl}/api/blogs/${id}`);
         if (!response.ok) {
             throw new Error('Failed to fetch blog');
         }
-        return await response.json();
+        const json = await response.json();
+        return json.data.blog;
     },
 
     async updateBlogImage(apiUrl: string, imageFile: File) {
