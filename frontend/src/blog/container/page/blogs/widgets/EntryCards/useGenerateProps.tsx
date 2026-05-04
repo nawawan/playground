@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import { type EntryCardProps } from "../../../../../presentation/EntryCards/EntryCard";
 
 type BlogResponse = {
@@ -30,14 +31,12 @@ export const useGenerateProps = (): EntryCardProps => {
                         }))
                     );
                 })
-                .catch(() => {
+                .catch((e) => {
+                    Sentry.captureException(new Error("Failed to fetch blogs: " + e.message));
                     setPosts([]);
                 });
         };
         fetchData();
-        return () => {
-            setPosts([]);
-        };
     }, []);
 
     return {
