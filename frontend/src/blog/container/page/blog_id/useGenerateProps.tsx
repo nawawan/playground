@@ -1,26 +1,33 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 
 import type { BlogProps } from "../../../presentation/page/blog_id/Blog";
 import SidebarContainer from "../blogs/widgets/Sidebar/Container";
 import MarkdownHtml from "../../../presentation/MarkdownHtml/MarkdownHtml";
-
-type Blog = {
-    title: string;
-    content: string;
-};
+import { type BlogDetails } from "../../../../shared/types/blog";
 
 const useGenerateProps = (): BlogProps => {
-    const [blog, setBlog] = useState<Blog>();
+    const [blog, setBlog] = useState<BlogDetails>();
     const blogId = useParams();
 
     useEffect(() => {
-        fetch(`/api/blogs/${blogId}`)
-            .then((response) => response.json())
-            .then((data) => setBlog(data));
+        const fetchBlog = async () => {
+            try {
+                const response = await fetch(`/api/blogs/${blogId}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch blog");
+                }
+                const data = await response.json() as BlogDetails;
+                setBlog(data);
+            } catch (error) {
+                Sentry.captureException(new Error("Failed to fetch blog: " + (error instanceof Error ? error.message : String(error))));
+            }
+        };
+        fetchBlog();
     }, [blogId]);
 
-    if (!blog || !blog.content) {
+    if (!blog || !blog.content_html) {
         return {
             title: "No Content",
             content: "No content available for this blog post.",
@@ -31,7 +38,7 @@ const useGenerateProps = (): BlogProps => {
 
     return {
         title: blog?.title || "No Title",
-        content: <MarkdownHtml htmlBody={blog?.content} />,
+        content: <MarkdownHtml htmlBody={blog?.content_html} />,
         sidebar: <SidebarContainer />,
     }
 }

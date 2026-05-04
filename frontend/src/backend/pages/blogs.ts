@@ -3,10 +3,11 @@ import { BlogService } from '../service/BlogService';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 
-import { type BlogResponse } from '../../shared/types/blog';
+import { type BlogDetails, type BlogResponse } from '../../shared/types/blog';
 
 type Env = {
     API_URL: string;
+    BLOG_BUCKET: R2Bucket;
 };
 
 
@@ -25,8 +26,15 @@ blogs.get('/:id',
     const apiUrl = c.env.API_URL;
     const { id } = c.req.valid('param');
 
-    const resp: BlogResponse = await BlogService.getBlogById(apiUrl, id);
-    return c.json(resp);
+    const blog: BlogResponse = await BlogService.getBlogById(apiUrl, id);
+    const content = await BlogService.getBlogContent(c.env.BLOG_BUCKET, blog.content_key);
+
+    const blogWithContent: BlogDetails = {
+        id: blog.id,
+        title: blog.title,
+        content_html: content,
+    }
+    return c.json(blogWithContent);
 });
 
 blogs.post('/', async (c) : Promise<Response> => {

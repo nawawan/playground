@@ -6,7 +6,7 @@ export const BlogService = {
         if (!response.ok) {
             throw new Error('Failed to fetch blogs');
         }
-        const json = await response.json();
+        const json = await response.json<{ data: { blogs: BlogResponse[] } }>();
         return json.data.blogs;
     },
 
@@ -21,7 +21,7 @@ export const BlogService = {
         if (!response.ok) {
             throw new Error('Failed to create blog');
         }
-        const json = await response.json();
+        const json = await response.json<{ data: { blog: BlogResponse } }>();
         return json.data.blog;
     },
 
@@ -30,8 +30,16 @@ export const BlogService = {
         if (!response.ok) {
             throw new Error('Failed to fetch blog');
         }
-        const json = await response.json();
+        const json = await response.json<{ data: { blog: BlogResponse } }>();
         return json.data.blog;
+    },
+
+    async getBlogContent(bucket: R2Bucket, contentKey: string): Promise<string> {
+        const object = await bucket.get(contentKey);
+        if (!object) {
+            throw new Error('Blog content not found');
+        }
+        return await object.text();
     },
 
     async updateBlogImage(apiUrl: string, imageFile: File) {
@@ -44,6 +52,6 @@ export const BlogService = {
         });
         if (!response.ok) {
             throw new Error('Failed to update blog image');
-        }     
-    }  
+        }
+    }
 }
