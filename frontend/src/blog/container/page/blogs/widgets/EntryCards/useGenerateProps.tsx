@@ -15,23 +15,29 @@ export const useGenerateProps = (): EntryCardProps => {
     const [posts, setPosts] = useState<EntryCardProps["posts"]>([]);
 
     useEffect(() => {
-        fetch("/api/blogs")
-            .then((res) => {
-                if (!res.ok) throw new Error("Failed to fetch blogs");
-                return res.json() as Promise<BlogResponse[]>;
-            })
-            .then((data) => {
-                setPosts(
-                    data.map((blog) => ({
-                        id: String(blog.id),
-                        title: blog.title,
-                        outline: blog.content,
-                    }))
-                );
-            })
-            .catch(() => {
-                setPosts([]);
-            });
+        const fetchData = async () => {
+            fetch("/api/blogs")
+                .then((res) => {
+                    if (!res.ok) throw new Error("Failed to fetch blogs");
+                    return res.json() as Promise<BlogResponse[]>;
+                })
+                .then((data) => {
+                    setPosts(
+                        data.map((blog) => ({
+                            id: String(blog.id),
+                            title: blog.title,
+                            outline: blog.content,
+                        }))
+                    );
+                })
+                .catch(() => {
+                    setPosts([]);
+                });
+        };
+        fetchData();
+        return () => {
+            setPosts([]);
+        };
     }, []);
 
     return {
