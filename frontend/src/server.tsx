@@ -12,6 +12,7 @@ type Bindings = {
     fetch: typeof fetch;
   };
   API_URL: string;
+  DSN: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -73,10 +74,12 @@ app.get('*', (c) => {
   return c.env.ASSETS.fetch(new Request(url.toString()));
 });
 
-export default Sentry.withSentry(
+const appWithSentry = Sentry.withSentry(
   (env: Bindings) => ({
-    dsn: "https://54edfa7ae3ff6c3962b2089c7cf85591@o4511330126135296.ingest.us.sentry.io/4511330155364352",
+    dsn: env.DSN,
     tracesSampleRate: 1.0,
   }),
   app
 );
+
+export default appWithSentry;
