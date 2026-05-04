@@ -21,12 +21,12 @@ blogs.get('/', async (c) : Promise<Response> => {
 });
 
 blogs.get('/:id',
-    zValidator('param', z.object({ id: z.number() })),
+    zValidator('param', z.object({ id: z.uuidv7() })),
     async (c) : Promise<Response> => {
     const apiUrl = c.env.API_URL;
     const { id } = c.req.valid('param');
 
-    const blog: BlogResponse = await BlogService.getBlogById(apiUrl, id);
+    const blog: BlogResponse = await BlogService.getBlogById(apiUrl, id.toString());
     const content = await BlogService.getBlogContent(c.env.BLOG_BUCKET, blog.content_key);
 
     const blogWithContent: BlogDetails = {

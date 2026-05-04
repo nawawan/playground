@@ -25,7 +25,7 @@ export const BlogService = {
         return json.data.blog;
     },
 
-    async getBlogById(apiUrl: string, id: number): Promise<BlogResponse> {
+    async getBlogById(apiUrl: string, id: string): Promise<BlogResponse> {
         const response = await fetch(`${apiUrl}/api/blogs/${id}`);
         if (!response.ok) {
             throw new Error('Failed to fetch blog');
