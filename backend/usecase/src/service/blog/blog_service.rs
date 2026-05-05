@@ -71,7 +71,7 @@ impl BlogService for Service {
             let mut tx = self.repository.create_transaction().await?;
             let blog = self.repository.create_blog(&mut tx, blog).await?;
             self.repository
-                .upload_blog_draft(uuid.to_string(), blog_req.content)
+                .upload_blog_file(uuid.to_string(), blog_req.content)
                 .await?;
 
             tx.commit().await.map_err(|e| {

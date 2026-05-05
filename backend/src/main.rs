@@ -67,7 +67,7 @@ async fn main() {
 
 fn create_blog_router(service: Arc<Service>) -> Router {
     let blog_routers = Router::new()
-        .route("/", get(Handler::list_blogs).post(Handler::create_blog))
+        .route("/", get(Handler::list_blogs).post(Handler::update_blog))
         .route("/{id}", get(Handler::get_blog))
         .route("/images", post(Handler::upload_blog_image))
         .route("/drafts", post(Handler::craete_draft))

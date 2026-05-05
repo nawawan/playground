@@ -82,6 +82,22 @@ impl BlogRepository for Repository {
         Ok(blog)
     }
 
+    async fn update_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
+        sqlx::query!(
+            "UPDATE blogs SET title = $2, status = 'PUBLISHED', content_key = $3 WHERE id = $1",
+            blog.id,
+            blog.title,
+            blog.content_key
+        )
+        .execute(&mut **tx)
+        .await
+        .map_err(|e| {
+            error!("Failed to update blog: {}", e);
+            RepoError::Internal("Failed to update blog".to_string())
+        })?;
+        Ok(blog)
+    }
+
     async fn upload_image(&self, image_id: String, image_data: Bytes) -> Result<Image, RepoError> {
         let body = ByteStream::from(image_data);
         let bucket_name = "blog-assets";
@@ -108,13 +124,13 @@ impl BlogRepository for Repository {
         })
     }
 
-    async fn upload_blog_draft(&self, blog_id: String, content: String) -> Result<(), RepoError> {
+    async fn upload_blog_file(&self, blog_id: String, content: String) -> Result<(), RepoError> {
         let body = ByteStream::from(content.into_bytes());
         let bucket_name = "blog-assets";
         self.r2_client
             .put_object()
             .bucket(bucket_name)
-            .key(format!("uploads/drafts/{}", blog_id))
+            .key(format!("uploads/blogs/{}.html", blog_id))
             .body(body)
             .send()
             .await

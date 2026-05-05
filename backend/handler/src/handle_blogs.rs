@@ -64,11 +64,11 @@ impl Handler {
         }
 
         let id = service.create_draft().await?;
-        
+
         Ok(Json(id))
     }
 
-    pub async fn create_blog(
+    pub async fn update_blog(
         user: AuthorizedUser,
         state: State<Arc<Service>>,
         Json(req): Json<CreateBlogRequest>,
