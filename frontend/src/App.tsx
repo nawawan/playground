@@ -4,6 +4,7 @@ import { BlogTopContainer } from "./blog/container/page/blogs/Container";
 import BlogContainer from "./blog/container/page/blog_id/Container";
 import AdminHomeContainer from "./admin/container/page/Container";
 import { RequireAuth } from "./auth/RequireAuth";
+import 'highlight.js/styles/github.css'; 
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
