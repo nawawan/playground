@@ -6,9 +6,7 @@ const MarkdownPreview = ({ html }: MarkdownPreviewProps) => (
     <div
         style={{
             width: '50%',
-            height: '300px',
-            border: '1px solid #ccc',
-            padding: '10px',
+            height: '100%',
             overflowY: 'auto',
         }}
         dangerouslySetInnerHTML={{ __html: html }}

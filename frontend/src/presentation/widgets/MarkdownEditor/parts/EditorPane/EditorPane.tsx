@@ -15,7 +15,7 @@ const EditorPane = ({ lineNumRef, preRef, textareaRef, markdown, lineCount, onCh
     <div
         style={{
             width: '50%',
-            height: '300px',
+            height: '100%',
             display: 'flex',
             backgroundColor: '#0d1117',
             borderRadius: '6px',

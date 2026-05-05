@@ -11,5 +11,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    article_id: "example-article",
+    onSave: (markdown) => alert(markdown),
+  },
 };

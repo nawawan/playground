@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 export const FONT_SIZE = 14;
 export const LINE_HEIGHT = 1.5;
 export const PADDING = 10;
-export const FONT_FAMILY = "'Fira Code', 'Cascadia Code', Consolas, monospace";
+export const FONT_FAMILY = "'Geist Mono', 'Fira Code', Consolas, monospace";
 
 export const sharedEditorStyle: CSSProperties = {
     fontSize: FONT_SIZE,
