@@ -42,16 +42,17 @@ export const BlogService = {
         return await object.text();
     },
 
-    async updateBlogImage(apiUrl: string, imageFile: File) {
-        const formData = new FormData();
-        formData.append('image', imageFile);
+    async updateBlogImage(bucket: R2Bucket, imageFile: ReadableStream<Uint8Array>): Promise<string> {
+        const key = `_uploads/${crypto.randomUUID()}`;
 
-        const response = await fetch(`${apiUrl}/api/blogs/image`, {
-            method: 'POST',
-            body: formData,
-        });
-        if (!response.ok) {
-            throw new Error('Failed to update blog image');
+        try {
+            const response = await bucket.put(key, imageFile);
+            if (!response) {
+                throw new Error('Failed to upload image');
+            }
+            return key;
+        } catch (e) {
+            throw new Error("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
         }
     }
 }
