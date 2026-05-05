@@ -10,8 +10,8 @@ export const highlightMarkdownSyntax = (text: string): string =>
             const headingMatch = line.match(/^(#{1,6})(.*)$/);
             if (headingMatch) {
                 return (
-                    `<span style="color:#8b5cf6">${escapeHtml(headingMatch[1])}</span>` +
-                    `<span style="color:#8b5cf6">${escapeHtml(headingMatch[2])}</span>`
+                    `<span style="color:#8b7ce1">${escapeHtml(headingMatch[1])}</span>` +
+                    `<span style="color:#8b7ce1">${escapeHtml(headingMatch[2])}</span>`
                 );
             }
             return `<span style="color:#e2e8f0">${escapeHtml(line)}</span>`;
