@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
@@ -40,6 +40,7 @@ export type MarkdownEditorProps = {
 };
 
 const MarkdownEditor = (props: MarkdownEditorProps) => {
+    const { onSaveTemporary } = props;
     const [markdown, setMarkdown] = useState('');
     const [html, setHtml] = useState('');
     const [title, setTitle] = useState(props.title ?? "");
@@ -49,8 +50,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const preRef = useRef<HTMLPreElement>(null);
     const lineNumRef = useRef<HTMLDivElement>(null);
 
-    const handleChange = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const text = e.target.value;
+    const updateMarkdown = useCallback(async (text: string) => {
         setMarkdown(text);
         const rawHtml = await marked.parse(text);
         const sanitizedHtml = sanitizeHtml(rawHtml, {
@@ -62,9 +62,23 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                 span: ['class'],
             },
         });
-        props.onSaveTemporary?.(text);
+        onSaveTemporary?.(text);
         setHtml(sanitizedHtml);
+    }, [onSaveTemporary]);
+
+    const handleChange = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        await updateMarkdown(e.target.value);
     };
+
+    const handleInsert = useCallback(async (newMarkdown: string, cursorPos: number) => {
+        await updateMarkdown(newMarkdown);
+        requestAnimationFrame(() => {
+            if (textareaRef.current) {
+                textareaRef.current.selectionStart = cursorPos;
+                textareaRef.current.selectionEnd = cursorPos;
+            }
+        });
+    }, [updateMarkdown]);
 
     const handleScroll = () => {
         const scrollTop = textareaRef.current?.scrollTop ?? 0;
@@ -121,6 +135,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     lineCount={lineCount}
                     onChange={handleChange}
                     onScroll={handleScroll}
+                    onInsert={handleInsert}
                 />
                 <MarkdownPreview html={html} />
             </Box>

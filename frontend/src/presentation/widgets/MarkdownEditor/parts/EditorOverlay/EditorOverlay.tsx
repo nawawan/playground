@@ -24,27 +24,28 @@ export type EditorOverlayProps = {
     markdown: string;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     onScroll: () => void;
+    onInsert: (newMarkdown: string, cursorPos: number) => void;
 };
 
-const EditorOverlay = ({ preRef, textareaRef, markdown, onChange, onScroll }: EditorOverlayProps) => {
+const EditorOverlay = ({ preRef, textareaRef, markdown, onChange, onScroll, onInsert }: EditorOverlayProps) => {
 
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            const file = files[0];
-            if(file.type.startsWith("image/")) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const imageUrl = event.target?.result as string;
-                    onChange({
-                        target: { value: markdown + `\n![${file.name}](${imageUrl})` },
-                    } as React.ChangeEvent<HTMLTextAreaElement>);
-                };
-                reader.readAsDataURL(file);
-                return;
-            }
-        }
+        if (files.length === 0) return;
+        const file = files[0];
+        if (!file.type.startsWith("image/")) return;
+
+        const cursorPos = textareaRef.current?.selectionStart ?? markdown.length;
+        const res = await fetch("/api/blogs/images", {
+            method: "PUT",
+            body: file,
+            headers: { 'Content-Type': file.type }
+        });
+        const url: string = await res.json();
+        const inserted = `![${file.name}](${url})`;
+        const newMarkdown = markdown.slice(0, cursorPos) + inserted + markdown.slice(cursorPos);
+        onInsert(newMarkdown, cursorPos + inserted.length);
     };
     return (
         <div 

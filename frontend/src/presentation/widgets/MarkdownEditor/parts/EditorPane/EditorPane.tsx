@@ -9,9 +9,10 @@ export type EditorPaneProps = {
     lineCount: number;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     onScroll: () => void;
+    onInsert: (newMarkdown: string, cursorPos: number) => void;
 };
 
-const EditorPane = ({ lineNumRef, preRef, textareaRef, markdown, lineCount, onChange, onScroll }: EditorPaneProps) => {
+const EditorPane = ({ lineNumRef, preRef, textareaRef, markdown, lineCount, onChange, onScroll, onInsert }: EditorPaneProps) => {
     return (
         <div
             style={{
@@ -31,6 +32,7 @@ const EditorPane = ({ lineNumRef, preRef, textareaRef, markdown, lineCount, onCh
                 markdown={markdown}
                 onChange={onChange}
                 onScroll={onScroll}
+                onInsert={onInsert}
             />
         </div>
     );
