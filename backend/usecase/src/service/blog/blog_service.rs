@@ -52,13 +52,7 @@ impl BlogService for Service {
 
     async fn create_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
         let uuid = Uuid::now_v7();
-        let blog_url = env::var("BLOG_PAGE");
-
-        if let Err(e) = blog_url {
-            error!("BLOG_PAGE environment variable is not set: {e}");
-            return Err(AppError::internal(Some("environment variable is not set")));
-        }
-        let content_key = format!("{}/{}", blog_url.unwrap(), blog_req.title);
+        let content_key = format!("upload/blogs/{}.html", blog_req.title);
 
         let blog = Blog {
             id: uuid,
