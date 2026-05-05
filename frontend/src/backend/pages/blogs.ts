@@ -74,6 +74,20 @@ blogs.get('/:id/md',
     return c.json(markdown);
 });
 
+blogs.post('/:id/md', 
+    zValidator('param', z.object({id: z.string()})),
+    accessAuth, 
+    async(c): Promise<Response> => {
+
+    if(!c.req.raw.body) {
+        return c.json({ error: 'No draft file provided'}, 400);
+    }
+    const { id } = c.req.valid('param');
+    await BlogService.uploadBlogDraft(c.env.BLOG_BUCKET, id, c.req.raw.body);
+
+    return c.json({ status: 'successs' });
+});
+
 blogs.put('/images', accessAuth, async (c) : Promise<Response> => {
     if (!c.req.raw.body) {
         return c.json({ error: 'No image file provided' }, 400);

@@ -51,6 +51,19 @@ export const BlogService = {
         return await object.text();
     },
 
+    async uploadBlogDraft(bucket: R2Bucket, id: string, file: ReadableStream<Uint8Array>): Promise<void> {
+        const key = `uploads/drafts/${id}.md`;
+
+        try {
+            const response = await bucket.put(key, file);
+            if (!response) {
+                throw new Error('Failed to upload blog draft');
+            }
+        } catch (e) {
+            throw new Error("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
+        }
+    },
+
     async updateBlogImage(bucket: R2Bucket, imageFile: ReadableStream<Uint8Array>): Promise<string> {
         const key = `_uploads/${crypto.randomUUID()}`;
 

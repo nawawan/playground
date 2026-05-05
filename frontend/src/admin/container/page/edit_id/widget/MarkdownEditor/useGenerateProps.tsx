@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import * as Sentry from '@sentry/react';
 import type { MarkdownEditorProps } from '../../../../../../presentation/widgets/MarkdownEditor/MarkdownEditor';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -27,14 +28,23 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps => {
     }, 1000);
 
     const handleSave = useCallback(async (title: string, slug: string, markdown: string) => {
-        await fetch("api/blogs/", {
-            method: "POST",
-            body: JSON.stringify({
-                title: title, 
-                slug: slug, 
-                content: markdown}
-            ),
-        });
+        try {
+            await fetch("api/blogs/", {
+                method: "POST",
+                body: JSON.stringify({
+                    title: title, 
+                    slug: slug, 
+                    content: markdown
+                }),
+            });
+
+            await fetch("api/blogs/:id/drafts", {
+                method: "POST",
+                body: markdown,
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+        }
     }, []);
 
     return {
