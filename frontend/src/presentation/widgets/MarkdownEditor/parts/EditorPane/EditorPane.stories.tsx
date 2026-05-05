@@ -32,6 +32,15 @@ const EditorPanePreview = ({ initialMarkdown }: { initialMarkdown: string }) => 
             lineCount={Math.max(markdown.split('\n').length, 1)}
             onChange={e => setMarkdown(e.target.value)}
             onScroll={handleScroll}
+            onInsert={(newMarkdown, cursorPos) => {
+                setMarkdown(newMarkdown);
+                setTimeout(() => {
+                    if (textareaRef.current) {
+                        textareaRef.current.selectionStart = cursorPos;
+                        textareaRef.current.selectionEnd = cursorPos;
+                    }
+                }, 0);
+            }}
         />
     );
 };

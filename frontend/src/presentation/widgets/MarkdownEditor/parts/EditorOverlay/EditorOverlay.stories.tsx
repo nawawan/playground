@@ -28,6 +28,15 @@ const EditorOverlayPreview = ({ initialMarkdown }: { initialMarkdown: string }) 
                         preRef.current.scrollTop = textareaRef.current.scrollTop;
                     }
                 }}
+                onInsert={(newMarkdown, cursorPos) => {
+                    setMarkdown(newMarkdown);
+                    setTimeout(() => {
+                        if (textareaRef.current) {
+                            textareaRef.current.selectionStart = cursorPos;
+                            textareaRef.current.selectionEnd = cursorPos;
+                        }
+                    }, 0);
+                }}
             />
         </div>
     );
