@@ -1,12 +1,12 @@
+use super::super::service::Service;
 use crate::errors::app_error::AppError;
 use crate::model::blog::{self, Blog, BlogFilter, BlogRequest, BlogStatus};
 use crate::model::helper::uuid_from_string;
 use crate::model::image::Image;
-use super::super::service::Service;
 
-use shared::markdown_converter::convert;
 use async_trait::async_trait;
 use bytes::Bytes;
+use shared::markdown_converter::convert;
 use std::env;
 use tracing::error;
 use uuid::Uuid;
@@ -87,7 +87,7 @@ impl BlogService for Service {
         result
     }
 
-  async fn update_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
+    async fn update_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
         let blog_url = env::var("BLOG_PAGE");
 
         if let Err(e) = blog_url {
@@ -99,12 +99,13 @@ impl BlogService for Service {
             error!("id is not set");
             return Err(AppError::invalid(Some("invalid request")));
         }
-        let blog_id_str = blog_req.id.ok_or(AppError::invalid(Some("Blog id is not set")))?;
-        let blog_id = Uuid::parse_str(&blog_id_str.clone())
-            .map_err(|e| {
-                error!("A format of blog id is invalid");
-                return AppError::invalid(Some("Invalid blog id"));
-            })?;
+        let blog_id_str = blog_req
+            .id
+            .ok_or(AppError::invalid(Some("Blog id is not set")))?;
+        let blog_id = Uuid::parse_str(&blog_id_str.clone()).map_err(|e| {
+            error!("A format of blog id is invalid");
+            return AppError::invalid(Some("Invalid blog id"));
+        })?;
 
         let content_key = format!("{}/{}.html", blog_url.unwrap(), blog_id_str);
 
@@ -115,11 +116,10 @@ impl BlogService for Service {
             status: BlogStatus::Published,
         };
 
-        let content_html = convert(&blog_req.content)
-            .map_err(|e| {
-                error!("Failed to convert markdown into html");
-                return AppError::internal(Some("Failed to convert markdown file"));
-            })?;
+        let content_html = convert(&blog_req.content).map_err(|e| {
+            error!("Failed to convert markdown into html");
+            return AppError::internal(Some("Failed to convert markdown file"));
+        })?;
 
         let result = {
             let mut tx = self.repository.create_transaction().await?;

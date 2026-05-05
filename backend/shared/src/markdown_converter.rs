@@ -1,9 +1,7 @@
 use anyhow::Error;
-use pulldown_cmark::{html, Options, Parser};
-
+use pulldown_cmark::{Options, Parser, html};
 
 pub fn convert(markdown: &str) -> Result<String, Error> {
-
     let options = Options::ENABLE_TABLES
         | Options::ENABLE_FOOTNOTES
         | Options::ENABLE_STRIKETHROUGH
