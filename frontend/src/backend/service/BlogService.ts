@@ -42,6 +42,17 @@ export const BlogService = {
         return await object.text();
     },
 
+    async createBlogId(apiUrl: string) : Promise<string> {
+        const response = await fetch(`${apiUrl}/api/blogs/drafts`, {
+            method: 'POST',
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch blog');
+        }
+        const id = await response.json<string>();
+        return id;
+    },
+
     async getBlogDraft(bucket: R2Bucket, id: string): Promise<string> {
         const object = await bucket.get(`uploads/drafts/${id}.md`);
 

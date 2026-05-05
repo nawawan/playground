@@ -41,6 +41,13 @@ blogs.post('/', async (c) : Promise<Response> => {
     return c.json(resp);
 });
 
+blogs.post('/drafts', async (c) : Promise<Response> => {
+    const apiUrl = c.env.API_URL;
+
+    const resp: string = await BlogService.createBlogId(apiUrl);
+    return c.json(resp);
+});
+
 blogs.get('/:id',
     zValidator('param', z.object({ id: z.string() })),
     async (c) : Promise<Response> => {

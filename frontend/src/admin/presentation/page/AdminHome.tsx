@@ -1,7 +1,7 @@
 import { Box, Button, ButtonBase, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
-type Blog = {
+export type Blog = {
   id: string;
   title: string;
   date: string;

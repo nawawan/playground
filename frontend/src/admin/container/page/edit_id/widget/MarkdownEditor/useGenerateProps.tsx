@@ -13,10 +13,13 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps => {
                 setMarkdown(localDraft);
                 return;
             }
-
-            const res = await fetch(`/api/blogs/${article_id}/md`);
-            const draft: string = await res.json();
-            setMarkdown(draft);
+            try {
+                const res = await fetch(`/api/blogs/${article_id}/md`);
+                const draft: string = await res.json();
+                setMarkdown(draft);
+            } catch (e) {
+                Sentry.captureException(e);
+            }
         };
 
         fetchData();
