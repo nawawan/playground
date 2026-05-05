@@ -13,6 +13,7 @@ type Env = {
     BLOG_BUCKET: R2Bucket;
     TEAM_DOMAIN: string;
     AUD: string;
+    PUBLIC_URL: string;
 };
 
 const accessAuth = createMiddleware<{ Bindings: Env }>(async (c, next) => {
@@ -64,7 +65,7 @@ blogs.post('/', async (c) : Promise<Response> => {
     return c.json(resp);
 });
 
-blogs.put('/image', accessAuth, async (c) : Promise<Response> => {
+blogs.put('/images', accessAuth, async (c) : Promise<Response> => {
     if (!c.req.raw.body) {
         return c.json({ error: 'No image file provided' }, 400);
     }
@@ -74,7 +75,7 @@ blogs.put('/image', accessAuth, async (c) : Promise<Response> => {
             throw new Error("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
         });
 
-    return c.json({ success: true, data: { key: uploadedImageKey } });
+    return c.json(`${c.env.PUBLIC_URL}/${uploadedImageKey}`);
 });
 
 export default blogs;
