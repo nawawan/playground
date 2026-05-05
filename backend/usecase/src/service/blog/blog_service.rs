@@ -58,7 +58,7 @@ impl BlogService for Service {
             error!("BLOG_PAGE environment variable is not set: {e}");
             return Err(AppError::internal(Some("environment variable is not set")));
         }
-        let content_key = format!("{}/{}", blog_url.unwrap(), blog_req.title);
+        let content_key = format!("{}/{}.html", blog_url.unwrap(), uuid);
 
         let blog = Blog {
             id: uuid,

@@ -52,6 +52,22 @@ impl Handler {
         })))
     }
 
+    pub async fn craete_draft(
+        user: AuthorizedUser,
+        state: State<Arc<Service>>,
+    ) -> Result<Json<String>, UsecaseError> {
+        let service = state.0.clone();
+
+        if let Err(e) = validate_admmin(&user) {
+            error!("Permission denied: {}", e.error.message);
+            return Err(e);
+        }
+
+        let id = service.create_draft().await?;
+        
+        Ok(Json(id))
+    }
+
     pub async fn create_blog(
         user: AuthorizedUser,
         state: State<Arc<Service>>,
