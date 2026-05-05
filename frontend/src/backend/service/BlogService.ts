@@ -37,7 +37,16 @@ export const BlogService = {
     async getBlogContent(bucket: R2Bucket, contentKey: string): Promise<string> {
         const object = await bucket.get(contentKey);
         if (!object) {
-            throw new Error('Blog content not found');
+            throw new Error('Failed to get blog content');
+        }
+        return await object.text();
+    },
+
+    async getBlogDraft(bucket: R2Bucket, id: string): Promise<string> {
+        const object = await bucket.get(`uploads/drafts/${id}.md`);
+
+        if (!object){
+            throw new Error('Failed to get blog draft');
         }
         return await object.text();
     },

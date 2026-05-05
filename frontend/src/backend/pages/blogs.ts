@@ -33,6 +33,14 @@ blogs.get('/', async (c) : Promise<Response> => {
     return c.json(resp);
 });
 
+blogs.post('/', async (c) : Promise<Response> => {
+    const apiUrl = c.env.API_URL;
+    const { title, content } = await c.req.json();
+
+    const resp: BlogResponse = await BlogService.createBlog(apiUrl, title, content);
+    return c.json(resp);
+});
+
 blogs.get('/:id',
     zValidator('param', z.object({ id: z.string() })),
     async (c) : Promise<Response> => {
@@ -43,7 +51,6 @@ blogs.get('/:id',
         .catch((e) => {
             throw new Error("Failed to fetch blog by id: " + (e instanceof Error ? e.message : String(e)));
         });
-      console.log("content_key:", JSON.stringify(blog.content_key));
     const content = await BlogService.getBlogContent(c.env.BLOG_BUCKET, blog.content_key)
         .catch((e) => {
             throw new Error("Failed to fetch blog content: " + (e instanceof Error ? e.message : String(e)));
@@ -57,12 +64,14 @@ blogs.get('/:id',
     return c.json(blogWithContent);
 });
 
-blogs.post('/', async (c) : Promise<Response> => {
-    const apiUrl = c.env.API_URL;
-    const { title, content } = await c.req.json();
+blogs.get('/:id/md', 
+    zValidator('param', z.object({ id: z.string() })),
+    async (c): Promise<Response> => {
 
-    const resp: BlogResponse = await BlogService.createBlog(apiUrl, title, content);
-    return c.json(resp);
+    const { id } = c.req.valid('param');
+    const markdown = await BlogService.getBlogDraft(c.env.BLOG_BUCKET, id);
+
+    return c.json(markdown);
 });
 
 blogs.put('/images', accessAuth, async (c) : Promise<Response> => {

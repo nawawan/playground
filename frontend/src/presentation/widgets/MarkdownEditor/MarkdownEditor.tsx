@@ -35,13 +35,14 @@ const StyledButton = styled(Button)({
 export type MarkdownEditorProps = {
     title?: string;
     slug?: string;
+    markdown?: string;
     onSave: (title: string, slug: string, markdown: string) => void;
     onSaveTemporary?: (markdown: string) => void;
 };
 
 const MarkdownEditor = (props: MarkdownEditorProps) => {
     const { onSaveTemporary } = props;
-    const [markdown, setMarkdown] = useState('');
+    const [markdown, setMarkdown] = useState(props.markdown ?? "");
     const [html, setHtml] = useState('');
     const [title, setTitle] = useState(props.title ?? "");
     const [slug, setSlug] = useState(props.slug ?? "");
