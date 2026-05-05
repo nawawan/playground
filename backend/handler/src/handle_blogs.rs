@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::error;
 
-use crate::extractor::AuthorizedUser;
+use crate::{extractor::AuthorizedUser, model::blog::UpdateBlogRequest};
 use crate::model::blog::{BlogResponse, GetBlogRequest};
 use crate::model::image::ImageResponse;
 
@@ -71,7 +71,7 @@ impl Handler {
     pub async fn update_blog(
         user: AuthorizedUser,
         state: State<Arc<Service>>,
-        Json(req): Json<CreateBlogRequest>,
+        Json(req): Json<UpdateBlogRequest>,
     ) -> Result<Json<BlogResponse>, UsecaseError> {
         if let Err(e) = validate_admmin(&user) {
             error!("Permission denied: {}", e.error.message);
@@ -79,15 +79,16 @@ impl Handler {
         }
 
         let blog_req = BlogRequest {
+            id: Some(req.id),
             title: req.title,
             content: req.content,
         };
 
         let service = state.0.clone();
 
-        let result = service.create_blog(blog_req).await;
+        let result = service.update_blog(blog_req).await;
         if let Err(ref e) = result {
-            error!("Failed to create blog: {}", e.message);
+            error!("Failed to update blog: {}", e.message);
         }
         let blog = result?;
         Ok(Json(blog.into()))

@@ -1,9 +1,10 @@
 use crate::errors::app_error::AppError;
-use crate::model::blog::{Blog, BlogFilter, BlogRequest, BlogStatus};
+use crate::model::blog::{self, Blog, BlogFilter, BlogRequest, BlogStatus};
 use crate::model::helper::uuid_from_string;
 use crate::model::image::Image;
-
 use super::super::service::Service;
+
+use shared::markdown_converter::convert;
 use async_trait::async_trait;
 use bytes::Bytes;
 use std::env;
@@ -15,6 +16,7 @@ pub trait BlogService {
     async fn get_blog(&self, id: String) -> Result<Blog, AppError>;
     async fn list_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog>;
     async fn create_blog(&self, blog: BlogRequest) -> Result<Blog, AppError>;
+    async fn update_blog(&self, blog: BlogRequest) -> Result<Blog, AppError>;
     async fn create_draft(&self) -> Result<String, AppError>;
     async fn upload_blog_image(&self, image_data: Bytes) -> Result<Image, AppError>;
 }
@@ -85,8 +87,60 @@ impl BlogService for Service {
         result
     }
 
+  async fn update_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
+        let blog_url = env::var("BLOG_PAGE");
+
+        if let Err(e) = blog_url {
+            error!("BLOG_PAGE environment variable is not set: {e}");
+            return Err(AppError::internal(Some("environment variable is not set")));
+        }
+
+        if blog_req.id.is_none() {
+            error!("id is not set");
+            return Err(AppError::invalid(Some("invalid request")));
+        }
+        let blog_id_str = blog_req.id.ok_or(AppError::invalid(Some("Blog id is not set")))?;
+        let blog_id = Uuid::parse_str(&blog_id_str.clone())
+            .map_err(|e| {
+                error!("A format of blog id is invalid");
+                return AppError::invalid(Some("Invalid blog id"));
+            })?;
+
+        let content_key = format!("{}/{}.html", blog_url.unwrap(), blog_id_str);
+
+        let blog = Blog {
+            id: blog_id,
+            title: blog_req.title,
+            content_key: content_key,
+            status: BlogStatus::Published,
+        };
+
+        let content_html = convert(&blog_req.content)
+            .map_err(|e| {
+                error!("Failed to convert markdown into html");
+                return AppError::internal(Some("Failed to convert markdown file"));
+            })?;
+
+        let result = {
+            let mut tx = self.repository.create_transaction().await?;
+            let blog = self.repository.create_blog(&mut tx, blog).await?;
+            self.repository
+                .upload_blog_file(blog_id_str, content_html)
+                .await?;
+
+            tx.commit().await.map_err(|e| {
+                error!("Failed to commit transaction for creating blog: {e}");
+                AppError::internal(Some("Transaction commit failed"))
+            })?;
+
+            Ok::<Blog, AppError>(blog)
+        };
+
+        result
+    }
+
     async fn upload_blog_image(&self, image_data: Bytes) -> Result<Image, AppError> {
-        let image_id = Uuid::now_v7().to_string().replace("-", "");
+        let image_id = Uuid::now_v7().to_string();
         self.repository
             .upload_image(image_id, image_data)
             .await

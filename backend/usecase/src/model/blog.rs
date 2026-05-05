@@ -41,6 +41,7 @@ pub struct Blog {
 
 #[derive(Debug, Clone)]
 pub struct BlogRequest {
+    pub id: Option<String>,
     pub title: String,
     pub content: String,
 }
