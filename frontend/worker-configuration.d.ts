@@ -14,7 +14,9 @@ declare namespace Cloudflare {
 	interface Env {
 		ASSETS: Fetcher;
 		BLOG_BUCKET?: R2Bucket;
-		API_URL?: "https://nawawan-dev-service-444290623091.asia-northeast1.run.app:8080";
+		API_URL: string;
+        TEAM_DOMAIN: string;
+        AUD: string;
 	}
 }
 interface Env extends Cloudflare.Env {}
