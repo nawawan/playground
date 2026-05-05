@@ -3,7 +3,7 @@ import { sharedEditorStyle } from '../constants';
 const escapeHtml = (text: string): string =>
     text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-export const highlightMarkdownSyntax = (text: string): string =>
+const highlightMarkdownSyntax = (text: string): string =>
     text
         .split('\n')
         .map(line => {

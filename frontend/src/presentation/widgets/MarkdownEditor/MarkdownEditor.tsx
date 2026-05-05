@@ -12,11 +12,11 @@ const marked = new Marked(
     markedHighlight({
         emptyLangClass: 'hljs',
         langPrefix: 'hljs language-',
-        highlight(code, lang, _) {
+        highlight(code, lang) {
             const language = hljs.getLanguage(lang) ? lang : 'plaintext';
             try {
                 return hljs.highlight(code, { language }).value;
-            } catch (error) {
+            } catch {
                 return code;
             }
         },
