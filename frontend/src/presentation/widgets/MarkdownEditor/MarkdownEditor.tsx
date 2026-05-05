@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
+import { Box, Button, Stack, styled, TextField } from '@mui/material';
 import EditorPane from './parts/EditorPane/EditorPane';
 import MarkdownPreview from './parts/MarkdownPreview/MarkdownPreview';
-import { Box, Button, Stack, styled } from '@mui/material';
+import { MarkdownEditorSchema } from './validation/SubmitBlogValidation';
 
 const marked = new Marked(
     markedHighlight({
@@ -19,11 +19,11 @@ const marked = new Marked(
             } catch (error) {
                 return code;
             }
-        }
+        },
     })
 );
 
-const StyledButton = (styled(Button))({
+const StyledButton = styled(Button)({
     backgroundColor: '#4f46e5',
     borderRadius: '5px',
     color: '#fff',
@@ -32,19 +32,19 @@ const StyledButton = (styled(Button))({
     },
 });
 
-type MarkdownEditorProps = {
-    article_id: string;
-    onSave: (markdown: string) => void;
+export type MarkdownEditorProps = {
+    title?: string;
+    slug?: string;
+    onSave: (title: string, slug: string, markdown: string) => void;
+    onSaveTemporary?: (markdown: string) => void;
 };
 
 const MarkdownEditor = (props: MarkdownEditorProps) => {
-    const { article_id, onSave } = props;
     const [markdown, setMarkdown] = useState('');
     const [html, setHtml] = useState('');
-
-    const saveContent = useDebouncedCallback((key: string, text: string) => {
-        localStorage.setItem(key, text);
-    }, 1000);
+    const [title, setTitle] = useState(props.title ?? "");
+    const [slug, setSlug] = useState(props.slug ?? "");
+    const [errors, setErrors] = useState<{ title?: string; slug?: string }>({});
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const preRef = useRef<HTMLPreElement>(null);
     const lineNumRef = useRef<HTMLDivElement>(null);
@@ -62,7 +62,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                 span: ['class'],
             },
         });
-        saveContent(article_id, text);
+        props.onSaveTemporary?.(text);
         setHtml(sanitizedHtml);
     };
 
@@ -74,13 +74,44 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
 
     const lineCount = Math.max(markdown.split('\n').length, 1);
 
+    const handleSave = () => {
+        const result = MarkdownEditorSchema.safeParse({ title, slug });
+        if (!result.success) {
+            const newErrors: { title?: string; slug?: string } = {};
+            for (const issue of result.error.issues) {
+                const field = issue.path[0] as keyof typeof newErrors;
+                if (!newErrors[field]) newErrors[field] = issue.message;
+            }
+            setErrors(newErrors);
+            return;
+        }
+        setErrors({});
+        props.onSave(title, slug, markdown);
+    };
+
     return (
         <Stack spacing={2}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <StyledButton onClick={() => onSave(markdown)}>
-                    Save
-                </StyledButton>
-            </Box>
+            <Stack spacing={2} direction='row' alignItems='flex-start'>
+                <TextField
+                    required
+                    label="title"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    error={!!errors.title}
+                    helperText={errors.title}
+                />
+                <TextField
+                    required
+                    label="slug"
+                    value={slug}
+                    onChange={e => setSlug(e.target.value)}
+                    error={!!errors.slug}
+                    helperText={errors.slug}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <StyledButton onClick={handleSave}>Save</StyledButton>
+                </Box>
+            </Stack>
             <Box sx={{ display: 'flex', gap: '20px', height: '400px' }}>
                 <EditorPane
                     lineNumRef={lineNumRef}

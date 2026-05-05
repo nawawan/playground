@@ -23,7 +23,7 @@ function App() {
         <Route element={<RequireAuth />}>
           <Route path="/admin">
             <Route index element={<AdminHomeContainer />} />
-            <Route path="/edit"  />
+            <Route path="edit"  />
           </Route>
         </Route>
       </Routes>

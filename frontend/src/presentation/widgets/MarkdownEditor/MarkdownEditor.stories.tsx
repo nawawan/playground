@@ -1,18 +1,16 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
-import MarkdownEditor  from "./MarkdownEditor";
-
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import MarkdownEditor from './MarkdownEditor';
 
 const meta = {
-  title: "MarkdownEditor",
-  component: MarkdownEditor,
+    title: 'MarkdownEditor',
+    component: MarkdownEditor,
 } satisfies Meta<typeof MarkdownEditor>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    article_id: "example-article",
-    onSave: (markdown) => alert(markdown),
-  },
+    args: {
+        onSave: (markdown: string) => alert(markdown),
+    },
 };
