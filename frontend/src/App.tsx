@@ -21,7 +21,10 @@ function App() {
         <Route path="/maze" element={<MazeCreatorPage />} />
 
         <Route element={<RequireAuth />}>
-          <Route path="/admin" element={<AdminHomeContainer />} />
+          <Route path="/admin">
+            <Route index element={<AdminHomeContainer />} />
+            <Route path="/edit"  />
+          </Route>
         </Route>
       </Routes>
     </Router>

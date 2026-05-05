@@ -1,5 +1,7 @@
 import { type AdminHomeProps } from "../../presentation/page/AdminHome";
+import { useNavigate } from "react-router-dom";
 export const useGenerateProps = (): AdminHomeProps => {
+    const navigate = useNavigate();
     // 本来はAPIからpost一覧を取得するが、一旦ダミーデータを返す
     return {
         posts: [
@@ -7,10 +9,10 @@ export const useGenerateProps = (): AdminHomeProps => {
             { id: '2', title: 'Reactの勉強', date: '2024-02-01' },
         ],
         onWriteClick: () => {
-            alert('ブログ投稿機能はまだ実装されていません。');
+            navigate('/admin/edit');
         },
         onPostClick: (id: string) => {
-            alert(`ブログID ${id} がクリックされましたが、詳細表示機能はまだ実装されていません。`);
+            navigate(`/admin/edit/${id}`);
         }
     }
 };

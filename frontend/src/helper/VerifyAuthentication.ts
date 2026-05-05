@@ -1,7 +1,8 @@
+import type { HonoRequest } from 'hono';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
-const verifyAuthn = async (req: Request, env: Env) : Promise<boolean> => {
-    const jwt = req.headers.get('CF_Authorization');
+export const verifyAuthn = async (req: HonoRequest, env: { TEAM_DOMAIN: string; AUD: string }) : Promise<boolean> => {
+    const jwt = req.header('CF_Authorization');
     if (!jwt) {
         return false;
     }

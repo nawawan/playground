@@ -26,49 +26,74 @@ export type EditorOverlayProps = {
     onScroll: () => void;
 };
 
-const EditorOverlay = ({ preRef, textareaRef, markdown, onChange, onScroll }: EditorOverlayProps) => (
-    <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
-        <pre
-            ref={preRef}
-            aria-hidden="true"
-            style={{
-                ...sharedEditorStyle,
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                overflow: 'hidden',
-                pointerEvents: 'none',
-                backgroundColor: 'transparent',
-                color: '#e2e8f0',
-            }}
-            dangerouslySetInnerHTML={{ __html: highlightMarkdownSyntax(markdown) + '\n' }}
-        />
-        <textarea
-            ref={textareaRef}
-            value={markdown}
-            onChange={onChange}
-            onScroll={onScroll}
-            placeholder="Enter markdown here..."
-            spellCheck={false}
-            style={{
-                ...sharedEditorStyle,
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                resize: 'none',
-                border: 'none',
-                outline: 'none',
-                backgroundColor: 'transparent',
-                color: 'transparent',
-                caretColor: '#e2e8f0',
-                overflow: 'auto',
-            }}
-        />
-    </div>
-);
+const EditorOverlay = ({ preRef, textareaRef, markdown, onChange, onScroll }: EditorOverlayProps) => {
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if(file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const imageUrl = event.target?.result as string;
+                    onChange({
+                        target: { value: markdown + `\n![${file.name}](${imageUrl})` },
+                    } as React.ChangeEvent<HTMLTextAreaElement>);
+                };
+                reader.readAsDataURL(file);
+                return;
+            }
+        }
+    };
+    return (
+        <div 
+            style={{ position: 'relative', flex: 1, overflow: 'hidden' }}
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+        >
+            <pre
+                ref={preRef}
+                aria-hidden="true"
+                style={{
+                    ...sharedEditorStyle,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    overflow: 'hidden',
+                    pointerEvents: 'none',
+                    backgroundColor: 'transparent',
+                    color: '#e2e8f0',
+                }}
+                dangerouslySetInnerHTML={{ __html: highlightMarkdownSyntax(markdown) + '\n' }}
+            />
+            <textarea
+                ref={textareaRef}
+                value={markdown}
+                onChange={onChange}
+                onScroll={onScroll}
+                placeholder="Enter markdown here..."
+                spellCheck={false}
+                style={{
+                    ...sharedEditorStyle,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    resize: 'none',
+                    border: 'none',
+                    outline: 'none',
+                    backgroundColor: 'transparent',
+                    color: 'transparent',
+                    caretColor: '#e2e8f0',
+                    overflow: 'auto',
+                }}
+            />
+        </div>
+    );  
+};
 
 export default EditorOverlay;
