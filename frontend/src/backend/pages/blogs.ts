@@ -48,6 +48,8 @@ blogs.post('/drafts', async (c) : Promise<Response> => {
     const apiUrl = c.env.API_URL;
     const jwt = c.req.header(JWT_HEADER) ?? "";
 
+    console.log("jwt: " + jwt);
+
     const resp: string = await BlogService.createBlogId(apiUrl, jwt);
     return c.json(resp);
 });
