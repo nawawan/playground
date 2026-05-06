@@ -4,7 +4,7 @@ use aws_sdk_s3::primitives::ByteStream;
 use tracing::error;
 
 use usecase::errors::repo_error::RepoError;
-use usecase::model::blog::{self, Blog, BlogFilter};
+use usecase::model::blog::{Blog, BlogFilter};
 use usecase::model::image::Image;
 use usecase::repository::blog::BlogRepository;
 use usecase::repository::types::Transaction;
@@ -45,16 +45,20 @@ impl BlogRepository for Repository {
             })
     }
 
-    async fn create_draft(&self, tx: &mut Transaction<'_>) -> Result<String, RepoError> {
-        let res =
-            sqlx::query!("INSERT INTO blogs (id, status, title, content_key) VALUES (DEFAULT, 'DRAFT', '', '') RETURNING id")
-                .fetch_one(&mut **tx)
-                .await
-                .map_err(|e| {
-                    error!("Failed to create draft blog: {}", e);
-                    RepoError::Internal("Failed to create draft blog".to_string())
-                })?;
-        return Ok(res.id.simple().to_string());
+    async fn create_draft(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<String, RepoError> {
+        sqlx::query!(
+            "INSERT INTO blogs (id, status, title, content_key) VALUES ($1, 'DRAFT', $2, $3)",
+            blog.id,
+            blog.title,
+            blog.content_key
+        )
+        .execute(&mut **tx)
+        .await
+        .map_err(|e| {
+            error!("Failed to create draft blog: {}", e);
+            RepoError::Internal("Failed to create draft blog".to_string())
+        })?;
+        Ok(blog.id.simple().to_string())
     }
 
     async fn create_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
@@ -165,8 +169,15 @@ mod tests {
             },
         );
 
+        let id = Uuid::now_v7();
+        let blog = Blog {
+            id,
+            title: String::new(),
+            content_key: format!("uploads/blogs/{}.html", id),
+            status: usecase::model::blog::BlogStatus::Draft,
+        };
         let mut tx = repo.pool.begin().await?;
-        let draft_id = repo.create_draft(&mut tx).await;
+        let draft_id = repo.create_draft(&mut tx, blog).await;
 
         if let Ok(id) = draft_id {
             assert!(!id.is_empty());
