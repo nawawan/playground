@@ -105,7 +105,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     };
 
     return (
-        <Stack spacing={2}>
+        <Stack spacing={2} sx={{ height: '100%', overflow: 'hidden' }}>
             <Stack spacing={2} direction='row' alignItems='flex-start'>
                 <TextField
                     required
@@ -127,7 +127,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     <StyledButton onClick={handleSave}>Save</StyledButton>
                 </Box>
             </Stack>
-            <Box sx={{ display: 'flex', gap: '20px', height: '400px' }}>
+            <Box sx={{ display: 'flex', gap: '20px', flex: 1, minHeight: 0 }}>
                 <EditorPane
                     lineNumRef={lineNumRef}
                     preRef={preRef}
