@@ -8,6 +8,8 @@ import { verifyAuthn } from '../../helper/VerifyAuthentication';
 
 import { type BlogDetails, type BlogResponse } from '../../shared/types/blog';
 
+const JWT_HEADER = "Cf-Access-Jwt-Assertion";
+
 type Env = {
     API_URL: string;
     BLOG_BUCKET: R2Bucket;
@@ -36,15 +38,17 @@ blogs.get('/', async (c) : Promise<Response> => {
 blogs.post('/', async (c) : Promise<Response> => {
     const apiUrl = c.env.API_URL;
     const { title, content } = await c.req.json();
+    const jwt = c.req.header(JWT_HEADER) ?? "";
 
-    const resp: BlogResponse = await BlogService.createBlog(apiUrl, title, content);
+    const resp: BlogResponse = await BlogService.createBlog(apiUrl, jwt, title, content);
     return c.json(resp);
 });
 
 blogs.post('/drafts', async (c) : Promise<Response> => {
     const apiUrl = c.env.API_URL;
+    const jwt = c.req.header(JWT_HEADER) ?? "";
 
-    const resp: string = await BlogService.createBlogId(apiUrl);
+    const resp: string = await BlogService.createBlogId(apiUrl, jwt);
     return c.json(resp);
 });
 
@@ -85,7 +89,7 @@ blogs.post('/:id/md',
     zValidator('param', z.object({id: z.string()})),
     accessAuth, 
     async(c): Promise<Response> => {
-
+    
     if(!c.req.raw.body) {
         return c.json({ error: 'No draft file provided'}, 400);
     }

@@ -1,8 +1,9 @@
 import type { HonoRequest } from 'hono';
+import * as Sentry from '@sentry/cloudflare';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 export const verifyAuthn = async (req: HonoRequest, env: { TEAM_DOMAIN: string; AUD: string }) : Promise<boolean> => {
-    const jwt = req.header('CF_Authorization');
+    const jwt = req.header('Cf-Access-Jwt-Assertion');
     if (!jwt) {
         return false;
     }
@@ -16,6 +17,7 @@ export const verifyAuthn = async (req: HonoRequest, env: { TEAM_DOMAIN: string; 
         });
         return true;
     } catch (e) {
+        Sentry.captureException(e);
         console.error('Error verifying authentication:', e);
         return false;
     }
