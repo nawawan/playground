@@ -47,7 +47,7 @@ impl BlogRepository for Repository {
 
     async fn create_draft(&self, tx: &mut Transaction<'_>) -> Result<String, RepoError> {
         let res =
-            sqlx::query!("INSERT INTO blogs (id, status) VALUES (DEFAULT, 'DRAFT') RETURNING id")
+            sqlx::query!("INSERT INTO blogs (id, status, title, content_key) VALUES (DEFAULT, 'DRAFT', '', '') RETURNING id")
                 .fetch_one(&mut **tx)
                 .await
                 .map_err(|e| {

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO blogs (id, status) VALUES (DEFAULT, 'DRAFT') RETURNING id",
+  "query": "INSERT INTO blogs (id, status, title, content_key) VALUES (DEFAULT, 'DRAFT', '', '') RETURNING id",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "7094f9c9a2a38fb7650ec936a5470acebd0a073a16c009f33cb054809560559b"
+  "hash": "430221eb41121f9253323355b2c36a9cafedbb840b7fd929019ca583121efb08"
 }
