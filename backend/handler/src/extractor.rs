@@ -1,6 +1,7 @@
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use std::sync::Arc;
+use tracing::error;
 
 use usecase::model::user::User;
 use usecase::service::service::Service;
@@ -26,7 +27,10 @@ impl FromRequestParts<Arc<Service>> for AuthorizedUser {
             .headers
             .get(CF_JWT_HEADER)
             .and_then(|v| v.to_str().ok())
-            .ok_or_else(|| UsecaseError::unauthorized("unauthorized error"))?;
+            .ok_or_else(|| {
+                error!("unauthorized error: failed to fetch jwt");
+                UsecaseError::unauthorized("unauthorized error")
+            })?;
 
         let claims = verify_cf_jwt(token, &service.jwks_cache, &service.config.cf_access_aud)
             .await
@@ -37,13 +41,17 @@ impl FromRequestParts<Arc<Service>> for AuthorizedUser {
                     JwtError::JwksFetch(_) => "failed to fetch JWKS",
                     JwtError::UnknownKid(_) => "unknown JWT key ID",
                 };
+                error!(msg);
                 UsecaseError::unauthorized(msg)
             })?;
 
         let user = service
             .get_user_by_email(&claims.email)
             .await
-            .map_err(|_| UsecaseError::unauthorized("unauthorized error"))?;
+            .map_err(|_| {
+                error!("Failed to get user from jwt");
+                UsecaseError::unauthorized("unauthorized error")
+            })?;
 
         Ok(Self { user })
     }
