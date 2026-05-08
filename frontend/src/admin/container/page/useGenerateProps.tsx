@@ -35,14 +35,14 @@ export const useGenerateProps = (): AdminHomeProps => {
             method: 'POST',
         });
         const id: string = await res.json();
-        navigate(`/admin/edit/${id}`);
+        navigate(`/admin/blogs/${id}/edit`);
     };
 
     return {
         posts: blogs,
         onWriteClick: onWriteClick,
         onPostClick: (id: string) => {
-            navigate(`/admin/edit/${id}`);
+            navigate(`/admin/blogs/${id}/edit`);
         }
     }
 };
