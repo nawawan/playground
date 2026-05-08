@@ -45,7 +45,11 @@ impl BlogRepository for Repository {
             })
     }
 
-    async fn create_draft(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<String, RepoError> {
+    async fn create_draft(
+        &self,
+        tx: &mut Transaction<'_>,
+        blog: Blog,
+    ) -> Result<String, RepoError> {
         sqlx::query!(
             "INSERT INTO blogs (id, status, title, content_key) VALUES ($1, 'DRAFT', $2, $3)",
             blog.id,
