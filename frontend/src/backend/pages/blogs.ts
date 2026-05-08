@@ -30,8 +30,9 @@ const blogs = new Hono<{ Bindings: Env }>();
 
 blogs.get('/', async (c) : Promise<Response> => {
     const apiUrl = c.env.API_URL;
+    const status = c.req.query('status');
 
-    const resp: BlogResponse[] = await BlogService.getBlogs(apiUrl);
+    const resp: BlogResponse[] = await BlogService.getBlogs(apiUrl, status);
     return c.json(resp);
 });
 
@@ -81,6 +82,7 @@ blogs.get('/:id/md',
 
     const { id } = c.req.valid('param');
     const markdown = await BlogService.getBlogDraft(c.env.BLOG_BUCKET, id);
+    console.log(id + ": " + markdown);
 
     return c.json(markdown);
 });
