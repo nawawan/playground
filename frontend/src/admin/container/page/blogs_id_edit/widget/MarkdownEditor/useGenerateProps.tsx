@@ -26,9 +26,14 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps => {
     }, []);
 
     const handleTemporarySave = useDebouncedCallback((markdown: string) => {
+        console.log(`handleTemporarySave run! ${article_id}`);
         if(article_id == "") return;
         localStorage.setItem(article_id, markdown);
-    }, 1000);
+    }, 2000);
+
+    const temporarySave = (inputText: string) => {
+        handleTemporarySave(inputText);
+    };
 
     const handleSave = useCallback(async (title: string, slug: string, markdown: string) => {
         try {
@@ -53,7 +58,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps => {
     return {
         markdown: markdown,
         onSave: handleSave,
-        onSaveTemporary: handleTemporarySave
+        onSaveTemporary: temporarySave
     };
 };
 
