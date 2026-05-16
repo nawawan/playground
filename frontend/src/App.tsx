@@ -3,7 +3,7 @@ import HomePageContainer from "./home/container/page/Container";
 import { BlogTopContainer } from "./blog/container/page/blogs/Container";
 import BlogContainer from "./blog/container/page/blog_id/Container";
 import AdminHomeContainer from "./admin/container/page/Container";
-import EditBlogContainer from "./admin/container/page/edit_id/Container";
+import EditBlogContainer from "./admin/container/page/blogs_id_edit/Container";
 import { RequireAuth } from "./auth/RequireAuth";
 import 'highlight.js/styles/github.css'; 
 
