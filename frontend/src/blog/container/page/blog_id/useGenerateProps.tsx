@@ -7,12 +7,14 @@ import SidebarContainer from "../blogs/widgets/Sidebar/Container";
 import MarkdownHtml from "../../../presentation/MarkdownHtml/MarkdownHtml";
 import { type BlogDetails } from "../../../../shared/types/blog";
 
-const useGenerateProps = (): BlogProps => {
+const useGenerateProps = (): BlogProps & { isLoading: boolean } => {
     const [blog, setBlog] = useState<BlogDetails>();
+    const [isLoading, setIsLoading] = useState(true);
     const { blogId } = useParams<{ blogId: string }>();
 
     useEffect(() => {
         if (!blogId) {
+            setIsLoading(false);
             return;
         }
 
@@ -26,6 +28,8 @@ const useGenerateProps = (): BlogProps => {
                 setBlog(data);
             } catch (error) {
                 Sentry.captureException(new Error("Failed to fetch blog: " + (error instanceof Error ? error.message : String(error))));
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchBlog();
@@ -36,14 +40,15 @@ const useGenerateProps = (): BlogProps => {
             title: "No Content",
             content: "No content available for this blog post.",
             sidebar: <SidebarContainer />,
+            isLoading,
         };
     }
-
 
     return {
         title: blog?.title || "No Title",
         content: <MarkdownHtml htmlBody={blog?.content_html} />,
         sidebar: <SidebarContainer />,
+        isLoading,
     }
 }
 
