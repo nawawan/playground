@@ -1,8 +1,10 @@
 import { type BlogResponse } from "../../shared/types/blog";
 
 export const BlogService = {
-    async getBlogs(apiUrl: string) : Promise<BlogResponse[]> {
-        const response = await fetch(`${apiUrl}/api/blogs`);
+    async getBlogs(apiUrl: string, status?: string) : Promise<BlogResponse[]> {
+        const url = new URL(`${apiUrl}/api/blogs`);
+        if (status) url.searchParams.set('status', status);
+        const response = await fetch(url.toString());
         if (!response.ok) {
             throw new Error('Failed to fetch blogs');
         }

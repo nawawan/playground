@@ -12,7 +12,7 @@ export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch("/api/blogs");
+                const res = await fetch("/api/blogs?status=PUBLISHED");
                 if (!res.ok) throw new Error("Failed to fetch blogs");
                 const data = (await res.json()) as BlogResponse[];
                 setPosts(
