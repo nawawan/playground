@@ -5,8 +5,9 @@ import { useNavigate } from "react-router-dom";
 import type { BlogResponse } from '../../../shared/types/blog';
 
 
-export const useGenerateProps = (): AdminHomeProps => {
+export const useGenerateProps = (): AdminHomeProps & { isLoading: boolean } => {
     const [blogs, setBlogs] = useState<Blog[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,6 +26,8 @@ export const useGenerateProps = (): AdminHomeProps => {
             } catch (e) {
                 Sentry.captureException(new Error("Failed to fetch blogs: " + (e instanceof Error ? e.message : String(e))));
                 setBlogs([]);
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchData();
@@ -43,7 +46,8 @@ export const useGenerateProps = (): AdminHomeProps => {
         onWriteClick: onWriteClick,
         onPostClick: (id: string) => {
             navigate(`/admin/edit/${id}`);
-        }
+        },
+        isLoading,
     }
 };
 

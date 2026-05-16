@@ -4,9 +4,10 @@ import * as Sentry from "@sentry/react";
 import { type EntryCardProps } from "../../../../../presentation/EntryCards/EntryCard";
 import { type BlogResponse } from "../../../../../../shared/types/blog";
 
-export const useGenerateProps = (): EntryCardProps => {
+export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState<EntryCardProps["posts"]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,6 +25,8 @@ export const useGenerateProps = (): EntryCardProps => {
             } catch (e) {
                 Sentry.captureException(new Error("Failed to fetch blogs: " + (e instanceof Error ? e.message : String(e))));
                 setPosts([]);
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchData();
@@ -34,5 +37,6 @@ export const useGenerateProps = (): EntryCardProps => {
         onClick: (id: string) => {
             navigate(`/blogs/${id}`);
         },
+        isLoading,
     };
 }
