@@ -43,13 +43,20 @@ impl BlogService for Service {
     }
 
     async fn create_draft(&self) -> Result<String, AppError> {
+        let id = Uuid::now_v7();
+        let blog = blog::Blog {
+            id,
+            title: String::new(),
+            content_key: format!("uploads/blogs/{}.html", id),
+            status: BlogStatus::Draft,
+        };
         let mut tx = self.repository.create_transaction().await?;
-        let id = self.repository.create_draft(&mut tx).await?;
+        let id_str = self.repository.create_draft(&mut tx, blog).await?;
         tx.commit().await.map_err(|e| {
             error!("Failed to commit transaction for creating draft: {e}");
             AppError::internal(Some("Transaction commit failed"))
         })?;
-        Ok(id)
+        Ok(id_str)
     }
 
     async fn create_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
