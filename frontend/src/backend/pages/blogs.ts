@@ -102,7 +102,7 @@ blogs.post('/:id/md',
     return c.json({ status: 'successs' });
 });
 
-blogs.put('/images', async (c)  => {
+blogs.put('/images', accessAuth, async (c)  => {
     if (!c.req.raw.body) {
         return c.json({ error: 'No image file provided' }, 400);
     }
