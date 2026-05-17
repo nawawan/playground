@@ -3,9 +3,9 @@ import type { EditBlogProps } from '../../../presentation/page/edit_id/BlogEdit'
 import MarkdownEditorContainer from './widget/MarkdownEditor/Container';
 
 const useGenerateProps = (): EditBlogProps => {
-    const { blog_id } = useParams<{ blog_id: string }>();
+    const { blogId } = useParams<{ blogId: string }>();
     return {
-        Editor: <MarkdownEditorContainer article_id={blog_id ?? ""} />,
+        Editor: <MarkdownEditorContainer article_id={blogId ?? ""} />,
     };
 };
 

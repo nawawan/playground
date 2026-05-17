@@ -63,7 +63,6 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                 span: ['class'],
             },
         });
-        console.log(onSaveTemporary);
         onSaveTemporary?.(text);
         setHtml(sanitizedHtml);
     }, [onSaveTemporary]);
