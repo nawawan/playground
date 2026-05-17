@@ -9,7 +9,8 @@ pub struct CreateBlogRequest {
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct UpdateBlogRequest {
     pub id: String,
-    pub title: String,
+    pub title: Option<String>,
+    pub slug: Option<String>,
     pub content: String,
 }
 

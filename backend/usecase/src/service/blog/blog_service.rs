@@ -1,13 +1,12 @@
 use super::super::service::Service;
 use crate::errors::app_error::AppError;
-use crate::model::blog::{self, Blog, BlogFilter, BlogRequest, BlogStatus};
+use crate::model::blog::{Blog, BlogFilter, BlogRequest, BlogStatus};
 use crate::model::helper::uuid_from_string;
 use crate::model::image::Image;
 
 use async_trait::async_trait;
 use bytes::Bytes;
 use shared::markdown_converter::convert;
-use std::env;
 use tracing::error;
 use uuid::Uuid;
 
@@ -44,9 +43,10 @@ impl BlogService for Service {
 
     async fn create_draft(&self) -> Result<String, AppError> {
         let id = Uuid::now_v7();
-        let blog = blog::Blog {
+        let blog = Blog {
             id,
-            title: String::new(),
+            title: Blog::default_title(),
+            slug: "".to_string(),
             content_key: format!("uploads/blogs/{}.html", id),
             status: BlogStatus::Draft,
         };
@@ -61,13 +61,14 @@ impl BlogService for Service {
 
     async fn create_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
         let uuid = Uuid::now_v7();
-        let content_key = format!("upload/blogs/{}.html", blog_req.title);
+        let content_key = format!("upload/blogs/{}.html", blog_req.id);
 
         let blog = Blog {
             id: uuid,
-            title: blog_req.title,
+            title: Blog::default_title(),
+            slug: "".to_string(),
             content_key: content_key,
-            status: BlogStatus::Published,
+            status: BlogStatus::Draft,
         };
 
         let result = {
@@ -89,26 +90,24 @@ impl BlogService for Service {
     }
 
     async fn update_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
-        if blog_req.id.is_none() {
-            error!("id is not set");
-            return Err(AppError::invalid(Some("invalid request")));
-        }
-        let blog_id_str = blog_req
-            .id
-            .ok_or(AppError::invalid(Some("Blog id is not set")))?;
-        let blog_id = Uuid::parse_str(&blog_id_str.clone()).map_err(|e| {
+        let blog_id = Uuid::parse_str(&blog_req.id.clone()).map_err(|_| {
             error!("A format of blog id is invalid");
             return AppError::invalid(Some("Invalid blog id"));
         })?;
 
-        let content_key = format!("upload/blogs/{}.html", blog_req.title);
+        let mut blog = self.repository.get_blog(blog_id).await?;
+        let content_key = format!("upload/blogs/{}.html", blog_req.id);
+        if blog.content_key != content_key {
+            blog.content_key = content_key;
+        }
 
-        let blog = Blog {
-            id: blog_id,
-            title: blog_req.title,
-            content_key: content_key,
-            status: BlogStatus::Published,
-        };
+        if let Some(title) = blog_req.title {
+            blog.title = title;
+        }
+
+        if let Some(slug) = blog_req.slug {
+            blog.slug = slug;
+        }
 
         let content_html = convert(&blog_req.content).map_err(|e| {
             error!("Failed to convert markdown into html");
@@ -117,9 +116,9 @@ impl BlogService for Service {
 
         let result = {
             let mut tx = self.repository.create_transaction().await?;
-            let blog = self.repository.create_blog(&mut tx, blog).await?;
+            let blog = self.repository.update_blog(&mut tx, blog).await?;
             self.repository
-                .upload_blog_file(blog_id_str, content_html)
+                .upload_blog_file(blog_req.id, content_html)
                 .await?;
 
             tx.commit().await.map_err(|e| {

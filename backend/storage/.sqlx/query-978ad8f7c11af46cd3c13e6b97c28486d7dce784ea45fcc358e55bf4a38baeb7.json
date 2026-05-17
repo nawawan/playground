@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, title, content_key, status FROM blogs WHERE id = $1",
+  "query": "SELECT id, title, slug, content_key, status FROM blogs WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -15,11 +15,16 @@
       },
       {
         "ordinal": 2,
-        "name": "content_key",
+        "name": "slug",
         "type_info": "Varchar"
       },
       {
         "ordinal": 3,
+        "name": "content_key",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
         "name": "status",
         "type_info": "Varchar"
       }
@@ -33,8 +38,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "2bc589076b4e27e7ac7da55d1cc23edda64dc061488666bdd10b2ed7e2c3e5f1"
+  "hash": "978ad8f7c11af46cd3c13e6b97c28486d7dce784ea45fcc358e55bf4a38baeb7"
 }

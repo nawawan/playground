@@ -35,14 +35,16 @@ pub struct Blog {
     pub id: Uuid,
     pub title: String,
     pub content_key: String,
+    pub slug: String,
     #[sqlx(try_from = "String")]
     pub status: BlogStatus,
 }
 
 #[derive(Debug, Clone)]
 pub struct BlogRequest {
-    pub id: Option<String>,
-    pub title: String,
+    pub id: String,
+    pub title: Option<String>,
+    pub slug: Option<String>,
     pub content: String,
 }
 
@@ -53,6 +55,12 @@ pub struct BlogFilter {
     pub order_desc: Option<bool>,
     pub start: Option<NaiveDateTime>,
     pub end: Option<NaiveDateTime>,
+}
+
+impl Blog {
+    pub fn default_title() -> String {
+        return "Untitled".to_string();
+    }
 }
 
 impl BlogFilter {

@@ -3,7 +3,6 @@ use async_trait::async_trait;
 use usecase::errors::repo_error::RepoError;
 use usecase::model::user::User;
 use usecase::repository::user::UserRepository;
-use uuid::Uuid;
 
 #[async_trait]
 impl UserRepository for Repository {
