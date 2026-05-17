@@ -19,6 +19,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
                 setMarkdown(draft);
             } catch (e) {
                 Sentry.captureException(e);
+                setMarkdown('');
             }
         };
 
