@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
@@ -33,10 +33,11 @@ const StyledButton = styled(Button)({
 });
 
 export type MarkdownEditorProps = {
+    id: string;
     title?: string;
     slug?: string;
     markdown?: string;
-    onSave: (title: string, slug: string, markdown: string) => void;
+    onSave: (markdown: string, id: string, title?: string, slug?: string) => void;
     onSaveTemporary?: (markdown: string) => void;
 };
 
@@ -44,23 +45,29 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const { onSaveTemporary } = props;
     const [markdown, setMarkdown] = useState(props.markdown ?? "");
     const [html, setHtml] = useState('');
-    const [title, setTitle] = useState(props.title ?? "");
-    const [slug, setSlug] = useState(props.slug ?? "");
+    const [title, setTitle] = useState(props.title);
+    const [slug, setSlug] = useState(props.slug);
     const [errors, setErrors] = useState<{ title?: string; slug?: string }>({});
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const preRef = useRef<HTMLPreElement>(null);
     const lineNumRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        updateMarkdown(markdown);
+    }, []);
+
     const updateMarkdown = useCallback(async (text: string) => {
+        if(text == '') return;
         setMarkdown(text);
         const rawHtml = await marked.parse(text);
         const sanitizedHtml = sanitizeHtml(rawHtml, {
-            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['pre', 'code', 'span']),
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['pre', 'code', 'span', 'img']),
             disallowedTagsMode: 'recursiveEscape',
             allowedAttributes: {
                 ...sanitizeHtml.defaults.allowedAttributes,
                 code: ['class'],
                 span: ['class'],
+                img: ['src', 'alt', 'title', 'width', 'height'],
             },
         });
         onSaveTemporary?.(text);
@@ -101,14 +108,13 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             return;
         }
         setErrors({});
-        props.onSave(title, slug, markdown);
+        props.onSave(markdown, props.id, title, slug);
     };
 
     return (
         <Stack spacing={2} sx={{ height: '100%', overflow: 'hidden' }}>
             <Stack spacing={2} direction='row' alignItems='flex-start'>
                 <TextField
-                    required
                     label="title"
                     value={title}
                     onChange={e => setTitle(e.target.value)}
@@ -116,7 +122,6 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     helperText={errors.title}
                 />
                 <TextField
-                    required
                     label="slug"
                     value={slug}
                     onChange={e => setSlug(e.target.value)}

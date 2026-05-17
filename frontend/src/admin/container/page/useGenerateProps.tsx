@@ -44,8 +44,8 @@ export const useGenerateProps = (): AdminHomeProps & { isLoading: boolean } => {
     return {
         posts: blogs,
         onWriteClick: onWriteClick,
-        onPostClick: (id: string) => {
-            navigate(`/admin/blogs/${id}/edit`);
+        onPostClick: (id: string, title: string) => {
+            navigate(`/admin/blogs/${id}/edit?title=${title}`);
         },
         isLoading,
     }
