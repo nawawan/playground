@@ -21,7 +21,7 @@
   ],
   "env": {
     "preview": {
-      "workers_dev": true,
+      "workers_dev": false,
       "r2_buckets": [
         {
           "binding": "BLOG_BUCKET",
