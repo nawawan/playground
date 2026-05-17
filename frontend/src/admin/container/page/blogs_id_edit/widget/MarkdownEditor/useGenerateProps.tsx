@@ -24,7 +24,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
         };
 
         fetchData();
-    }, []);
+    }, [article_id]);
 
     const handleTemporarySave = useDebouncedCallback((markdown: string) => {
         if(article_id == "") return;
