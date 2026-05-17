@@ -27,7 +27,6 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
     }, []);
 
     const handleTemporarySave = useDebouncedCallback((markdown: string) => {
-        console.log(`handleTemporarySave run! ${article_id}`);
         if(article_id == "") return;
         localStorage.setItem(article_id, markdown);
     }, 2000);

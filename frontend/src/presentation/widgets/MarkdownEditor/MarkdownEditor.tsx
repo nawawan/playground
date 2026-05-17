@@ -113,7 +113,6 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         <Stack spacing={2} sx={{ height: '100%', overflow: 'hidden' }}>
             <Stack spacing={2} direction='row' alignItems='flex-start'>
                 <TextField
-                    required
                     label="title"
                     value={title}
                     onChange={e => setTitle(e.target.value)}
@@ -121,7 +120,6 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     helperText={errors.title}
                 />
                 <TextField
-                    required
                     label="slug"
                     value={slug}
                     onChange={e => setSlug(e.target.value)}
