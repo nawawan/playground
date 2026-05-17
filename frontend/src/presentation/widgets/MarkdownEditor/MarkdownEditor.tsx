@@ -60,12 +60,13 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         setMarkdown(text);
         const rawHtml = await marked.parse(text);
         const sanitizedHtml = sanitizeHtml(rawHtml, {
-            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['pre', 'code', 'span']),
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['pre', 'code', 'span', 'img']),
             disallowedTagsMode: 'recursiveEscape',
             allowedAttributes: {
                 ...sanitizeHtml.defaults.allowedAttributes,
                 code: ['class'],
                 span: ['class'],
+                img: ['src', 'alt', 'title', 'width', 'height'],
             },
         });
         onSaveTemporary?.(text);
