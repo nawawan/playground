@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect, useEffectEvent } from 'react';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
@@ -51,7 +51,12 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const preRef = useRef<HTMLPreElement>(null);
     const lineNumRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        updateMarkdown(markdown);
+    }, []);
+
     const updateMarkdown = useCallback(async (text: string) => {
+        if(text == '') return;
         setMarkdown(text);
         const rawHtml = await marked.parse(text);
         const sanitizedHtml = sanitizeHtml(rawHtml, {
