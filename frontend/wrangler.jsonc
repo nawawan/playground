@@ -29,13 +29,13 @@
         "DSN": "https://54edfa7ae3ff6c3962b2089c7cf85591@o4511330126135296.ingest.us.sentry.io/4511330155364352"
       },
       "routes": [
-        { "pattern": "dev.nawawan.com/*" }
+        { "pattern": "dev.nawawan.com/*", "zone_name": "nawawan.com" }
       ]
     },
     "production": {
       "workers_dev": false,
       "routes": [
-        { "pattern": "app.nawawan.com/*" }
+        { "pattern": "app.nawawan.com/*", "zone_name": "nawawan.com" }
       ],
       "r2_buckets": [
         {
