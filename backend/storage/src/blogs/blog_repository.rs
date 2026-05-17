@@ -67,9 +67,10 @@ impl BlogRepository for Repository {
 
     async fn create_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "INSERT INTO blogs (id, title, status, content_key) VALUES ($1, $2, 'PUBLISHED', $3)",
+            "INSERT INTO blogs (id, title, slug, status, content_key) VALUES ($1, $2, $3, 'PUBLISHED', $4)",
             blog.id,
             blog.title,
+            blog.slug,
             blog.content_key
         )
         .execute(&mut **tx)
@@ -203,7 +204,7 @@ mod tests {
                 cf_access_aud: "test_aud".into(),
             },
         );
-        let blog = Blog {
+        let mut blog = Blog {
             id: Uuid::now_v7(),
             title: "Test Blog".to_string(),
             slug: "test".to_string(),
@@ -213,6 +214,7 @@ mod tests {
 
         let mut tx = repo.pool.begin().await?;
         let _ = repo.create_blog(&mut tx, blog.clone()).await;
+        blog.content_key = "test".to_string();
         let result = repo.create_blog(&mut tx, blog).await;
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), RepoError::Conflict(_)));
