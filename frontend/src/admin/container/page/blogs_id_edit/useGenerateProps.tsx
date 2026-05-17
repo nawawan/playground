@@ -4,6 +4,7 @@ import MarkdownEditorContainer from './widget/MarkdownEditor/Container';
 
 const useGenerateProps = (): EditBlogProps => {
     const { blogId } = useParams<{ blogId: string }>();
+    console.log("blogId :" + blogId);
     return {
         Editor: <MarkdownEditorContainer article_id={blogId ?? ""} />,
     };

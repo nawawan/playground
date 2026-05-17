@@ -4,6 +4,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 export const verifyAuthn = async (req: HonoRequest, env: { TEAM_DOMAIN: string; AUD: string }) : Promise<boolean> => {
     const jwt = req.header('Cf-Access-Jwt-Assertion');
+    console.log(jwt);
     if (!jwt) {
         return false;
     }
