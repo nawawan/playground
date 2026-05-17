@@ -39,10 +39,10 @@ blogs.get('/', async (c) => {
 
 blogs.post('/', async (c) => {
     const apiUrl = c.env.API_URL;
-    const { id, title, content } = await c.req.json();
+    const { id, title, content, slug } = await c.req.json();
     const jwt = c.req.header(JWT_HEADER) ?? "";
 
-    const resp: BlogResponse = await BlogService.createBlog(apiUrl, jwt, id, title, content);
+    const resp: BlogResponse = await BlogService.createBlog(apiUrl, jwt, id, content, title, slug);
     return c.json(resp);
 });
 
