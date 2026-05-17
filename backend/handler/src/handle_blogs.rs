@@ -6,13 +6,12 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::error;
 
-use crate::model::blog::{BlogResponse, GetBlogRequest};
+use crate::model::blog::BlogResponse;
 use crate::model::image::ImageResponse;
 use crate::{extractor::AuthorizedUser, model::blog::UpdateBlogRequest};
 
 use super::error::UsecaseError;
 use super::handler::Handler;
-use super::model::blog::CreateBlogRequest;
 use usecase::model::blog::BlogRequest;
 use usecase::service::blog::blog_service::BlogService;
 use usecase::service::service::Service;

@@ -1,13 +1,12 @@
 use super::super::service::Service;
 use crate::errors::app_error::AppError;
-use crate::model::blog::{self, Blog, BlogFilter, BlogRequest, BlogStatus};
+use crate::model::blog::{Blog, BlogFilter, BlogRequest, BlogStatus};
 use crate::model::helper::uuid_from_string;
 use crate::model::image::Image;
 
 use async_trait::async_trait;
 use bytes::Bytes;
 use shared::markdown_converter::convert;
-use std::env;
 use tracing::error;
 use uuid::Uuid;
 
@@ -91,7 +90,7 @@ impl BlogService for Service {
     }
 
     async fn update_blog(&self, blog_req: BlogRequest) -> Result<Blog, AppError> {
-        let blog_id = Uuid::parse_str(&blog_req.id.clone()).map_err(|e| {
+        let blog_id = Uuid::parse_str(&blog_req.id.clone()).map_err(|_| {
             error!("A format of blog id is invalid");
             return AppError::invalid(Some("Invalid blog id"));
         })?;
@@ -106,9 +105,7 @@ impl BlogService for Service {
             blog.title = title;
         }
 
-        if let Some(slug) = blog_req.slug
-            && blog.slug != ""
-        {
+        if let Some(slug) = blog_req.slug {
             blog.slug = slug;
         }
 
