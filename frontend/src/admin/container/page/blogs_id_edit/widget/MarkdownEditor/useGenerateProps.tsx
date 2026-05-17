@@ -3,8 +3,8 @@ import * as Sentry from '@sentry/react';
 import type { MarkdownEditorProps } from '../../../../../../presentation/widgets/MarkdownEditor/MarkdownEditor';
 import { useDebouncedCallback } from 'use-debounce';
 
-const useGenerateProps = (article_id: string): MarkdownEditorProps => {
-    const [markdown, setMarkdown] = useState('');
+const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: boolean } => {
+    const [markdown, setMarkdown] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,7 +56,8 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps => {
     }, []);
 
     return {
-        markdown: markdown,
+        markdown: markdown ?? '',
+        loaded: markdown !== null,
         onSave: handleSave,
         onSaveTemporary: temporarySave
     };

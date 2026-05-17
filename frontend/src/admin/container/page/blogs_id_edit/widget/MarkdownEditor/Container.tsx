@@ -1,3 +1,4 @@
+import { Box, CircularProgress } from '@mui/material';
 import MarkdownEditor from '../../../../../../presentation/widgets/MarkdownEditor/MarkdownEditor';
 import useGenerateProps from './useGenerateProps';
 
@@ -6,7 +7,12 @@ type Props = {
 };
 
 const Container = (props: Props) => {
-    const generatedProps = useGenerateProps(props.article_id);
+    const { loaded, ...generatedProps } = useGenerateProps(props.article_id);
+    if (!loaded) return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <CircularProgress />
+        </Box>
+    );
     return <MarkdownEditor {...generatedProps} />;
 };
 
