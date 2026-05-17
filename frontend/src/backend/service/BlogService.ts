@@ -13,10 +13,6 @@ export const BlogService = {
     },
 
     async createBlog(apiUrl: string, jwt: string, id: string, content: string, title?: string, slug?: string) : Promise<BlogResponse> {
-        console.log("createBlog");
-        console.log("title: " + title);
-        console.log("id: " + id);
-        console.log("slug: " + slug);
         const response = await fetch(`${apiUrl}/api/blogs`, {
             method: 'POST',
             headers: {
