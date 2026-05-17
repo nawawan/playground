@@ -36,7 +36,7 @@ export type MarkdownEditorProps = {
     title?: string;
     slug?: string;
     markdown?: string;
-    onSave: (title: string, slug: string, markdown: string) => void;
+    onSave: (markdown: string, title?: string, slug?: string) => void;
     onSaveTemporary?: (markdown: string) => void;
 };
 
@@ -44,8 +44,8 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const { onSaveTemporary } = props;
     const [markdown, setMarkdown] = useState(props.markdown ?? "");
     const [html, setHtml] = useState('');
-    const [title, setTitle] = useState(props.title ?? "");
-    const [slug, setSlug] = useState(props.slug ?? "");
+    const [title, setTitle] = useState(props.title);
+    const [slug, setSlug] = useState(props.slug);
     const [errors, setErrors] = useState<{ title?: string; slug?: string }>({});
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const preRef = useRef<HTMLPreElement>(null);
@@ -106,7 +106,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             return;
         }
         setErrors({});
-        props.onSave(title, slug, markdown);
+        props.onSave(markdown, title, slug);
     };
 
     return (

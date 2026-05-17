@@ -35,7 +35,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
         handleTemporarySave(inputText);
     };
 
-    const handleSave = useCallback(async (title: string, slug: string, markdown: string) => {
+    const handleSave = useCallback(async (markdown: string, title?: string, slug?: string) => {
         try {
             await fetch("api/blogs/", {
                 method: "POST",

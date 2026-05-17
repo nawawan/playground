@@ -4,6 +4,7 @@ import useGenerateProps from './useGenerateProps';
 
 type Props = {
     article_id: string;
+    title?: string;
 };
 
 const Container = (props: Props) => {
