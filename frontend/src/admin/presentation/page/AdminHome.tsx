@@ -10,7 +10,7 @@ export type Blog = {
 export type AdminHomeProps = {
   posts: Blog[];
   onWriteClick?: () => void;
-  onPostClick?: (id: string) => void;
+  onPostClick?: (id: string, title: string) => void;
 };
 
 function AdminHome(props: AdminHomeProps) {
@@ -46,7 +46,7 @@ function AdminHome(props: AdminHomeProps) {
         {posts.map((post) => (
           <ButtonBase
             key={post.id}
-            onClick={() => onPostClick?.(post.id)}
+            onClick={() => onPostClick?.(post.id, post.title)}
             sx={{
               display: "block",
               width: "100%",

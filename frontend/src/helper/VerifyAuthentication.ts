@@ -12,7 +12,7 @@ export const verifyAuthn = async (req: HonoRequest, env: { TEAM_DOMAIN: string; 
 
     try {
         await jwtVerify(jwt, JWKS, {
-            issuer: `https://${env.TEAM_DOMAIN}/`,
+            issuer: `https://${env.TEAM_DOMAIN}`,
             audience: env.AUD,
         });
         return true;

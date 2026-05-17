@@ -32,6 +32,13 @@ const MarkdownPreview = ({ html }: MarkdownPreviewProps) => (
                 overflowX: 'auto',
                 '& code': { backgroundColor: 'transparent', padding: 0 },
             },
+            '& img': {
+                maxWidth: '100%',
+                height: 'auto',
+                display: 'block',
+                margin: '1rem 0',
+                borderRadius: '4px',
+            },
         }}
         dangerouslySetInnerHTML={{ __html: html }}
     />

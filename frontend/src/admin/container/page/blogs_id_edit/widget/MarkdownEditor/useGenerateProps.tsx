@@ -3,8 +3,8 @@ import * as Sentry from '@sentry/react';
 import type { MarkdownEditorProps } from '../../../../../../presentation/widgets/MarkdownEditor/MarkdownEditor';
 import { useDebouncedCallback } from 'use-debounce';
 
-const useGenerateProps = (article_id: string): MarkdownEditorProps => {
-    const [markdown, setMarkdown] = useState('');
+const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: boolean } => {
+    const [markdown, setMarkdown] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,41 +19,49 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps => {
                 setMarkdown(draft);
             } catch (e) {
                 Sentry.captureException(e);
+                setMarkdown('');
             }
         };
 
         fetchData();
-    }, []);
+    }, [article_id]);
 
     const handleTemporarySave = useDebouncedCallback((markdown: string) => {
         if(article_id == "") return;
         localStorage.setItem(article_id, markdown);
-    }, 1000);
+    }, 2000);
 
-    const handleSave = useCallback(async (title: string, slug: string, markdown: string) => {
+    const temporarySave = (inputText: string) => {
+        handleTemporarySave(inputText);
+    };
+
+    const handleSave = useCallback(async (markdown: string, id: string, title?: string, slug?: string) => {
         try {
-            await fetch("api/blogs/", {
+            await fetch("/api/blogs", {
                 method: "POST",
                 body: JSON.stringify({
-                    title: title, 
-                    slug: slug, 
+                    id: id,
+                    title: title,
+                    slug: slug,
                     content: markdown
                 }),
             });
 
-            await fetch("api/blogs/:id/drafts", {
+            await fetch(`/api/blogs/${article_id}/md`, {
                 method: "POST",
                 body: markdown,
             });
         } catch (e) {
             Sentry.captureException(e);
         }
-    }, []);
+    }, [article_id]);
 
     return {
-        markdown: markdown,
+        id: article_id,
+        markdown: markdown ?? '',
+        loaded: markdown !== null,
         onSave: handleSave,
-        onSaveTemporary: handleTemporarySave
+        onSaveTemporary: temporarySave
     };
 };
 

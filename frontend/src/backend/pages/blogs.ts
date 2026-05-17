@@ -3,6 +3,7 @@ import { createMiddleware } from 'hono/factory'
 import { BlogService } from '../service/BlogService';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
+import * as Sentry from '@sentry/cloudflare';
 
 import { verifyAuthn } from '../../helper/VerifyAuthentication';
 
@@ -28,7 +29,7 @@ const accessAuth = createMiddleware<{ Bindings: Env }>(async (c, next) => {
 
 const blogs = new Hono<{ Bindings: Env }>();
 
-blogs.get('/', async (c) : Promise<Response> => {
+blogs.get('/', async (c) => {
     const apiUrl = c.env.API_URL;
     const status = c.req.query('status');
 
@@ -36,16 +37,16 @@ blogs.get('/', async (c) : Promise<Response> => {
     return c.json(resp);
 });
 
-blogs.post('/', async (c) : Promise<Response> => {
+blogs.post('/', async (c) => {
     const apiUrl = c.env.API_URL;
-    const { title, content } = await c.req.json();
+    const { id, title, content } = await c.req.json();
     const jwt = c.req.header(JWT_HEADER) ?? "";
 
-    const resp: BlogResponse = await BlogService.createBlog(apiUrl, jwt, title, content);
+    const resp: BlogResponse = await BlogService.createBlog(apiUrl, jwt, id, title, content);
     return c.json(resp);
 });
 
-blogs.post('/drafts', async (c) : Promise<Response> => {
+blogs.post('/drafts', async (c)  => {
     const apiUrl = c.env.API_URL;
     const jwt = c.req.header(JWT_HEADER) ?? "";
 
@@ -55,7 +56,7 @@ blogs.post('/drafts', async (c) : Promise<Response> => {
 
 blogs.get('/:id',
     zValidator('param', z.object({ id: z.string() })),
-    async (c) : Promise<Response> => {
+    async (c) => {
     const apiUrl = c.env.API_URL;
     const { id } = c.req.valid('param');
 
@@ -78,7 +79,7 @@ blogs.get('/:id',
 
 blogs.get('/:id/md', 
     zValidator('param', z.object({ id: z.string() })),
-    async (c): Promise<Response> => {
+    async (c) => {
 
     const { id } = c.req.valid('param');
     const markdown = await BlogService.getBlogDraft(c.env.BLOG_BUCKET, id);
@@ -90,10 +91,10 @@ blogs.get('/:id/md',
 blogs.post('/:id/md', 
     zValidator('param', z.object({id: z.string()})),
     accessAuth, 
-    async(c): Promise<Response> => {
+    async(c) => {
     
     if(!c.req.raw.body) {
-        return c.json({ error: 'No draft file provided'}, 400);
+        return c.notFound();
     }
     const { id } = c.req.valid('param');
     await BlogService.uploadBlogDraft(c.env.BLOG_BUCKET, id, c.req.raw.body);
@@ -101,13 +102,14 @@ blogs.post('/:id/md',
     return c.json({ status: 'successs' });
 });
 
-blogs.put('/images', accessAuth, async (c) : Promise<Response> => {
+blogs.put('/images', accessAuth, async (c)  => {
     if (!c.req.raw.body) {
         return c.json({ error: 'No image file provided' }, 400);
     }
 
     const uploadedImageKey = await BlogService.updateBlogImage(c.env.BLOG_BUCKET, c.req.raw.body)
         .catch((e) => {
+            Sentry.captureException("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
             throw new Error("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
         });
 
