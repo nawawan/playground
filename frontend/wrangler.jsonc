@@ -30,7 +30,7 @@
       },
       "routes": [
         { "pattern": "dev.nawawan.com/*" }
-      ],
+      ]
     },
     "production": {
       "workers_dev": false,
