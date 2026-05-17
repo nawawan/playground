@@ -18,7 +18,7 @@ impl BlogRepository for Repository {
     async fn get_blog(&self, id: Uuid) -> Result<Blog, RepoError> {
         let blog = sqlx::query_as!(
             Blog,
-            "SELECT id, title, content_key, status FROM blogs WHERE id = $1",
+            "SELECT id, title, slug, content_key, status FROM blogs WHERE id = $1",
             id
         )
         .fetch_one(&self.pool)
@@ -178,6 +178,7 @@ mod tests {
             id,
             title: String::new(),
             content_key: format!("uploads/blogs/{}.html", id),
+            slug: String::new(),
             status: usecase::model::blog::BlogStatus::Draft,
         };
         let mut tx = repo.pool.begin().await?;
@@ -205,6 +206,7 @@ mod tests {
         let blog = Blog {
             id: Uuid::now_v7(),
             title: "Test Blog".to_string(),
+            slug: "test".to_string(),
             content_key: "test-blog".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
         };

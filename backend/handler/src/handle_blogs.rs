@@ -79,8 +79,9 @@ impl Handler {
         }
 
         let blog_req = BlogRequest {
-            id: Some(req.id),
+            id: req.id,
             title: req.title,
+            slug: req.slug,
             content: req.content,
         };
 
