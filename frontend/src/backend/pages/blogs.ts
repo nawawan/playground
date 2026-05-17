@@ -3,6 +3,7 @@ import { createMiddleware } from 'hono/factory'
 import { BlogService } from '../service/BlogService';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
+import * as Sentry from '@sentry/cloudflare';
 
 import { verifyAuthn } from '../../helper/VerifyAuthentication';
 
@@ -93,7 +94,7 @@ blogs.post('/:id/md',
     async(c) => {
     
     if(!c.req.raw.body) {
-        return c.json({ error: 'No draft file provided'}, 400);
+        return c.notFound();
     }
     const { id } = c.req.valid('param');
     await BlogService.uploadBlogDraft(c.env.BLOG_BUCKET, id, c.req.raw.body);
@@ -108,6 +109,7 @@ blogs.put('/images', accessAuth, async (c)  => {
 
     const uploadedImageKey = await BlogService.updateBlogImage(c.env.BLOG_BUCKET, c.req.raw.body)
         .catch((e) => {
+            Sentry.captureException("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
             throw new Error("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
         });
 
