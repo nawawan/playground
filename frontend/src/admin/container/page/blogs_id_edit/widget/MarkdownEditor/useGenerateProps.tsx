@@ -35,11 +35,12 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
         handleTemporarySave(inputText);
     };
 
-    const handleSave = useCallback(async (markdown: string, title?: string, slug?: string) => {
+    const handleSave = useCallback(async (markdown: string, id: string, title?: string, slug?: string) => {
         try {
             await fetch("/api/blogs", {
                 method: "POST",
                 body: JSON.stringify({
+                    id: id,
                     title: title,
                     slug: slug,
                     content: markdown
@@ -56,6 +57,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
     }, [article_id]);
 
     return {
+        id: article_id,
         markdown: markdown ?? '',
         loaded: markdown !== null,
         onSave: handleSave,

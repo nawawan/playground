@@ -33,10 +33,11 @@ const StyledButton = styled(Button)({
 });
 
 export type MarkdownEditorProps = {
+    id: string;
     title?: string;
     slug?: string;
     markdown?: string;
-    onSave: (markdown: string, title?: string, slug?: string) => void;
+    onSave: (markdown: string, id: string, title?: string, slug?: string) => void;
     onSaveTemporary?: (markdown: string) => void;
 };
 
@@ -107,7 +108,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             return;
         }
         setErrors({});
-        props.onSave(markdown, title, slug);
+        props.onSave(markdown, props.id, title, slug);
     };
 
     return (
