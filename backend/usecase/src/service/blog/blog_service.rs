@@ -64,8 +64,6 @@ impl BlogService for Service {
         let uuid = Uuid::now_v7();
         let content_key = format!("upload/blogs/{}.html", blog_req.id);
 
-
-
         let blog = Blog {
             id: uuid,
             title: Blog::default_title(),
@@ -108,7 +106,9 @@ impl BlogService for Service {
             blog.title = title;
         }
 
-        if let Some(slug) = blog_req.slug && blog.slug != "" {
+        if let Some(slug) = blog_req.slug
+            && blog.slug != ""
+        {
             blog.slug = slug;
         }
 
