@@ -1,4 +1,4 @@
-name: frontend CICD
+name: Frontend Release CICD
 run-name: deploy frontend app to cloudflare workers
 on:
   workflow_dispatch:
