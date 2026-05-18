@@ -19,7 +19,7 @@ resource "google_cloud_run_v2_service" "nawawan_prod_service" {
     service_account = google_service_account.nawawan_prod_reader.email
 
     containers {
-      image = "asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:latest"
+      image = "asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:v1.0.2"
 
       env {
         name  = "ENV"
