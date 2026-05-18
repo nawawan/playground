@@ -43,12 +43,12 @@ resource "google_iam_workload_identity_pool_provider" "nawawan_prod_github_provi
     "attribute.repository" = "assertion.repository"
     "attribute.ref"        = "assertion.ref"
     "attribute.ref_type"   = "assertion.ref_type"
+    "attribute.event_name" = "assertion.event_name"
   }
 
   attribute_condition = <<EOT
     assertion.repository == "nawawan/playground" &&
-    assertion.ref_type == "branch" &&
-    assertion.ref == "refs/heads/main"
+    assertion.event_name in ["release", "workflow_dispatch"]
   EOT
 }
 
