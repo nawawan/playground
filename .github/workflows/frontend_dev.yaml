@@ -44,7 +44,7 @@ jobs:
       - name: Run tests
         run: cd frontend/src/maze-creator/wasm && cargo test
   build:
-    needs: [test]
+    needs: [test, lint]
     runs-on: [ubuntu-latest]
     steps:
       - name: Checkout repository
