@@ -2,7 +2,7 @@ resource "google_cloud_run_v2_service" "nawawan_prod_service" {
   provider            = google
   project             = var.project
   location            = var.region
-  deletion_protection = true
+  deletion_protection = false
   name                = "nawawan-prod-service"
   ingress             = "INGRESS_TRAFFIC_ALL"
 
