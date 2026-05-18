@@ -6,6 +6,18 @@ resource "google_secret_manager_secret" "github_token" {
   }
 }
 
+resource "google_secret_manager_secret" "prod_database_url" {
+  secret_id = "database-url"
+
+  labels = {
+    label = "prod-database-url"
+  }
+
+  replication {
+    auto {}
+  }
+}
+
 resource "google_secret_manager_secret" "prod_cloudflare_access_key_id" {
   secret_id = "prod_cloudflare_access_key_id"
 
