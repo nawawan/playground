@@ -12,7 +12,6 @@ resource "google_cloud_run_v2_service" "nawawan_prod_service" {
   }
 
   lifecycle {
-    ignore_changes = [template[0].containers[0].image]
   }
 
   template {
