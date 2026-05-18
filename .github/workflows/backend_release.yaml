@@ -91,7 +91,7 @@ jobs:
     needs: [check-skip, lint, test]
     if: needs.check-skip.outputs.skip != 'true'
     environment:
-      name: google_cloud
+      name: google_cloud_prod
     permissions:
       contents: read
       id-token: write
