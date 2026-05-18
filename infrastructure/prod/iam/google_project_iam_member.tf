@@ -10,8 +10,8 @@ resource "google_project_iam_member" "nawawan_prod_project_editor_member" {
   member  = "serviceAccount:${data.google_service_account.nawawan_prod_editor.email}"
 }
 
-resource "google_project_iam_member" "nawawan_dev_secret_accessor" {
-  project = "nawawan-dev"
+resource "google_project_iam_member" "nawawan_prod_secret_accessor" {
+  project = "nawawan"
   role    = "roles/secretmanager.secretAccessor"
   member  = "serviceAccount:${data.google_service_account.nawawan_prod_reader.email}"
 }
