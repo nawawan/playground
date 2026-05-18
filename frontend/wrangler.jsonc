@@ -40,7 +40,7 @@
       "r2_buckets": [
         {
           "binding": "BLOG_BUCKET",
-          "bucket_name": "blog-assets"
+          "bucket_name": "blog-assets-prod"
         }
       ],
       "vars": {
