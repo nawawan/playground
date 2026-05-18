@@ -10,10 +10,10 @@ resource "google_project_iam_member" "nawawan_prod_project_editor_member" {
   member  = "serviceAccount:${data.google_service_account.nawawan_prod_editor.email}"
 }
 
-resource "google_project_iam_member" "cloud_build_secret_accessor" {
-  project = "nawawan"
+resource "google_project_iam_member" "nawawan_dev_secret_accessor" {
+  project = "nawawan-dev"
   role    = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:service-${data.google_project.nawawan.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  member  = "serviceAccount:${data.google_service_account.nawawan_prod_reader.email}"
 }
 
 resource "google_project_iam_member" "dev_sa_prod_artifact_registry_reader" {
