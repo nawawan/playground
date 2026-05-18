@@ -48,7 +48,7 @@ resource "google_iam_workload_identity_pool_provider" "nawawan_prod_github_provi
 
   attribute_condition = <<EOT
     assertion.repository == "nawawan/playground" &&
-    assertion.event_name in ["release", "workflow_dispatch"]
+    assertion.event_name in ["push", "release", "workflow_dispatch"]
   EOT
 }
 
