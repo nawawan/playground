@@ -37,7 +37,7 @@ const EditorOverlay = ({ preRef, textareaRef, markdown, onChange, onScroll, onIn
         if (!file.type.startsWith("image/")) return;
 
         const cursorPos = textareaRef.current?.selectionStart ?? markdown.length;
-        const res = await fetch("/api/blogs/images", {
+        const res = await fetch("/api/admin/blogs/images", {
             method: "PUT",
             body: file,
             headers: { 'Content-Type': file.type }

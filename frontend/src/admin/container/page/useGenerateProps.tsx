@@ -34,7 +34,7 @@ export const useGenerateProps = (): AdminHomeProps & { isLoading: boolean } => {
     }, []);
 
     const onWriteClick = async () => {
-        const res = await fetch("/api/blogs/drafts", {
+        const res = await fetch("/api/admin/blogs/drafts", {
             method: 'POST',
         });
         const id: string = await res.json();
