@@ -32,8 +32,9 @@ impl BlogRepository for Repository {
     }
 
     async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
-        let mut builder =
-            sqlx::QueryBuilder::new("SELECT id, title, slug, content_key, status FROM blogs WHERE 1=1");
+        let mut builder = sqlx::QueryBuilder::new(
+            "SELECT id, title, slug, content_key, status FROM blogs WHERE 1=1",
+        );
         filter.apply(&mut builder);
         builder
             .build_query_as::<Blog>()
