@@ -43,10 +43,12 @@ impl BlogService for Service {
 
     async fn create_draft(&self) -> Result<String, AppError> {
         let id = Uuid::now_v7();
+        let mut initial_slug = id.to_string();
+        initial_slug.truncate(25);
         let blog = Blog {
             id,
             title: Blog::default_title(),
-            slug: id.to_string(),
+            slug: initial_slug,
             content_key: format!("uploads/blogs/{}.html", id),
             status: BlogStatus::Draft,
         };
