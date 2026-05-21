@@ -6,6 +6,7 @@ import { BlogTopContainer } from './blog/container/page/blogs/Container';
 import BlogContainer from './blog/container/page/blog_id/Container';
 
 import blogs from './backend/pages/blogs';
+import admin from './backend/pages/admin';
 
 type Bindings = {
   ASSETS: {
@@ -68,6 +69,7 @@ app.get('/blogs/:id', (c) => {
 })
 
 app.route('/api/blogs', blogs);
+app.route('/api/admin', admin);
 
 app.get('*', (c) => {
   const url = new URL('/', c.req.url);
