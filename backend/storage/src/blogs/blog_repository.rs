@@ -52,10 +52,11 @@ impl BlogRepository for Repository {
         blog: Blog,
     ) -> Result<String, RepoError> {
         sqlx::query!(
-            "INSERT INTO blogs (id, status, title, content_key) VALUES ($1, 'DRAFT', $2, $3)",
+            "INSERT INTO blogs (id, status, title, content_key, slug) VALUES ($1, 'DRAFT', $2, $3, $4)",
             blog.id,
             blog.title,
-            blog.content_key
+            blog.content_key,
+            blog.slug,
         )
         .execute(&mut **tx)
         .await

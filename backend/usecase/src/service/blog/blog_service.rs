@@ -46,7 +46,7 @@ impl BlogService for Service {
         let blog = Blog {
             id,
             title: Blog::default_title(),
-            slug: "".to_string(),
+            slug: id.to_string(),
             content_key: format!("uploads/blogs/{}.html", id),
             status: BlogStatus::Draft,
         };
