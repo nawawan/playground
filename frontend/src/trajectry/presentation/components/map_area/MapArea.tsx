@@ -1,3 +1,4 @@
+import { Box, Typography } from "@mui/material";
 import { pointAt } from "../../../domain/geo";
 import type { MapStyleKey, TrajectryActivity } from "../../../domain/types";
 import { ImageIcon } from "../image_icon/ImageIcon";
@@ -38,8 +39,8 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
   const end = points[points.length - 1];
 
   return (
-    <section className={`trajectry-map-area trajectry-map-area--${mapStyle}`} aria-label="route map">
-      <div className="trajectry-map-area__texture" />
+    <Box className={`trajectry-map-area trajectry-map-area--${mapStyle}`} component="section" aria-label="route map">
+      <Box className="trajectry-map-area__texture" />
       <svg className="trajectry-map-area__svg" viewBox="0 0 100 100" preserveAspectRatio="none">
         <defs>
           <pattern id={`grid-${activity.id}`} width="12" height="12" patternUnits="userSpaceOnUse">
@@ -53,12 +54,24 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
         <path d={pathFromPoints(points)} className="trajectry-map-area__track-glow" stroke={activity.color} />
         <path d={pathFromPoints(points)} className="trajectry-map-area__track" stroke={activity.color} />
       </svg>
-      <div className="trajectry-map-area__labels">
-        <span style={{ left: "12%", top: "16%" }}>{activity.title}</span>
-        <span style={{ right: "11%", bottom: "18%" }}>{activity.subtitle}</span>
-      </div>
-      <span className="trajectry-map-area__marker trajectry-map-area__marker--start" style={{ left: `${start.x}%`, top: `${start.y}%` }} />
-      <span className="trajectry-map-area__marker trajectry-map-area__marker--end" style={{ left: `${end.x}%`, top: `${end.y}%` }} />
+      <Box className="trajectry-map-area__labels">
+        <Typography component="span" style={{ left: "12%", top: "16%" }}>
+          {activity.title}
+        </Typography>
+        <Typography component="span" style={{ right: "11%", bottom: "18%" }}>
+          {activity.subtitle}
+        </Typography>
+      </Box>
+      <Box
+        className="trajectry-map-area__marker trajectry-map-area__marker--start"
+        component="span"
+        style={{ left: `${start.x}%`, top: `${start.y}%` }}
+      />
+      <Box
+        className="trajectry-map-area__marker trajectry-map-area__marker--end"
+        component="span"
+        style={{ left: `${end.x}%`, top: `${end.y}%` }}
+      />
       {activity.photos.map((photo) => {
         const position = project(pointAt(activity.track, photo.at));
         return (
@@ -71,8 +84,10 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
           />
         );
       })}
-      <span className="trajectry-map-area__here" style={{ left: `${herePoint.x}%`, top: `${herePoint.y}%` }} />
-      <div className="trajectry-mono trajectry-map-area__attribution">mock route layer · presentational map area</div>
-    </section>
+      <Box className="trajectry-map-area__here" component="span" style={{ left: `${herePoint.x}%`, top: `${herePoint.y}%` }} />
+      <Typography className="trajectry-mono trajectry-map-area__attribution" component="div">
+        mock route layer · presentational map area
+      </Typography>
+    </Box>
   );
 };

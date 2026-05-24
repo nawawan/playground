@@ -1,3 +1,4 @@
+import { Box, Button } from "@mui/material";
 import type { MapStyleKey, TrajectryActivity } from "../../domain/types";
 import { Header } from "../components/header/Header";
 import { ImagePanel } from "../components/image_panel/ImagePanel";
@@ -39,29 +40,30 @@ export const TrajectryPage = ({
   onSelectActivity,
   onSelectPhoto,
 }: TrajectryPageProps) => (
-  <main className="trajectry-page">
+  <Box className="trajectry-page" component="main">
     <Header onUpload={onOpenUpload} />
-    <div className="trajectry-page__body">
+    <Box className="trajectry-page__body">
       <TrajectrySideBar
         activeId={activeId}
         activities={activities}
         onSelectActivity={onSelectActivity}
         onUpload={onOpenUpload}
       />
-      <section className="trajectry-page__center">
-        <div className="trajectry-page__map-shell">
-          <div className="trajectry-style-switcher" aria-label="map style">
+      <Box className="trajectry-page__center" component="section">
+        <Box className="trajectry-page__map-shell">
+          <Box className="trajectry-style-switcher" aria-label="map style">
             {(["terrain", "streets", "sepia"] as const).map((style) => (
-              <button
+              <Button
                 className={style === mapStyle ? "is-active" : ""}
+                disableRipple
                 key={style}
                 onClick={() => onMapStyleChange(style)}
                 type="button"
               >
                 {style}
-              </button>
+              </Button>
             ))}
-          </div>
+          </Box>
           <MapArea
             activePhotoId={activePhotoId}
             activity={activeActivity}
@@ -69,7 +71,7 @@ export const TrajectryPage = ({
             mapStyle={mapStyle}
             onPhotoSelect={onSelectPhoto}
           />
-        </div>
+        </Box>
         <TrajectryHeight
           activePhotoId={activePhotoId}
           activity={activeActivity}
@@ -77,8 +79,8 @@ export const TrajectryPage = ({
           onHereChange={onHereChange}
           onPhotoSelect={onSelectPhoto}
         />
-      </section>
-      <aside className="trajectry-page__right">
+      </Box>
+      <Box className="trajectry-page__right" component="aside">
         <TrajectryDetail activity={activeActivity} />
         <ImagePanel
           activePhotoId={activePhotoId}
@@ -86,8 +88,8 @@ export const TrajectryPage = ({
           here={here}
           onPhotoSelect={onSelectPhoto}
         />
-      </aside>
-    </div>
+      </Box>
+    </Box>
     <UploadModal onClose={onCloseUpload} open={uploadOpen} />
-  </main>
+  </Box>
 );

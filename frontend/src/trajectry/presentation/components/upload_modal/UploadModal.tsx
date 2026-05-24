@@ -1,3 +1,4 @@
+import { Box, Button, Modal, Typography } from "@mui/material";
 import { useState } from "react";
 
 type UploadModalProps = {
@@ -11,13 +12,15 @@ export const UploadModal = ({ open, onClose }: UploadModalProps) => {
   if (!open) return null;
 
   return (
-    <div className="trajectry-upload-modal" onClick={onClose}>
-      <div className="trajectry-upload-modal__card" onClick={(event) => event.stopPropagation()}>
-        <div className="trajectry-hand trajectry-upload-modal__title">+ new activity</div>
-        <div className="trajectry-mono trajectry-upload-modal__subtitle">
+    <Modal className="trajectry-upload-modal" open={open} onClose={onClose}>
+      <Box className="trajectry-upload-modal__card">
+        <Typography className="trajectry-hand trajectry-upload-modal__title" component="div">
+          + new activity
+        </Typography>
+        <Typography className="trajectry-mono trajectry-upload-modal__subtitle" component="div">
           upload a GPX file from your bike computer or watch
-        </div>
-        <div
+        </Typography>
+        <Box
           className={`trajectry-upload-modal__drop${dragging ? " is-dragging" : ""}`}
           onDragLeave={() => setDragging(false)}
           onDragOver={(event) => {
@@ -29,22 +32,28 @@ export const UploadModal = ({ open, onClose }: UploadModalProps) => {
             setDragging(false);
           }}
         >
-          <div className="trajectry-upload-modal__pin">📍</div>
-          <div className="trajectry-hand trajectry-upload-modal__drop-title">drop your .gpx here</div>
-          <div className="trajectry-mono trajectry-upload-modal__or">or</div>
-          <button className="trajectry-upload-modal__browse" type="button">
+          <Typography className="trajectry-upload-modal__pin" component="div">
+            📍
+          </Typography>
+          <Typography className="trajectry-hand trajectry-upload-modal__drop-title" component="div">
+            drop your .gpx here
+          </Typography>
+          <Typography className="trajectry-mono trajectry-upload-modal__or" component="div">
+            or
+          </Typography>
+          <Button className="trajectry-upload-modal__browse" disableRipple type="button">
             browse files
-          </button>
-        </div>
-        <div className="trajectry-upload-modal__actions">
-          <button className="trajectry-upload-modal__cancel" onClick={onClose} type="button">
+          </Button>
+        </Box>
+        <Box className="trajectry-upload-modal__actions">
+          <Button className="trajectry-upload-modal__cancel" disableRipple onClick={onClose} type="button">
             cancel
-          </button>
-          <button className="trajectry-upload-modal__import" disabled type="button">
+          </Button>
+          <Button className="trajectry-upload-modal__import" disabled disableRipple type="button">
             import
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
   );
 };

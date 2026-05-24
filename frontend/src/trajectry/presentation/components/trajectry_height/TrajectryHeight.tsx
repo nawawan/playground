@@ -1,3 +1,4 @@
+import { Box, Button, Typography } from "@mui/material";
 import { clamp, elevationAt, formatKmAt } from "../../../domain/geo";
 import type { TrajectryActivity } from "../../../domain/types";
 
@@ -41,16 +42,18 @@ export const TrajectryHeight = ({
   };
 
   return (
-    <section className="trajectry-height">
-      <div className="trajectry-height__head">
-        <div className="trajectry-mono trajectry-height__label">ELEVATION PROFILE · drag or hover to scrub</div>
-        <div className="trajectry-mono trajectry-height__stats">
-          <span>{minElevation}m</span>
-          <span>↑ {Math.round(maxElevation)}m</span>
-          <span>{activity.km} km</span>
-        </div>
-      </div>
-      <div className="trajectry-height__chart" onPointerDown={scrub} onPointerMove={scrub}>
+    <Box className="trajectry-height" component="section">
+      <Box className="trajectry-height__head">
+        <Typography className="trajectry-mono trajectry-height__label" component="div">
+          ELEVATION PROFILE · drag or hover to scrub
+        </Typography>
+        <Box className="trajectry-mono trajectry-height__stats">
+          <Typography component="span">{minElevation}m</Typography>
+          <Typography component="span">↑ {Math.round(maxElevation)}m</Typography>
+          <Typography component="span">{activity.km} km</Typography>
+        </Box>
+      </Box>
+      <Box className="trajectry-height__chart" onPointerDown={scrub} onPointerMove={scrub}>
         <svg viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} preserveAspectRatio="none">
           <defs>
             <linearGradient id={`elevation-fill-${activity.id}`} x1="0" x2="0" y1="0" y2="1">
@@ -82,9 +85,10 @@ export const TrajectryHeight = ({
           />
         </svg>
         {activity.photos.map((photo) => (
-          <button
+          <Button
             aria-label={photo.caption}
             className={`trajectry-height__photo${activePhotoId === photo.id ? " is-active" : ""}`}
+            disableRipple
             key={photo.id}
             onClick={(event) => {
               event.stopPropagation();
@@ -94,11 +98,11 @@ export const TrajectryHeight = ({
             type="button"
           />
         ))}
-        <div className="trajectry-height__here-line" style={{ left: `${here * 100}%` }} />
-        <div className="trajectry-mono trajectry-height__tooltip" style={{ left: `${here * 100}%` }}>
+        <Box className="trajectry-height__here-line" style={{ left: `${here * 100}%` }} />
+        <Typography className="trajectry-mono trajectry-height__tooltip" component="div" style={{ left: `${here * 100}%` }}>
           {hereElevation}m · {hereKm}km
-        </div>
-      </div>
-    </section>
+        </Typography>
+      </Box>
+    </Box>
   );
 };

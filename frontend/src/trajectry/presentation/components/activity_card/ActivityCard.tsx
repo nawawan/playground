@@ -1,3 +1,4 @@
+import { Box, Button, Typography } from "@mui/material";
 import type { TrajectryActivity } from "../../../domain/types";
 
 type ActivityCardProps = {
@@ -7,21 +8,30 @@ type ActivityCardProps = {
 };
 
 export const ActivityCard = ({ activity, active, onSelect }: ActivityCardProps) => (
-  <button
+  <Button
     className={`trajectry-activity-card${active ? " is-active" : ""}`}
+    disableRipple
     type="button"
     onClick={() => onSelect(activity.id)}
   >
-    <div className="trajectry-activity-card__top">
-      <span className="trajectry-activity-card__icon">{activity.type === "bike" ? "🚴" : "🏃"}</span>
-      <span className="trajectry-activity-card__title">{activity.title}</span>
-      <span className="trajectry-mono trajectry-activity-card__date">{activity.date}</span>
-    </div>
-    <div className="trajectry-activity-card__subtitle">{activity.subtitle}</div>
-    <div className="trajectry-mono trajectry-activity-card__stats">
-      <span>{activity.km} km</span>
-      <span>↑ {activity.gain}m</span>
-      <span>{activity.duration}</span>
-    </div>
-  </button>
+    <Box className="trajectry-activity-card__top">
+      <Typography className="trajectry-activity-card__icon" component="span">
+        {activity.type === "bike" ? "🚴" : "🏃"}
+      </Typography>
+      <Typography className="trajectry-activity-card__title" component="span">
+        {activity.title}
+      </Typography>
+      <Typography className="trajectry-mono trajectry-activity-card__date" component="span">
+        {activity.date}
+      </Typography>
+    </Box>
+    <Typography className="trajectry-activity-card__subtitle" component="div">
+      {activity.subtitle}
+    </Typography>
+    <Box className="trajectry-mono trajectry-activity-card__stats">
+      <Typography component="span">{activity.km} km</Typography>
+      <Typography component="span">↑ {activity.gain}m</Typography>
+      <Typography component="span">{activity.duration}</Typography>
+    </Box>
+  </Button>
 );

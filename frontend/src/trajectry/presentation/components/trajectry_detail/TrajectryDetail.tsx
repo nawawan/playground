@@ -1,3 +1,4 @@
+import { Box, Typography } from "@mui/material";
 import type { TrajectryActivity } from "../../../domain/types";
 
 type TrajectryDetailProps = {
@@ -5,17 +6,21 @@ type TrajectryDetailProps = {
 };
 
 export const TrajectryDetail = ({ activity }: TrajectryDetailProps) => (
-  <div className="trajectry-detail">
-    <div className="trajectry-hand trajectry-detail__title">{activity.title}</div>
-    <div className="trajectry-detail__subtitle">{activity.subtitle}</div>
-    <div className="trajectry-mono trajectry-detail__stats">
-      <span>{activity.date}</span>
-      <span>·</span>
-      <span>{activity.km}km</span>
-      <span>·</span>
-      <span>↑{activity.gain}m</span>
-      <span>·</span>
-      <span>{activity.duration}</span>
-    </div>
-  </div>
+  <Box className="trajectry-detail">
+    <Typography className="trajectry-hand trajectry-detail__title" component="div">
+      {activity.title}
+    </Typography>
+    <Typography className="trajectry-detail__subtitle" component="div">
+      {activity.subtitle}
+    </Typography>
+    <Box className="trajectry-mono trajectry-detail__stats">
+      <Typography component="span">{activity.date}</Typography>
+      <Typography component="span">·</Typography>
+      <Typography component="span">{activity.km}km</Typography>
+      <Typography component="span">·</Typography>
+      <Typography component="span">↑{activity.gain}m</Typography>
+      <Typography component="span">·</Typography>
+      <Typography component="span">{activity.duration}</Typography>
+    </Box>
+  </Box>
 );

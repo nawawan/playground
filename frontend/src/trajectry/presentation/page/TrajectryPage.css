@@ -33,6 +33,24 @@
   font: inherit;
 }
 
+.trajectry-page .MuiTypography-root,
+.trajectry-upload-modal .MuiTypography-root {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.trajectry-page .MuiButton-root,
+.trajectry-upload-modal .MuiButton-root {
+  color: inherit;
+  line-height: inherit;
+  min-width: 0;
+  text-transform: none;
+}
+
 .trajectry-hand {
   font-family: "Zen Kaku Gothic New", sans-serif;
   font-weight: 700;

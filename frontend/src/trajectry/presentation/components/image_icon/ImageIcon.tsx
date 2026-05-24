@@ -1,3 +1,5 @@
+import { Button, Typography } from "@mui/material";
+
 type ImageIconProps = {
   active?: boolean;
   className?: string;
@@ -7,13 +9,14 @@ type ImageIconProps = {
 };
 
 export const ImageIcon = ({ active = false, className = "", label = "Photo", onClick, style }: ImageIconProps) => (
-  <button
+  <Button
     aria-label={label}
     className={`trajectry-image-icon${active ? " is-active" : ""} ${className}`}
+    disableRipple
     onClick={onClick}
     style={style}
     type="button"
   >
-    <span>📷</span>
-  </button>
+    <Typography component="span">📷</Typography>
+  </Button>
 );

@@ -1,3 +1,4 @@
+import { Box, Button, Typography } from "@mui/material";
 import { elevationAt, formatKmAt } from "../../../domain/geo";
 import type { TrajectryActivity } from "../../../domain/types";
 
@@ -12,10 +13,14 @@ const photoBackground = (color: string) =>
   `repeating-linear-gradient(135deg, ${color}cc 0 8px, ${color}99 8px 16px)`;
 
 const StatTile = ({ label, value }: { label: string; value: string }) => (
-  <div className="trajectry-stat-tile">
-    <div className="trajectry-mono trajectry-stat-tile__label">{label}</div>
-    <div className="trajectry-stat-tile__value">{value}</div>
-  </div>
+  <Box className="trajectry-stat-tile">
+    <Typography className="trajectry-mono trajectry-stat-tile__label" component="div">
+      {label}
+    </Typography>
+    <Typography className="trajectry-stat-tile__value" component="div">
+      {value}
+    </Typography>
+  </Box>
 );
 
 export const ImagePanel = ({ activity, activePhotoId, here, onPhotoSelect }: ImagePanelProps) => {
@@ -23,36 +28,41 @@ export const ImagePanel = ({ activity, activePhotoId, here, onPhotoSelect }: Ima
   const hereKm = formatKmAt(activity.km, here);
 
   return (
-    <div className="trajectry-image-panel">
-      <div className="trajectry-image-panel__stats">
+    <Box className="trajectry-image-panel">
+      <Box className="trajectry-image-panel__stats">
         <StatTile label="elev here" value={`${hereElevation}m`} />
         <StatTile label="at" value={`${hereKm} / ${activity.km}km`} />
-      </div>
-      {activity.note && activity.note !== "—" && <div className="trajectry-image-panel__note">"{activity.note}"</div>}
-      <div>
-        <div className="trajectry-mono trajectry-image-panel__grid-title">
-          <span>PHOTOS</span>
-          <span>{activity.photos.length}</span>
-        </div>
-        <div className="trajectry-image-panel__grid">
+      </Box>
+      {activity.note && activity.note !== "—" && (
+        <Typography className="trajectry-image-panel__note" component="div">
+          "{activity.note}"
+        </Typography>
+      )}
+      <Box>
+        <Box className="trajectry-mono trajectry-image-panel__grid-title">
+          <Typography component="span">PHOTOS</Typography>
+          <Typography component="span">{activity.photos.length}</Typography>
+        </Box>
+        <Box className="trajectry-image-panel__grid">
           {activity.photos.map((photo) => (
-            <button
+            <Button
               aria-label={photo.caption}
               className={`trajectry-image-panel__thumb${photo.id === activePhotoId ? " is-active" : ""}`}
+              disableRipple
               key={photo.id}
               onClick={() => onPhotoSelect(photo.id)}
               style={{ background: photoBackground(photo.color) }}
               type="button"
             >
-              {photo.id === activePhotoId && <i aria-hidden="true" />}
-              <span>{photo.stamp}</span>
-            </button>
+              {photo.id === activePhotoId && <Box aria-hidden="true" component="i" />}
+              <Typography component="span">{photo.stamp}</Typography>
+            </Button>
           ))}
-          <button className="trajectry-image-panel__add" type="button">
+          <Button className="trajectry-image-panel__add" disableRipple type="button">
             +
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Box>
+    </Box>
   );
 };
