@@ -1,4 +1,5 @@
 import { Stack } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import "./TrajectryPage.css";
 
@@ -12,6 +13,46 @@ type TrajectryPageProps = {
   UploadModal: ReactNode;
 };
 
+const PageRoot = styled(Stack)({
+  background: "var(--paper)",
+  color: "var(--ink)",
+  fontFamily: '"Zen Kaku Gothic New", sans-serif',
+  height: "100vh",
+  inset: 0,
+  overflow: "hidden",
+  position: "fixed",
+  textAlign: "left",
+  width: "100vw",
+  zIndex: 1,
+});
+
+const PageBody = styled(Stack)({
+  flex: 1,
+  minHeight: 0,
+  "@media (max-width: 860px)": {
+    overflowX: "auto",
+  },
+});
+
+const CenterColumn = styled(Stack)({
+  flex: 1,
+  minWidth: 0,
+  "@media (max-width: 860px)": {
+    minWidth: 520,
+  },
+});
+
+const RightColumn = styled(Stack)({
+  background: "var(--paper)",
+  borderLeft: "1px solid var(--rule)",
+  flexShrink: 0,
+  overflow: "hidden",
+  width: 360,
+  "@media (max-width: 1100px)": {
+    width: 290,
+  },
+});
+
 export const TrajectryPage = ({
   Header,
   ImagePanel,
@@ -21,19 +62,19 @@ export const TrajectryPage = ({
   TrajectrySideBar,
   UploadModal,
 }: TrajectryPageProps) => (
-  <Stack className="trajectry-page" component="main">
+  <PageRoot className="trajectry-page">
     {Header}
-    <Stack className="trajectry-page__body" direction="row">
+    <PageBody className="trajectry-page__body" direction="row">
       {TrajectrySideBar}
-      <Stack className="trajectry-page__center" component="section">
+      <CenterColumn className="trajectry-page__center">
         {MapArea}
         {TrajectryHeight}
-      </Stack>
-      <Stack className="trajectry-page__right" component="aside">
+      </CenterColumn>
+      <RightColumn className="trajectry-page__right">
         {TrajectryDetail}
         {ImagePanel}
-      </Stack>
-    </Stack>
+      </RightColumn>
+    </PageBody>
     {UploadModal}
-  </Stack>
+  </PageRoot>
 );

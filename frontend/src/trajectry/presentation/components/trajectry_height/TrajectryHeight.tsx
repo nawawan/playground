@@ -1,4 +1,5 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { clamp, elevationAt, formatKmAt } from "../../../domain/geo";
 import type { TrajectryActivity } from "../../../domain/types";
 
@@ -13,6 +14,32 @@ type TrajectryHeightProps = {
 const SVG_WIDTH = 100;
 const SVG_HEIGHT = 30;
 const PADDING = 2;
+
+const HeightRoot = styled(Stack)({
+  background: "var(--paper)",
+  borderTop: "1px solid var(--rule)",
+  flexShrink: 0,
+  padding: "10px 14px 12px",
+});
+
+const HeaderRow = styled(Stack)({
+  alignItems: "baseline",
+  justifyContent: "space-between",
+});
+
+const Label = styled(Typography)({
+  color: "var(--ink-soft)",
+  fontSize: 10,
+  letterSpacing: 0.5,
+});
+
+const Stats = styled(Stack)({
+  color: "var(--ink-2)",
+  fontSize: 11,
+  "& span:nth-of-type(2)": {
+    color: "var(--trace)",
+  },
+});
 
 export const TrajectryHeight = ({
   activity,
@@ -42,17 +69,17 @@ export const TrajectryHeight = ({
   };
 
   return (
-    <Stack className="trajectry-height" component="section" spacing={0.75}>
-      <Stack alignItems="baseline" className="trajectry-height__head" direction="row" justifyContent="space-between">
-        <Typography className="trajectry-mono trajectry-height__label" component="div">
+    <HeightRoot spacing={0.75}>
+      <HeaderRow direction="row">
+        <Label className="trajectry-mono">
           ELEVATION PROFILE · drag or hover to scrub
-        </Typography>
-        <Stack className="trajectry-mono trajectry-height__stats" direction="row" spacing={1.75}>
+        </Label>
+        <Stats className="trajectry-mono" direction="row" spacing={1.75}>
           <Typography component="span">{minElevation}m</Typography>
           <Typography component="span">↑ {Math.round(maxElevation)}m</Typography>
           <Typography component="span">{activity.km} km</Typography>
-        </Stack>
-      </Stack>
+        </Stats>
+      </HeaderRow>
       <Box className="trajectry-height__chart" onPointerDown={scrub} onPointerMove={scrub}>
         <svg viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} preserveAspectRatio="none">
           <defs>
@@ -103,6 +130,6 @@ export const TrajectryHeight = ({
           {hereElevation}m · {hereKm}km
         </Typography>
       </Box>
-    </Stack>
+    </HeightRoot>
   );
 };
