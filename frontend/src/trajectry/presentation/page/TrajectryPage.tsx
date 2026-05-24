@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Stack } from "@mui/material";
 import type { ReactNode } from "react";
 import "./TrajectryPage.css";
 
@@ -21,19 +21,19 @@ export const TrajectryPage = ({
   TrajectrySideBar,
   UploadModal,
 }: TrajectryPageProps) => (
-  <Box className="trajectry-page" component="main">
+  <Stack className="trajectry-page" component="main">
     {Header}
-    <Box className="trajectry-page__body">
+    <Stack className="trajectry-page__body" direction="row">
       {TrajectrySideBar}
-      <Box className="trajectry-page__center" component="section">
+      <Stack className="trajectry-page__center" component="section">
         {MapArea}
         {TrajectryHeight}
-      </Box>
-      <Box className="trajectry-page__right" component="aside">
+      </Stack>
+      <Stack className="trajectry-page__right" component="aside">
         {TrajectryDetail}
         {ImagePanel}
-      </Box>
-    </Box>
+      </Stack>
+    </Stack>
     {UploadModal}
-  </Box>
+  </Stack>
 );

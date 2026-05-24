@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { clamp, elevationAt, formatKmAt } from "../../../domain/geo";
 import type { TrajectryActivity } from "../../../domain/types";
 
@@ -42,17 +42,17 @@ export const TrajectryHeight = ({
   };
 
   return (
-    <Box className="trajectry-height" component="section">
-      <Box className="trajectry-height__head">
+    <Stack className="trajectry-height" component="section" spacing={0.75}>
+      <Stack alignItems="baseline" className="trajectry-height__head" direction="row" justifyContent="space-between">
         <Typography className="trajectry-mono trajectry-height__label" component="div">
           ELEVATION PROFILE · drag or hover to scrub
         </Typography>
-        <Box className="trajectry-mono trajectry-height__stats">
+        <Stack className="trajectry-mono trajectry-height__stats" direction="row" spacing={1.75}>
           <Typography component="span">{minElevation}m</Typography>
           <Typography component="span">↑ {Math.round(maxElevation)}m</Typography>
           <Typography component="span">{activity.km} km</Typography>
-        </Box>
-      </Box>
+        </Stack>
+      </Stack>
       <Box className="trajectry-height__chart" onPointerDown={scrub} onPointerMove={scrub}>
         <svg viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} preserveAspectRatio="none">
           <defs>
@@ -103,6 +103,6 @@ export const TrajectryHeight = ({
           {hereElevation}m · {hereKm}km
         </Typography>
       </Box>
-    </Box>
+    </Stack>
   );
 };

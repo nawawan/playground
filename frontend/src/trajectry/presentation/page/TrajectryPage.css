@@ -17,8 +17,6 @@
   --accent: #8b6f47;
   background: var(--paper);
   color: var(--ink);
-  display: flex;
-  flex-direction: column;
   font-family: "Zen Kaku Gothic New", sans-serif;
   height: 100vh;
   inset: 0;
@@ -64,9 +62,7 @@
   align-items: center;
   background: var(--paper);
   border-bottom: 1px solid var(--rule);
-  display: flex;
   flex-shrink: 0;
-  gap: 16px;
   height: 56px;
   min-width: 0;
   padding: 0 20px;
@@ -74,9 +70,7 @@
 
 .trajectry-header__brand {
   align-items: baseline;
-  display: flex;
   flex-shrink: 0;
-  gap: 12px;
 }
 
 .trajectry-header__logo {
@@ -142,7 +136,6 @@
 }
 
 .trajectry-page__body {
-  display: flex;
   flex: 1;
   min-height: 0;
 }
@@ -150,8 +143,6 @@
 .trajectry-side-bar {
   background: var(--paper-2);
   border-right: 1px solid var(--rule);
-  display: flex;
-  flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
   width: 260px;
@@ -174,10 +165,7 @@
 }
 
 .trajectry-side-bar__list {
-  display: flex;
   flex: 1;
-  flex-direction: column;
-  gap: 8px;
   overflow-y: auto;
   padding: 8px 12px 16px;
 }
@@ -200,9 +188,6 @@
   border-radius: 8px;
   color: inherit;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   padding: 10px 12px;
   text-align: left;
   transition: background 0.12s, border-color 0.12s, transform 0.12s;
@@ -222,8 +207,6 @@
 
 .trajectry-activity-card__top {
   align-items: center;
-  display: flex;
-  gap: 8px;
 }
 
 .trajectry-activity-card__icon {
@@ -254,17 +237,13 @@
 
 .trajectry-activity-card__stats {
   color: var(--ink-2);
-  display: flex;
   font-size: 11px;
-  gap: 12px;
   margin-top: 2px;
   padding-left: 22px;
 }
 
 .trajectry-page__center {
-  display: flex;
   flex: 1;
-  flex-direction: column;
   min-width: 0;
 }
 
@@ -436,8 +415,6 @@
   border: 1px solid var(--rule);
   border-radius: 999px;
   box-shadow: 0 2px 8px rgba(42, 38, 34, 0.08);
-  display: flex;
-  gap: 2px;
   padding: 3px;
   position: absolute;
   right: 14px;
@@ -464,16 +441,12 @@
 .trajectry-height {
   background: var(--paper);
   border-top: 1px solid var(--rule);
-  display: flex;
-  flex-direction: column;
   flex-shrink: 0;
-  gap: 6px;
   padding: 10px 14px 12px;
 }
 
 .trajectry-height__head {
   align-items: baseline;
-  display: flex;
   justify-content: space-between;
 }
 
@@ -485,9 +458,7 @@
 
 .trajectry-height__stats {
   color: var(--ink-2);
-  display: flex;
   font-size: 11px;
-  gap: 14px;
 }
 
 .trajectry-height__stats span:nth-child(2) {
@@ -552,8 +523,6 @@
 .trajectry-page__right {
   background: var(--paper);
   border-left: 1px solid var(--rule);
-  display: flex;
-  flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
   width: 360px;
@@ -576,7 +545,6 @@
 
 .trajectry-detail__stats {
   color: var(--ink-soft);
-  display: flex;
   flex-wrap: wrap;
   font-size: 18px;
   font-weight: 600;
@@ -585,10 +553,7 @@
 }
 
 .trajectry-image-panel {
-  display: flex;
   flex: 1;
-  flex-direction: column;
-  gap: 32px;
   overflow-y: auto;
   padding: 32px 38px;
 }
@@ -604,15 +569,14 @@
 }
 
 .trajectry-image-panel__stats {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
 }
 
 .trajectry-stat-tile {
   background: var(--paper-2);
   border: 1px solid var(--rule);
   border-radius: 8px;
+  flex: 1;
   min-width: 0;
   padding: 20px 20px 18px;
 }
@@ -637,18 +601,14 @@
 .trajectry-image-panel__grid-title {
   align-items: center;
   color: var(--ink-soft);
-  display: flex;
   font-size: 17px;
   font-weight: 700;
-  justify-content: space-between;
   letter-spacing: 0.18em;
   margin-bottom: 18px;
 }
 
 .trajectry-image-panel__grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(2, 1fr);
+  margin: 0;
 }
 
 .trajectry-image-panel__thumb,
@@ -704,14 +664,11 @@
 }
 
 .trajectry-upload-modal {
-  align-items: center;
   backdrop-filter: blur(2px);
+}
+
+.trajectry-upload-modal .MuiBackdrop-root {
   background: rgba(42, 38, 34, 0.4);
-  display: flex;
-  inset: 0;
-  justify-content: center;
-  position: fixed;
-  z-index: 100;
 }
 
 .trajectry-upload-modal__card {
@@ -721,6 +678,16 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
   padding: 24px;
   width: min(480px, calc(100vw - 32px));
+}
+
+.trajectry-upload-modal__heading {
+  padding: 0;
+}
+
+.trajectry-upload-modal__content {
+  margin-top: 18px;
+  overflow: visible;
+  padding: 0;
 }
 
 .trajectry-upload-modal__title {
@@ -738,7 +705,6 @@
   background: var(--paper-2);
   border: 2px dashed var(--rule-strong);
   border-radius: 10px;
-  margin-top: 18px;
   padding: 40px 20px;
   text-align: center;
   transition: all 0.15s;
@@ -769,10 +735,9 @@
 }
 
 .trajectry-upload-modal__actions {
-  display: flex;
-  gap: 8px;
   justify-content: flex-end;
   margin-top: 18px;
+  padding: 0;
 }
 
 .trajectry-upload-modal__cancel,

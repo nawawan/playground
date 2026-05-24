@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, ButtonGroup } from "@mui/material";
 import { MapArea } from "../../../../presentation/components/map_area/MapArea";
 import { useTrajectryPageState } from "../../state/useTrajectryPageState";
 
@@ -7,7 +7,7 @@ export const MapAreaContainer = () => {
 
   return (
     <Box className="trajectry-page__map-shell">
-      <Box className="trajectry-style-switcher" aria-label="map style">
+      <ButtonGroup className="trajectry-style-switcher" aria-label="map style" variant="text">
         {(["terrain", "streets", "sepia"] as const).map((style) => (
           <Button
             className={style === mapStyle ? "is-active" : ""}
@@ -19,7 +19,7 @@ export const MapAreaContainer = () => {
             {style}
           </Button>
         ))}
-      </Box>
+      </ButtonGroup>
       <MapArea
         activePhotoId={activePhotoId}
         activity={activeActivity}

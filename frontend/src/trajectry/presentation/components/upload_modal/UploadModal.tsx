@@ -1,4 +1,4 @@
-import { Box, Button, Modal, Typography } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 
 type UploadModalProps = {
@@ -12,15 +12,18 @@ export const UploadModal = ({ open, onClose }: UploadModalProps) => {
   if (!open) return null;
 
   return (
-    <Modal className="trajectry-upload-modal" open={open} onClose={onClose}>
-      <Box className="trajectry-upload-modal__card">
+    <Dialog className="trajectry-upload-modal" open={open} onClose={onClose} PaperProps={{ className: "trajectry-upload-modal__card" }}>
+      <DialogTitle className="trajectry-upload-modal__heading">
         <Typography className="trajectry-hand trajectry-upload-modal__title" component="div">
           + new activity
         </Typography>
         <Typography className="trajectry-mono trajectry-upload-modal__subtitle" component="div">
           upload a GPX file from your bike computer or watch
         </Typography>
-        <Box
+      </DialogTitle>
+      <DialogContent className="trajectry-upload-modal__content">
+        <Stack
+          alignItems="center"
           className={`trajectry-upload-modal__drop${dragging ? " is-dragging" : ""}`}
           onDragLeave={() => setDragging(false)}
           onDragOver={(event) => {
@@ -44,16 +47,16 @@ export const UploadModal = ({ open, onClose }: UploadModalProps) => {
           <Button className="trajectry-upload-modal__browse" disableRipple type="button">
             browse files
           </Button>
-        </Box>
-        <Box className="trajectry-upload-modal__actions">
-          <Button className="trajectry-upload-modal__cancel" disableRipple onClick={onClose} type="button">
-            cancel
-          </Button>
-          <Button className="trajectry-upload-modal__import" disabled disableRipple type="button">
-            import
-          </Button>
-        </Box>
-      </Box>
-    </Modal>
+        </Stack>
+      </DialogContent>
+      <DialogActions className="trajectry-upload-modal__actions">
+        <Button className="trajectry-upload-modal__cancel" disableRipple onClick={onClose} type="button">
+          cancel
+        </Button>
+        <Button className="trajectry-upload-modal__import" disabled disableRipple type="button">
+          import
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };

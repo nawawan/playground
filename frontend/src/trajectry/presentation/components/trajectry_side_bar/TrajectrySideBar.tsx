@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import type { TrajectryActivity } from "../../../domain/types";
 import { ActivityCard } from "../activity_card/ActivityCard";
 
@@ -15,16 +15,16 @@ export const TrajectrySideBar = ({
   onSelectActivity,
   onUpload,
 }: TrajectrySideBarProps) => (
-  <Box className="trajectry-side-bar" component="aside">
-    <Box className="trajectry-side-bar__head">
+  <Stack className="trajectry-side-bar" component="aside">
+    <Stack className="trajectry-side-bar__head">
       <Typography className="trajectry-hand trajectry-side-bar__title" component="div">
         journal
       </Typography>
       <Typography className="trajectry-mono trajectry-side-bar__subtitle" component="div">
         a year of small adventures
       </Typography>
-    </Box>
-    <Box className="trajectry-side-bar__list">
+    </Stack>
+    <Stack className="trajectry-side-bar__list" spacing={1}>
       <Button className="trajectry-side-bar__new" disableRipple type="button" onClick={onUpload}>
         + new activity
       </Button>
@@ -36,6 +36,6 @@ export const TrajectrySideBar = ({
           onSelect={onSelectActivity}
         />
       ))}
-    </Box>
-  </Box>
+    </Stack>
+  </Stack>
 );
