@@ -64,7 +64,7 @@ impl BlogRepository for Repository {
             error!("Failed to create draft blog: {}", e);
             RepoError::Internal("Failed to create draft blog".to_string())
         })?;
-        Ok(blog.id.simple().to_string())
+        Ok(blog.id.to_string())
     }
 
     async fn create_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
