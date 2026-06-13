@@ -71,7 +71,7 @@ resource "google_cloud_run_v2_service" "nawawan_prod_service" {
       }
       env {
         name  = "PAGE_HOST"
-        value = "https://nawawan.com"
+        value = "https://image.nawawan.com"
       }
     }
   }
