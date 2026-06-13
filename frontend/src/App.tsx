@@ -5,6 +5,7 @@ import BlogContainer from "./blog/container/page/blog_id/Container";
 import AdminHomeContainer from "./admin/container/page/Container";
 import EditBlogContainer from "./admin/container/page/blogs_id_edit/Container";
 import { RequireAuth } from "./auth/RequireAuth";
+import TrajectryPageContainer from "./trajectry/container/page/Container";
 import 'highlight.js/styles/github.css'; 
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -20,6 +21,7 @@ function App() {
           <Route path=":blogId" element={<BlogContainer />} />
         </Route>
         <Route path="/maze" element={<MazeCreatorPage />} />
+        <Route path="/trajectry" element={<TrajectryPageContainer />} />
 
         <Route element={<RequireAuth />}>
           <Route path="/admin">

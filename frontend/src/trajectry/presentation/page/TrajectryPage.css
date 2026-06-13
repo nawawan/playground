@@ -1,0 +1,262 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap");
+
+.trajectry-page,
+.trajectry-upload-modal {
+  --ink: #2a2622;
+  --ink-2: #4a4339;
+  --ink-soft: #6b645c;
+  --ink-faint: #b8b1a8;
+  --paper: #faf7f1;
+  --paper-2: #f3ede2;
+  --paper-3: #ebe3d2;
+  --rule: rgba(42, 38, 34, 0.18);
+  --rule-strong: rgba(42, 38, 34, 0.4);
+  --trace: #d2691e;
+  --trace-2: #b85a16;
+  --pin: #c0392b;
+  --photo: #4a7c59;
+  --accent: #8b6f47;
+}
+
+.trajectry-page button {
+  font: inherit;
+}
+
+.trajectry-page .MuiTypography-root,
+.trajectry-upload-modal .MuiTypography-root {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.trajectry-page .MuiButton-root,
+.trajectry-upload-modal .MuiButton-root {
+  color: inherit;
+  line-height: inherit;
+  min-width: 0;
+  text-transform: none;
+}
+
+.trajectry-hand {
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 700;
+}
+
+.trajectry-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.trajectry-map-area {
+  background: var(--paper-3);
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.trajectry-map-area--terrain {
+  background: #e7e1cf;
+}
+
+.trajectry-map-area--streets {
+  background: #edf0e8;
+}
+
+.trajectry-map-area--sepia {
+  filter: sepia(0.35) saturate(0.8) hue-rotate(-10deg) brightness(1.02) contrast(0.95);
+}
+
+.trajectry-map-area__texture {
+  background:
+    radial-gradient(circle at 20% 25%, rgba(74, 124, 89, 0.14), transparent 26%),
+    radial-gradient(circle at 78% 35%, rgba(90, 122, 154, 0.12), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent);
+  inset: 0;
+  position: absolute;
+}
+
+.trajectry-map-area__svg {
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.trajectry-map-area__river,
+.trajectry-map-area__road,
+.trajectry-map-area__track-glow,
+.trajectry-map-area__track {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.trajectry-map-area__river {
+  stroke: rgba(90, 122, 154, 0.26);
+  stroke-width: 6;
+}
+
+.trajectry-map-area__road {
+  stroke: rgba(139, 111, 71, 0.28);
+  stroke-dasharray: 2 3;
+  stroke-width: 1.6;
+}
+
+.trajectry-map-area__track-glow {
+  opacity: 0.18;
+  stroke-width: 10;
+}
+
+.trajectry-map-area__track {
+  opacity: 0.95;
+  stroke-width: 4;
+}
+
+.trajectry-map-area__labels span {
+  color: rgba(42, 38, 34, 0.38);
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-size: 18px;
+  position: absolute;
+}
+
+.trajectry-map-area__marker,
+.trajectry-map-area__here,
+.trajectry-image-icon {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.trajectry-map-area__marker {
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  height: 16px;
+  width: 16px;
+  z-index: 3;
+}
+
+.trajectry-map-area__marker--start {
+  background: var(--photo);
+}
+
+.trajectry-map-area__marker--end {
+  background: var(--pin);
+}
+
+.trajectry-image-icon {
+  align-items: center;
+  background: var(--photo);
+  border: 2px solid var(--ink);
+  border-radius: 50% 50% 50% 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  transform: translate(-50%, -100%) rotate(-45deg);
+  transition: transform 0.15s, background 0.15s;
+  width: 28px;
+  z-index: 4;
+}
+
+.trajectry-image-icon:hover {
+  transform: translate(-50%, -100%) rotate(-45deg) scale(1.15);
+}
+
+.trajectry-image-icon.is-active {
+  background: var(--pin);
+}
+
+.trajectry-image-icon span {
+  display: block;
+  font-size: 13px;
+  transform: rotate(45deg);
+}
+
+.trajectry-map-area__here {
+  background: #fff;
+  border: 3px solid var(--pin);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.18);
+  height: 18px;
+  pointer-events: none;
+  width: 18px;
+  z-index: 5;
+}
+
+.trajectry-map-area__attribution {
+  background: rgba(250, 247, 241, 0.8);
+  border-radius: 3px;
+  bottom: 8px;
+  color: var(--ink-soft);
+  font-size: 10px;
+  padding: 2px 6px;
+  position: absolute;
+  right: 8px;
+}
+
+.trajectry-height__chart {
+  cursor: crosshair;
+  height: 92px;
+  position: relative;
+  user-select: none;
+}
+
+.trajectry-height__chart svg {
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.trajectry-height__photo {
+  background: var(--photo);
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  height: 14px;
+  padding: 0;
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  width: 14px;
+  z-index: 2;
+}
+
+.trajectry-height__photo.is-active {
+  background: var(--pin);
+}
+
+.trajectry-height__here-line {
+  border-left: 1.5px solid var(--pin);
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+}
+
+.trajectry-height__tooltip {
+  background: var(--paper);
+  border: 1px solid var(--ink-faint);
+  border-radius: 3px;
+  color: var(--ink-2);
+  font-size: 11px;
+  padding: 2px 6px;
+  pointer-events: none;
+  position: absolute;
+  top: -2px;
+  transform: translateX(8px);
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .trajectry-page .hide-narrow {
+    display: none;
+  }
+}
