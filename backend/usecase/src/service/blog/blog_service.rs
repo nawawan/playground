@@ -98,7 +98,7 @@ impl BlogService for Service {
         })?;
 
         let mut blog = self.repository.get_blog(blog_id).await?;
-        let content_key = format!("upload/blogs/{}.html", blog_req.id);
+        let content_key = format!("uploads/blogs/{}.html", blog_req.id);
         if blog.content_key != content_key {
             blog.content_key = content_key;
         }
