@@ -9,6 +9,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
     const [title, setTitle] = useState<string | undefined>(undefined);
     const [slug, setSlug] = useState<string | undefined>(undefined);
     const [isPublished, setIsPublished] = useState(false);
+    const [statusLoaded, setStatusLoaded] = useState(false);
 
     useEffect(() => {
         const fetchMarkdown = async () => {
@@ -37,6 +38,8 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
                 setSlug(blog.slug);
             } catch (e) {
                 Sentry.captureException(e);
+            } finally {
+                setStatusLoaded(true);
             }
         };
 
@@ -80,7 +83,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
     return {
         id: article_id,
         markdown: markdown ?? '',
-        loaded: markdown !== null,
+        loaded: markdown !== null && statusLoaded,
         title,
         slug,
         isPublished,
