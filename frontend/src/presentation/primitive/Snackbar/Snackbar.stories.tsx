@@ -1,17 +1,13 @@
-import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '@mui/material';
-import Snackbar from './Snackbar';
+import Snackbar, { type SnackbarSeverity } from './Snackbar';
 
-const SnackbarPreview = ({ message, severity }: { message: string; severity: 'success' | 'error' | 'info' | 'warning' }) => {
-    const [open, setOpen] = useState(true);
-    return (
-        <>
-            <Button onClick={() => setOpen(true)}>表示する</Button>
-            <Snackbar open={open} message={message} severity={severity} onClose={() => setOpen(false)} />
-        </>
-    );
-};
+const SnackbarPreview = ({ message, severity }: { message: string; severity: SnackbarSeverity }) => (
+    <>
+        <Button onClick={() => Snackbar.Notify({ message, severity })}>表示する</Button>
+        <Snackbar />
+    </>
+);
 
 const meta = {
     title: 'primitive/Snackbar',

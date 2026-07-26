@@ -44,12 +44,6 @@ export type MarkdownEditorProps = {
     onSaveTemporary?: (markdown: string) => void;
 };
 
-type SnackbarState = {
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error';
-};
-
 const MarkdownEditor = (props: MarkdownEditorProps) => {
     const { onSaveTemporary } = props;
     const [markdown, setMarkdown] = useState(props.markdown ?? "");
@@ -60,7 +54,6 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const [errors, setErrors] = useState<{ title?: string; slug?: string }>({});
     const [lineWraps, setLineWraps] = useState<number[]>([]);
     const [isSaving, setIsSaving] = useState(false);
-    const [snackbar, setSnackbar] = useState<SnackbarState>({ open: false, message: '', severity: 'success' });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const preRef = useRef<HTMLPreElement>(null);
     const lineNumRef = useRef<HTMLDivElement>(null);
@@ -139,9 +132,9 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         setIsSaving(true);
         try {
             await props.onSave(markdown, props.id, title, slug, published ? 'PUBLISHED' : 'DRAFT');
-            setSnackbar({ open: true, message: '保存しました', severity: 'success' });
+            Snackbar.Notify({ message: '保存しました', severity: 'success' });
         } catch {
-            setSnackbar({ open: true, message: '保存に失敗しました', severity: 'error' });
+            Snackbar.Notify({ message: '保存に失敗しました', severity: 'error' });
         } finally {
             setIsSaving(false);
         }
@@ -153,16 +146,12 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         try {
             await props.onSave(markdown, props.id, title, slug, 'PUBLISHED');
             setPublished(true);
-            setSnackbar({ open: true, message: '公開しました', severity: 'success' });
+            Snackbar.Notify({ message: '公開しました', severity: 'success' });
         } catch {
-            setSnackbar({ open: true, message: '公開に失敗しました', severity: 'error' });
+            Snackbar.Notify({ message: '公開に失敗しました', severity: 'error' });
         } finally {
             setIsSaving(false);
         }
-    };
-
-    const handleSnackbarClose = () => {
-        setSnackbar(prev => ({ ...prev, open: false }));
     };
 
     return (
@@ -225,12 +214,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     </StyledButton>
                 )}
             </Box>
-            <Snackbar
-                open={snackbar.open}
-                message={snackbar.message}
-                severity={snackbar.severity}
-                onClose={handleSnackbarClose}
-            />
+            <Snackbar />
         </Stack>
     );
 };
