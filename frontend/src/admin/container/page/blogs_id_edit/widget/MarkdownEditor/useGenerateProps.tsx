@@ -58,7 +58,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
 
     const handleSave = useCallback(async (markdown: string, id: string, title?: string, slug?: string, status?: string) => {
         try {
-            await fetch("/api/admin/blogs", {
+            const blogRes = await fetch("/api/admin/blogs", {
                 method: "POST",
                 body: JSON.stringify({
                     id: id,
@@ -68,15 +68,18 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
                     status: status,
                 }),
             });
+            if (!blogRes.ok) throw new Error(`Failed to save blog: ${blogRes.status}`);
 
-            await fetch(`/api/admin/blogs/${article_id}/md`, {
+            const mdRes = await fetch(`/api/admin/blogs/${article_id}/md`, {
                 method: "POST",
                 body: markdown,
             });
+            if (!mdRes.ok) throw new Error(`Failed to save markdown: ${mdRes.status}`);
 
             if (status === 'PUBLISHED') setIsPublished(true);
         } catch (e) {
             Sentry.captureException(e);
+            throw e;
         }
     }, [article_id]);
 

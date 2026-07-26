@@ -3,10 +3,11 @@ import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
-import { Box, Button, Stack, styled } from '@mui/material';
+import { Box, Button, CircularProgress, Stack, styled } from '@mui/material';
 import EditorPane from './parts/EditorPane/EditorPane';
 import MarkdownPreview from './parts/MarkdownPreview/MarkdownPreview';
 import InlineEditableField from '../../primitive/InlineEditableField/InlineEditableField';
+import Snackbar from '../../primitive/Snackbar/Snackbar';
 import { MarkdownEditorSchema } from './validation/SubmitBlogValidation';
 
 const marked = new Marked(
@@ -39,8 +40,14 @@ export type MarkdownEditorProps = {
     slug?: string;
     markdown?: string;
     isPublished?: boolean;
-    onSave: (markdown: string, id: string, title?: string, slug?: string, status?: string) => void;
+    onSave: (markdown: string, id: string, title?: string, slug?: string, status?: string) => Promise<void>;
     onSaveTemporary?: (markdown: string) => void;
+};
+
+type SnackbarState = {
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
 };
 
 const MarkdownEditor = (props: MarkdownEditorProps) => {
@@ -52,6 +59,8 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const [published, setPublished] = useState(props.isPublished ?? false);
     const [errors, setErrors] = useState<{ title?: string; slug?: string }>({});
     const [lineWraps, setLineWraps] = useState<number[]>([]);
+    const [isSaving, setIsSaving] = useState(false);
+    const [snackbar, setSnackbar] = useState<SnackbarState>({ open: false, message: '', severity: 'success' });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const preRef = useRef<HTMLPreElement>(null);
     const lineNumRef = useRef<HTMLDivElement>(null);
@@ -125,15 +134,35 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         return false;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!validateFields()) return;
-        props.onSave(markdown, props.id, title, slug, published ? 'PUBLISHED' : 'DRAFT');
+        setIsSaving(true);
+        try {
+            await props.onSave(markdown, props.id, title, slug, published ? 'PUBLISHED' : 'DRAFT');
+            setSnackbar({ open: true, message: '保存しました', severity: 'success' });
+        } catch {
+            setSnackbar({ open: true, message: '保存に失敗しました', severity: 'error' });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
-    const handlePublish = () => {
+    const handlePublish = async () => {
         if (!validateFields()) return;
-        props.onSave(markdown, props.id, title, slug, 'PUBLISHED');
-        setPublished(true);
+        setIsSaving(true);
+        try {
+            await props.onSave(markdown, props.id, title, slug, 'PUBLISHED');
+            setPublished(true);
+            setSnackbar({ open: true, message: '公開しました', severity: 'success' });
+        } catch {
+            setSnackbar({ open: true, message: '公開に失敗しました', severity: 'error' });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleSnackbarClose = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
     };
 
     return (
@@ -187,11 +216,21 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     borderTop: '1px solid rgba(0, 0, 0, 0.08)',
                 }}
             >
-                <Button variant="outlined" onClick={handleSave}>SAVE</Button>
+                <Button variant="outlined" onClick={handleSave} disabled={isSaving} startIcon={isSaving ? <CircularProgress size={16} /> : undefined}>
+                    SAVE
+                </Button>
                 {!published && (
-                    <StyledButton onClick={handlePublish}>公開する</StyledButton>
+                    <StyledButton onClick={handlePublish} disabled={isSaving} startIcon={isSaving ? <CircularProgress size={16} sx={{ color: '#fff' }} /> : undefined}>
+                        公開する
+                    </StyledButton>
                 )}
             </Box>
+            <Snackbar
+                open={snackbar.open}
+                message={snackbar.message}
+                severity={snackbar.severity}
+                onClose={handleSnackbarClose}
+            />
         </Stack>
     );
 };
