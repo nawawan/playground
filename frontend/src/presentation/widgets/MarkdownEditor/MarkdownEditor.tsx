@@ -51,6 +51,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const [slug, setSlug] = useState(props.slug);
     const [published, setPublished] = useState(props.isPublished ?? false);
     const [errors, setErrors] = useState<{ title?: string; slug?: string }>({});
+    const [lineWraps, setLineWraps] = useState<number[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const preRef = useRef<HTMLPreElement>(null);
     const lineNumRef = useRef<HTMLDivElement>(null);
@@ -92,6 +93,10 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             }
         });
     }, [updateMarkdown]);
+
+    const handleLineWrapsChange = useCallback((wraps: number[]) => {
+        setLineWraps(wraps);
+    }, []);
 
     const handleScroll = () => {
         const scrollTop = textareaRef.current?.scrollTop ?? 0;
@@ -159,9 +164,11 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     textareaRef={textareaRef}
                     markdown={markdown}
                     lineCount={lineCount}
+                    lineWraps={lineWraps}
                     onChange={handleChange}
                     onScroll={handleScroll}
                     onInsert={handleInsert}
+                    onLineWrapsChange={handleLineWrapsChange}
                 />
                 <MarkdownPreview html={html} />
             </Stack>

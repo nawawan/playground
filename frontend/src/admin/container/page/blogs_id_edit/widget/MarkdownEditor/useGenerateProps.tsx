@@ -6,6 +6,8 @@ import { useDebouncedCallback } from 'use-debounce';
 
 const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: boolean } => {
     const [markdown, setMarkdown] = useState<string | null>(null);
+    const [title, setTitle] = useState<string | undefined>(undefined);
+    const [slug, setSlug] = useState<string | undefined>(undefined);
     const [isPublished, setIsPublished] = useState(false);
 
     useEffect(() => {
@@ -31,6 +33,8 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
                 if (!res.ok) return;
                 const blog: BlogDetails = await res.json();
                 setIsPublished(blog.status === 'PUBLISHED');
+                setTitle(blog.title);
+                setSlug(blog.slug);
             } catch (e) {
                 Sentry.captureException(e);
             }
@@ -77,6 +81,8 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
         id: article_id,
         markdown: markdown ?? '',
         loaded: markdown !== null,
+        title,
+        slug,
         isPublished,
         onSave: handleSave,
         onSaveTemporary: temporarySave

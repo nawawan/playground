@@ -43,6 +43,7 @@ blogs.get('/:id',
     const blogWithContent: BlogDetails = {
         id: blog.id,
         title: blog.title,
+        slug: blog.slug == "" ? undefined : blog.slug,
         content_html: content,
         status: blog.status,
     }
