@@ -12,7 +12,7 @@ export const useGenerateTrajectryPageProps = () => {
   const [activePhotoId, setActivePhotoId] = useState<string | null>(
     activeActivity.photos[2]?.id ?? activeActivity.photos[0]?.id ?? null,
   );
-  const [mapStyle, setMapStyle] = useState<MapStyleKey>("sepia");
+  const [mapStyle, setMapStyle] = useState<MapStyleKey>("terrain");
   const [uploadOpen, setUploadOpen] = useState(false);
 
   const selectActivity = (activityId: string) => {

@@ -16,9 +16,6 @@ const SideBarRoot = styled(Stack)({
   flexShrink: 0,
   overflow: "hidden",
   width: 260,
-  "@media (max-width: 1100px)": {
-    width: 232,
-  },
 });
 
 const SideBarHead = styled(Stack)({
@@ -26,15 +23,11 @@ const SideBarHead = styled(Stack)({
 });
 
 const SideBarTitle = styled(Typography)({
-  fontSize: 26,
-  lineHeight: 1,
-});
-
-const SideBarSubtitle = styled(Typography)({
-  color: "var(--ink-soft)",
-  fontSize: 10,
-  letterSpacing: 0.5,
-  marginTop: 2,
+  color: "var(--ink)",
+  fontSize: 13,
+  fontWeight: 700,
+  letterSpacing: 0.6,
+  textTransform: "uppercase",
 });
 
 const ActivityList = styled(Stack)({
@@ -45,12 +38,12 @@ const ActivityList = styled(Stack)({
 
 const NewActivityButton = styled(Button)({
   background: "transparent",
-  border: "1.5px dashed var(--rule-strong)",
-  borderRadius: 8,
+  border: "1.5px dashed var(--ink-faint)",
+  borderRadius: 10,
   color: "var(--ink-soft)",
   cursor: "pointer",
-  fontSize: 15,
-  fontWeight: 700,
+  fontSize: 14,
+  fontWeight: 500,
   padding: "14px 12px",
 });
 
@@ -62,12 +55,7 @@ export const TrajectrySideBar = ({
 }: TrajectrySideBarProps) => (
   <SideBarRoot>
     <SideBarHead>
-      <SideBarTitle className="trajectry-hand">
-        journal
-      </SideBarTitle>
-      <SideBarSubtitle className="trajectry-mono">
-        a year of small adventures
-      </SideBarSubtitle>
+      <SideBarTitle>ACTIVITIES</SideBarTitle>
     </SideBarHead>
     <ActivityList spacing={1}>
       <NewActivityButton disableRipple type="button" onClick={onUpload}>

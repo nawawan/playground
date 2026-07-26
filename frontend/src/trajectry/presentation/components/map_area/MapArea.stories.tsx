@@ -29,7 +29,7 @@ const InteractiveMapArea = () => {
       activePhotoId={activePhotoId}
       activity={activity}
       here={activePhoto?.at ?? 0.52}
-      mapStyle="sepia"
+      mapStyle="terrain"
       onPhotoSelect={setActivePhotoId}
     />
   );
@@ -40,7 +40,7 @@ export const Default: Story = {
     activePhotoId: trajectryActivities[0].photos[2]?.id ?? null,
     activity: trajectryActivities[0],
     here: trajectryActivities[0].photos[2]?.at ?? 0.52,
-    mapStyle: "sepia",
+    mapStyle: "terrain",
     onPhotoSelect: () => undefined,
   },
   render: () => <InteractiveMapArea />,

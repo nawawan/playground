@@ -47,10 +47,7 @@ const RightColumn = styled(Stack)({
   borderLeft: "1px solid var(--rule)",
   flexShrink: 0,
   overflow: "hidden",
-  width: 360,
-  "@media (max-width: 1100px)": {
-    width: 290,
-  },
+  width: 320,
 });
 
 export const TrajectryPage = ({
@@ -64,13 +61,13 @@ export const TrajectryPage = ({
 }: TrajectryPageProps) => (
   <PageRoot className="trajectry-page">
     {Header}
-    <PageBody className="trajectry-page__body" direction="row">
+    <PageBody direction="row">
       {TrajectrySideBar}
-      <CenterColumn className="trajectry-page__center">
+      <CenterColumn>
         {MapArea}
         {TrajectryHeight}
       </CenterColumn>
-      <RightColumn className="trajectry-page__right">
+      <RightColumn>
         {TrajectryDetail}
         {ImagePanel}
       </RightColumn>

@@ -28,4 +28,4 @@ export type TrajectryActivity = {
   photos: TrajectryPhoto[];
 };
 
-export type MapStyleKey = "terrain" | "streets" | "sepia";
+export type MapStyleKey = "terrain" | "streets";
