@@ -133,7 +133,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
 
     return (
         <Stack spacing={2} sx={{ height: '100%', overflow: 'hidden', position: 'relative', pb: '80px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+            <Stack direction="row" sx={{ justifyContent: 'center'}}>
                 <InlineEditableField
                     inputRef={titleInputRef}
                     value={title}
@@ -141,7 +141,6 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     placeholder="タイトルを入力"
                     error={errors.title}
                     fontWeight={700}
-                    width={240}
                 />
                 <InlineEditableField
                     inputRef={slugInputRef}
@@ -150,13 +149,10 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     placeholder="slugを入力"
                     error={errors.slug}
                     startAdornment="/"
-                    fontSize="0.875rem"
                     color="text.secondary"
-                    align="left"
-                    width={160}
                 />
-            </Box>
-            <Box sx={{ display: 'flex', gap: '20px', flex: 1, minHeight: 0 }}>
+            </Stack>
+            <Stack direction="row"  sx={{ display: 'flex', flex: 1, minHeight: 0 }}>
                 <EditorPane
                     lineNumRef={lineNumRef}
                     preRef={preRef}
@@ -168,16 +164,14 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     onInsert={handleInsert}
                 />
                 <MarkdownPreview html={html} />
-            </Box>
+            </Stack>
             <Box
                 sx={{
                     position: 'absolute',
-                    left: 0,
                     right: 0,
                     bottom: 0,
                     display: 'flex',
                     justifyContent: 'flex-end',
-                    alignItems: 'center',
                     gap: 1.5,
                     px: 3,
                     py: 2,
