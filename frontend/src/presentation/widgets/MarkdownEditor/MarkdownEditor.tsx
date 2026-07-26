@@ -103,19 +103,21 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
 
     const validateFields = (): boolean => {
         const result = MarkdownEditorSchema.safeParse({ title, slug });
-        if (!result.success) {
-            const newErrors: { title?: string; slug?: string } = {};
-            for (const issue of result.error.issues) {
-                const field = issue.path[0] as keyof typeof newErrors;
-                if (!newErrors[field]) newErrors[field] = issue.message;
-            }
-            setErrors(newErrors);
-            if (newErrors.title) titleInputRef.current?.focus();
-            else if (newErrors.slug) slugInputRef.current?.focus();
-            return false;
+        if (result.success) {
+            setErrors({});
+            return true;
         }
-        setErrors({});
-        return true;
+        const newErrors: { title?: string; slug?: string } = {};
+        for (const issue of result.error.issues) {
+            const field = issue.path[0];
+            if (field === 'title' || field === 'slug') {
+                newErrors[field] = issue.message;
+            }
+        }
+        setErrors(newErrors);
+        if (newErrors.title) titleInputRef.current?.focus();
+        else if (newErrors.slug) slugInputRef.current?.focus();
+        return false;
     };
 
     const handleSave = () => {
