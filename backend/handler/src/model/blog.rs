@@ -12,6 +12,7 @@ pub struct UpdateBlogRequest {
     pub title: Option<String>,
     pub slug: Option<String>,
     pub content: String,
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]

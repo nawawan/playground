@@ -1,16 +1,17 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE blogs SET title = $2, status = 'PUBLISHED', content_key = $3 WHERE id = $1",
+  "query": "UPDATE blogs SET title = $2, status = $3, content_key = $4 WHERE id = $1",
   "describe": {
     "columns": [],
     "parameters": {
       "Left": [
         "Uuid",
         "Varchar",
+        "Varchar",
         "Varchar"
       ]
     },
     "nullable": []
   },
-  "hash": "0a2ada0f3d7a10e3d1f72f9447e56d8fd4f00640dcedacca9f039d80956968b8"
+  "hash": "586c9b5e99165067b6875df32b732b743bdfa2d0f257e0dd3807a4de918df33b"
 }
