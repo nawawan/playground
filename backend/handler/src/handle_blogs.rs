@@ -12,7 +12,7 @@ use crate::{extractor::AuthorizedUser, model::blog::UpdateBlogRequest};
 
 use super::error::UsecaseError;
 use super::handler::Handler;
-use usecase::model::blog::BlogRequest;
+use usecase::model::blog::{BlogRequest, BlogStatus};
 use usecase::service::blog::blog_service::BlogService;
 use usecase::service::service::Service;
 
@@ -51,13 +51,13 @@ impl Handler {
         })))
     }
 
-    pub async fn craete_draft(
+    pub async fn create_draft(
         user: AuthorizedUser,
         state: State<Arc<Service>>,
     ) -> Result<Json<String>, UsecaseError> {
         let service = state.0.clone();
 
-        if let Err(e) = validate_admmin(&user) {
+        if let Err(e) = validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -72,7 +72,7 @@ impl Handler {
         state: State<Arc<Service>>,
         Json(req): Json<UpdateBlogRequest>,
     ) -> Result<Json<BlogResponse>, UsecaseError> {
-        if let Err(e) = validate_admmin(&user) {
+        if let Err(e) = validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -82,6 +82,7 @@ impl Handler {
             title: req.title,
             slug: req.slug,
             content: req.content,
+            status: req.status.map(BlogStatus::from),
         };
 
         let service = state.0.clone();
@@ -99,7 +100,7 @@ impl Handler {
         state: State<Arc<Service>>,
         mut multipart: Multipart,
     ) -> Result<Json<ImageResponse>, UsecaseError> {
-        if let Err(e) = validate_admmin(&user) {
+        if let Err(e) = validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -128,7 +129,7 @@ impl Handler {
     }
 }
 
-fn validate_admmin(user: &AuthorizedUser) -> Result<(), UsecaseError> {
+fn validate_admin(user: &AuthorizedUser) -> Result<(), UsecaseError> {
     if user.user.role == "admin" {
         Ok(())
     } else {

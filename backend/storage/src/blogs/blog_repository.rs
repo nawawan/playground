@@ -95,9 +95,10 @@ impl BlogRepository for Repository {
 
     async fn update_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "UPDATE blogs SET title = $2, status = 'PUBLISHED', content_key = $3 WHERE id = $1",
+            "UPDATE blogs SET title = $2, status = $3, content_key = $4 WHERE id = $1",
             blog.id,
             blog.title,
+            blog.status.to_string(),
             blog.content_key
         )
         .execute(&mut **tx)
@@ -111,7 +112,7 @@ impl BlogRepository for Repository {
 
     async fn upload_image(&self, image_id: String, image_data: Bytes) -> Result<Image, RepoError> {
         let body = ByteStream::from(image_data);
-        let bucket_name = "blog-assets";
+        let bucket_name = &self.config.blog_r2_bucket;
 
         self.r2_client
             .put_object()
@@ -137,7 +138,7 @@ impl BlogRepository for Repository {
 
     async fn upload_blog_file(&self, blog_id: String, content: String) -> Result<(), RepoError> {
         let body = ByteStream::from(content.into_bytes());
-        let bucket_name = "blog-assets";
+        let bucket_name = &self.config.blog_r2_bucket;
         self.r2_client
             .put_object()
             .bucket(bucket_name)
@@ -173,6 +174,7 @@ mod tests {
                 env: "dev".into(),
                 cf_access_team_domain: "test.cloudflareaccess.com".into(),
                 cf_access_aud: "test_aud".into(),
+                blog_r2_bucket: "test_bucket".into(),
             },
         );
 
@@ -204,6 +206,7 @@ mod tests {
                 env: "dev".into(),
                 cf_access_team_domain: "test.cloudflareaccess.com".into(),
                 cf_access_aud: "test_aud".into(),
+                blog_r2_bucket: "test_bucket".into(),
             },
         );
         let mut blog = Blog {

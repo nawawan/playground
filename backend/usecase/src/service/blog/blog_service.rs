@@ -111,6 +111,10 @@ impl BlogService for Service {
             blog.slug = slug;
         }
 
+        if let Some(status) = blog_req.status {
+            blog.status = status;
+        }
+
         let content_html = convert(&blog_req.content).map_err(|e| {
             error!("Failed to convert markdown into html");
             return AppError::internal(Some("Failed to convert markdown file"));

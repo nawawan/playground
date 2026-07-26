@@ -46,6 +46,7 @@ pub struct BlogRequest {
     pub title: Option<String>,
     pub slug: Option<String>,
     pub content: String,
+    pub status: Option<BlogStatus>,
 }
 
 pub struct BlogFilter {
