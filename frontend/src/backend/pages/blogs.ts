@@ -44,6 +44,7 @@ blogs.get('/:id',
         id: blog.id,
         title: blog.title,
         content_html: content,
+        status: blog.status,
     }
     return c.json(blogWithContent);
 });

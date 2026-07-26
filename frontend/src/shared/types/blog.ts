@@ -9,4 +9,5 @@ export type BlogDetails = {
     id: string;
     title: string;
     content_html: string;
+    status: string;
 }

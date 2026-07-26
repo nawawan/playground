@@ -12,14 +12,14 @@ export const BlogService = {
         return json.data.blogs;
     },
 
-    async createBlog(apiUrl: string, jwt: string, id: string, content: string, title?: string, slug?: string) : Promise<BlogResponse> {
+    async createBlog(apiUrl: string, jwt: string, id: string, content: string, title?: string, slug?: string, status?: string) : Promise<BlogResponse> {
         const response = await fetch(`${apiUrl}/api/blogs`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Cf-Access-Jwt-Assertion': jwt,
             },
-            body: JSON.stringify({ id, title, slug, content }),
+            body: JSON.stringify({ id, title, slug, content, status }),
         });
         if (!response.ok) {
             throw new Error('Failed to create blog');

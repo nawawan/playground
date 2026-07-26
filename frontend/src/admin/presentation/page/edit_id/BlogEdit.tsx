@@ -12,12 +12,6 @@ const EditBlog = (props: EditBlogProps) => {
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
-        mx: '-2rem',
-        mt: '-2rem',
-        px: '1.5rem',
-        pt: '1.5rem',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
       }}
     >
       {Editor}
