@@ -30,6 +30,7 @@ pub struct BlogResponse {
     pub id: String,
     pub title: String,
     pub content_key: String,
+    pub slug: String,
     pub status: String,
 }
 
@@ -39,6 +40,7 @@ impl From<Blog> for BlogResponse {
             id: blog.id.to_string(),
             title: blog.title,
             content_key: blog.content_key,
+            slug: blog.slug,
             status: blog.status.to_string(),
         }
     }
