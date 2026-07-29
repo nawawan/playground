@@ -64,7 +64,10 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const slugInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
+        // Render the initial preview once on mount; subsequent edits call
+        // updateMarkdown directly via handleChange/handleInsert instead.
         updateMarkdown(markdown);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const updateMarkdown = useCallback(async (text: string) => {
