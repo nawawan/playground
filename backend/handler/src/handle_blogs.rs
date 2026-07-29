@@ -12,7 +12,7 @@ use crate::{extractor::AuthorizedUser, model::blog::UpdateBlogRequest};
 
 use super::error::UsecaseError;
 use super::handler::Handler;
-use usecase::model::blog::{BlogRequest, BlogStatus};
+use usecase::model::blog::{BlogRequest, BlogStatus, BlogTag};
 use usecase::service::blog::blog_service::BlogService;
 use usecase::service::service::Service;
 
@@ -23,10 +23,11 @@ impl Handler {
     ) -> Json<serde_json::Value> {
         let year = params.get("year");
         let month = params.get("month");
+        let tag = params.get("tag");
 
         let service = state.0.clone();
 
-        let blogs = service.list_blogs(year, month).await;
+        let blogs = service.list_blogs(year, month, tag).await;
 
         Json(serde_json::json!({
             "status": "success",
@@ -77,12 +78,22 @@ impl Handler {
             return Err(e);
         }
 
+        let tag = match req.tag {
+            Some(t) => Some(
+                BlogTag::try_from(t)
+                    .map_err(|e| UsecaseError::bad_request(&e))?
+                    .to_string(),
+            ),
+            None => None,
+        };
+
         let blog_req = BlogRequest {
             id: req.id,
             title: req.title,
             slug: req.slug,
             content: req.content,
             status: req.status.map(BlogStatus::from),
+            tag,
         };
 
         let service = state.0.clone();

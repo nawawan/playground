@@ -3,12 +3,13 @@ import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
-import { Box, Button, CircularProgress, Stack, styled } from '@mui/material';
+import { Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Stack, styled } from '@mui/material';
 import EditorPane from './parts/EditorPane/EditorPane';
 import MarkdownPreview from './parts/MarkdownPreview/MarkdownPreview';
 import InlineEditableField from '../../primitive/InlineEditableField/InlineEditableField';
 import Snackbar from '../../primitive/Snackbar/Snackbar';
 import { MarkdownEditorSchema } from './validation/SubmitBlogValidation';
+import { BLOG_TAGS } from '../../../shared/types/blog';
 
 const marked = new Marked(
     markedHighlight({
@@ -38,9 +39,10 @@ export type MarkdownEditorProps = {
     id: string;
     title?: string;
     slug?: string;
+    tag?: string;
     markdown?: string;
     isPublished?: boolean;
-    onSave: (markdown: string, id: string, title?: string, slug?: string, status?: string) => Promise<void>;
+    onSave: (markdown: string, id: string, title?: string, slug?: string, status?: string, tag?: string) => Promise<void>;
     onSaveTemporary?: (markdown: string) => void;
 };
 
@@ -50,6 +52,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     const [html, setHtml] = useState('');
     const [title, setTitle] = useState(props.title);
     const [slug, setSlug] = useState(props.slug);
+    const [tag, setTag] = useState(props.tag);
     const [published, setPublished] = useState(props.isPublished ?? false);
     const [errors, setErrors] = useState<{ title?: string; slug?: string }>({});
     const [lineWraps, setLineWraps] = useState<number[]>([]);
@@ -100,6 +103,10 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         setLineWraps(wraps);
     }, []);
 
+    const handleTagChange = (e: SelectChangeEvent) => {
+        setTag(e.target.value === '' ? undefined : e.target.value);
+    };
+
     const handleScroll = () => {
         const scrollTop = textareaRef.current?.scrollTop ?? 0;
         if (preRef.current) preRef.current.scrollTop = scrollTop;
@@ -131,7 +138,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         if (!validateFields()) return;
         setIsSaving(true);
         try {
-            await props.onSave(markdown, props.id, title, slug, published ? 'PUBLISHED' : 'DRAFT');
+            await props.onSave(markdown, props.id, title, slug, published ? 'PUBLISHED' : 'DRAFT', tag);
             Snackbar.Notify({ message: '保存しました', severity: 'success' });
         } catch {
             Snackbar.Notify({ message: '保存に失敗しました', severity: 'error' });
@@ -144,7 +151,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         if (!validateFields()) return;
         setIsSaving(true);
         try {
-            await props.onSave(markdown, props.id, title, slug, 'PUBLISHED');
+            await props.onSave(markdown, props.id, title, slug, 'PUBLISHED', tag);
             setPublished(true);
             Snackbar.Notify({ message: '公開しました', severity: 'success' });
         } catch {
@@ -174,6 +181,21 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                     startAdornment="/"
                     color="text.secondary"
                 />
+            </Stack>
+            <Stack direction="row" sx={{ justifyContent: 'center' }}>
+                <Select
+                    value={tag ?? ''}
+                    onChange={handleTagChange}
+                    displayEmpty
+                    variant="standard"
+                    disableUnderline
+                    sx={{ fontSize: '0.875rem', color: 'text.secondary', minWidth: 140 }}
+                >
+                    <MenuItem value="">タグ未設定</MenuItem>
+                    {BLOG_TAGS.map((option) => (
+                        <MenuItem key={option} value={option}>{option}</MenuItem>
+                    ))}
+                </Select>
             </Stack>
             <Stack direction="row"  sx={{ display: 'flex', flex: 1, minHeight: 0 }}>
                 <EditorPane

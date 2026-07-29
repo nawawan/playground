@@ -18,7 +18,7 @@ impl BlogRepository for Repository {
     async fn get_blog(&self, id: Uuid) -> Result<Blog, RepoError> {
         let blog = sqlx::query_as!(
             Blog,
-            "SELECT id, title, slug, content_key, status FROM blogs WHERE id = $1",
+            "SELECT id, title, slug, content_key, status, tag FROM blogs WHERE id = $1",
             id
         )
         .fetch_one(&self.pool)
@@ -33,7 +33,7 @@ impl BlogRepository for Repository {
 
     async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
         let mut builder = sqlx::QueryBuilder::new(
-            "SELECT id, title, slug, content_key, status FROM blogs WHERE 1=1",
+            "SELECT id, title, slug, content_key, status, tag FROM blogs WHERE 1=1",
         );
         filter.apply(&mut builder);
         builder
@@ -52,11 +52,12 @@ impl BlogRepository for Repository {
         blog: Blog,
     ) -> Result<String, RepoError> {
         sqlx::query!(
-            "INSERT INTO blogs (id, status, title, content_key, slug) VALUES ($1, 'DRAFT', $2, $3, $4)",
+            "INSERT INTO blogs (id, status, title, content_key, slug, tag) VALUES ($1, 'DRAFT', $2, $3, $4, $5)",
             blog.id,
             blog.title,
             blog.content_key,
             blog.slug,
+            blog.tag,
         )
         .execute(&mut **tx)
         .await
@@ -69,11 +70,12 @@ impl BlogRepository for Repository {
 
     async fn create_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "INSERT INTO blogs (id, title, slug, status, content_key) VALUES ($1, $2, $3, 'PUBLISHED', $4)",
+            "INSERT INTO blogs (id, title, slug, status, content_key, tag) VALUES ($1, $2, $3, 'PUBLISHED', $4, $5)",
             blog.id,
             blog.title,
             blog.slug,
-            blog.content_key
+            blog.content_key,
+            blog.tag,
         )
         .execute(&mut **tx)
         .await
@@ -95,11 +97,12 @@ impl BlogRepository for Repository {
 
     async fn update_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "UPDATE blogs SET title = $2, status = $3, content_key = $4 WHERE id = $1",
+            "UPDATE blogs SET title = $2, status = $3, content_key = $4, tag = $5 WHERE id = $1",
             blog.id,
             blog.title,
             blog.status.to_string(),
-            blog.content_key
+            blog.content_key,
+            blog.tag,
         )
         .execute(&mut **tx)
         .await
@@ -164,9 +167,8 @@ mod tests {
     use shared::config::Config;
     use uuid::Uuid;
 
-    #[sqlx::test(migrations = "../src/migrations")]
-    async fn test_create_draft_can_fetch_id(pool: sqlx::PgPool) -> Result<()> {
-        let repo = Repository::new(
+    async fn test_repository(pool: sqlx::PgPool) -> Repository {
+        Repository::new(
             pool,
             Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await),
             Config {
@@ -176,7 +178,12 @@ mod tests {
                 cf_access_aud: "test_aud".into(),
                 blog_r2_bucket: "test_bucket".into(),
             },
-        );
+        )
+    }
+
+    #[sqlx::test(migrations = "../src/migrations")]
+    async fn test_create_draft_can_fetch_id(pool: sqlx::PgPool) -> Result<()> {
+        let repo = test_repository(pool).await;
 
         let id = Uuid::now_v7();
         let blog = Blog {
@@ -185,6 +192,7 @@ mod tests {
             content_key: format!("uploads/blogs/{}.html", id),
             slug: String::new(),
             status: usecase::model::blog::BlogStatus::Draft,
+            tag: None,
         };
         let mut tx = repo.pool.begin().await?;
         let draft_id = repo.create_draft(&mut tx, blog).await;
@@ -198,23 +206,14 @@ mod tests {
 
     #[sqlx::test(migrations = "../src/migrations")]
     async fn test_create_blog_already_exists(pool: sqlx::PgPool) -> Result<()> {
-        let repo = Repository::new(
-            pool,
-            Client::new(&aws_config::load_defaults(BehaviorVersion::latest()).await),
-            Config {
-                host: "test".into(),
-                env: "dev".into(),
-                cf_access_team_domain: "test.cloudflareaccess.com".into(),
-                cf_access_aud: "test_aud".into(),
-                blog_r2_bucket: "test_bucket".into(),
-            },
-        );
+        let repo = test_repository(pool).await;
         let mut blog = Blog {
             id: Uuid::now_v7(),
             title: "Test Blog".to_string(),
             slug: "test".to_string(),
             content_key: "test-blog".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            tag: None,
         };
 
         let mut tx = repo.pool.begin().await?;
@@ -223,6 +222,94 @@ mod tests {
         let result = repo.create_blog(&mut tx, blog).await;
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), RepoError::Conflict(_)));
+        Ok(())
+    }
+
+    #[sqlx::test(migrations = "../src/migrations")]
+    async fn test_get_blog_maps_nullable_tag_field(pool: sqlx::PgPool) -> Result<()> {
+        let repo = test_repository(pool).await;
+
+        let tagged = Blog {
+            id: Uuid::now_v7(),
+            title: "Tagged".to_string(),
+            slug: "tagged".to_string(),
+            content_key: "tagged-key".to_string(),
+            status: usecase::model::blog::BlogStatus::Published,
+            tag: Some("TECH".to_string()),
+        };
+        let untagged = Blog {
+            id: Uuid::now_v7(),
+            title: "Untagged".to_string(),
+            slug: "untagged".to_string(),
+            content_key: "untagged-key".to_string(),
+            status: usecase::model::blog::BlogStatus::Published,
+            tag: None,
+        };
+
+        let mut tx = repo.pool.begin().await?;
+        repo.create_blog(&mut tx, tagged.clone()).await?;
+        repo.create_blog(&mut tx, untagged.clone()).await?;
+        tx.commit().await?;
+
+        let fetched_tagged = repo.get_blog(tagged.id).await?;
+        assert_eq!(fetched_tagged.tag, Some("TECH".to_string()));
+
+        let fetched_untagged = repo.get_blog(untagged.id).await?;
+        assert_eq!(fetched_untagged.tag, None);
+
+        Ok(())
+    }
+
+    #[sqlx::test(migrations = "../src/migrations")]
+    async fn test_list_blogs_filters_by_tag(pool: sqlx::PgPool) -> Result<()> {
+        let repo = test_repository(pool).await;
+
+        let tech = Blog {
+            id: Uuid::now_v7(),
+            title: "Tech post".to_string(),
+            slug: "tech-post".to_string(),
+            content_key: "tech-key".to_string(),
+            status: usecase::model::blog::BlogStatus::Published,
+            tag: Some("TECH".to_string()),
+        };
+        let travel = Blog {
+            id: Uuid::now_v7(),
+            title: "Travel post".to_string(),
+            slug: "travel-post".to_string(),
+            content_key: "travel-key".to_string(),
+            status: usecase::model::blog::BlogStatus::Published,
+            tag: Some("TRAVEL".to_string()),
+        };
+        let untagged = Blog {
+            id: Uuid::now_v7(),
+            title: "Untagged post".to_string(),
+            slug: "untagged-post".to_string(),
+            content_key: "untagged-post-key".to_string(),
+            status: usecase::model::blog::BlogStatus::Published,
+            tag: None,
+        };
+
+        let mut tx = repo.pool.begin().await?;
+        repo.create_blog(&mut tx, tech.clone()).await?;
+        repo.create_blog(&mut tx, travel.clone()).await?;
+        repo.create_blog(&mut tx, untagged.clone()).await?;
+        tx.commit().await?;
+
+        let filter = BlogFilter {
+            limit: None,
+            offset: None,
+            order_by: None,
+            order_desc: None,
+            start: None,
+            end: None,
+            tag: Some("TECH".to_string()),
+        };
+        let results = repo.list_blogs(filter).await;
+
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].id, tech.id);
+        assert_eq!(results[0].tag, Some("TECH".to_string()));
+
         Ok(())
     }
 }

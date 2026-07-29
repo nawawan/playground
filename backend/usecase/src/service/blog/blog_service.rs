@@ -13,7 +13,12 @@ use uuid::Uuid;
 #[async_trait]
 pub trait BlogService {
     async fn get_blog(&self, id: String) -> Result<Blog, AppError>;
-    async fn list_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog>;
+    async fn list_blogs(
+        &self,
+        year: Option<&String>,
+        month: Option<&String>,
+        tag: Option<&String>,
+    ) -> Vec<Blog>;
     async fn create_blog(&self, blog: BlogRequest) -> Result<Blog, AppError>;
     async fn update_blog(&self, blog: BlogRequest) -> Result<Blog, AppError>;
     async fn create_draft(&self) -> Result<String, AppError>;
@@ -22,8 +27,13 @@ pub trait BlogService {
 
 #[async_trait]
 impl BlogService for Service {
-    async fn list_blogs(&self, year: Option<&String>, month: Option<&String>) -> Vec<Blog> {
-        let filter = BlogFilter::new(year, month);
+    async fn list_blogs(
+        &self,
+        year: Option<&String>,
+        month: Option<&String>,
+        tag: Option<&String>,
+    ) -> Vec<Blog> {
+        let filter = BlogFilter::new(year, month, tag);
         let blogs = self.repository.list_blogs(filter).await;
 
         blogs
@@ -51,6 +61,7 @@ impl BlogService for Service {
             slug: initial_slug,
             content_key: format!("uploads/blogs/{}.html", id),
             status: BlogStatus::Draft,
+            tag: None,
         };
         let mut tx = self.repository.create_transaction().await?;
         let id_str = self.repository.create_draft(&mut tx, blog).await?;
@@ -71,6 +82,7 @@ impl BlogService for Service {
             slug: "".to_string(),
             content_key: content_key,
             status: BlogStatus::Draft,
+            tag: None,
         };
 
         let result = {
@@ -113,6 +125,10 @@ impl BlogService for Service {
 
         if let Some(status) = blog_req.status {
             blog.status = status;
+        }
+
+        if let Some(tag) = blog_req.tag {
+            blog.tag = Some(tag);
         }
 
         let content_html = convert(&blog_req.content).map_err(|e| {
