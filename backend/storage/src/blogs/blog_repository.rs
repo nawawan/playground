@@ -18,7 +18,7 @@ impl BlogRepository for Repository {
     async fn get_blog(&self, id: Uuid) -> Result<Blog, RepoError> {
         let blog = sqlx::query_as!(
             Blog,
-            "SELECT id, title, slug, content_key, status FROM blogs WHERE id = $1",
+            "SELECT id, title, slug, content_key, status, tag FROM blogs WHERE id = $1",
             id
         )
         .fetch_one(&self.pool)
@@ -33,7 +33,7 @@ impl BlogRepository for Repository {
 
     async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
         let mut builder = sqlx::QueryBuilder::new(
-            "SELECT id, title, slug, content_key, status FROM blogs WHERE 1=1",
+            "SELECT id, title, slug, content_key, status, tag FROM blogs WHERE 1=1",
         );
         filter.apply(&mut builder);
         builder
@@ -52,11 +52,12 @@ impl BlogRepository for Repository {
         blog: Blog,
     ) -> Result<String, RepoError> {
         sqlx::query!(
-            "INSERT INTO blogs (id, status, title, content_key, slug) VALUES ($1, 'DRAFT', $2, $3, $4)",
+            "INSERT INTO blogs (id, status, title, content_key, slug, tag) VALUES ($1, 'DRAFT', $2, $3, $4, $5)",
             blog.id,
             blog.title,
             blog.content_key,
             blog.slug,
+            blog.tag,
         )
         .execute(&mut **tx)
         .await
@@ -69,11 +70,12 @@ impl BlogRepository for Repository {
 
     async fn create_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "INSERT INTO blogs (id, title, slug, status, content_key) VALUES ($1, $2, $3, 'PUBLISHED', $4)",
+            "INSERT INTO blogs (id, title, slug, status, content_key, tag) VALUES ($1, $2, $3, 'PUBLISHED', $4, $5)",
             blog.id,
             blog.title,
             blog.slug,
-            blog.content_key
+            blog.content_key,
+            blog.tag,
         )
         .execute(&mut **tx)
         .await
@@ -95,11 +97,12 @@ impl BlogRepository for Repository {
 
     async fn update_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "UPDATE blogs SET title = $2, status = $3, content_key = $4 WHERE id = $1",
+            "UPDATE blogs SET title = $2, status = $3, content_key = $4, tag = $5 WHERE id = $1",
             blog.id,
             blog.title,
             blog.status.to_string(),
-            blog.content_key
+            blog.content_key,
+            blog.tag,
         )
         .execute(&mut **tx)
         .await
@@ -185,6 +188,7 @@ mod tests {
             content_key: format!("uploads/blogs/{}.html", id),
             slug: String::new(),
             status: usecase::model::blog::BlogStatus::Draft,
+            tag: None,
         };
         let mut tx = repo.pool.begin().await?;
         let draft_id = repo.create_draft(&mut tx, blog).await;
@@ -215,6 +219,7 @@ mod tests {
             slug: "test".to_string(),
             content_key: "test-blog".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            tag: None,
         };
 
         let mut tx = repo.pool.begin().await?;

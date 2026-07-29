@@ -16,19 +16,37 @@ export const Default: Story = {
             {
                 id: "1",
                 title: "title1",
-                outline: "test用"
+                outline: "test用",
+                tag: "TECH",
             },
             {
                 id: "2",
                 title: "title2",
-                outline: "test2用"
+                outline: "test2用",
+                tag: "TRAVEL",
             },
             {
                 id: "3",
                 title: "title3",
-                outline: "test3用"
+                outline: "test3用",
             },
         ],
         onClick: (id: string) => alert(`記事ID: ${id}がクリックされました`),
+        selectedTag: "",
+    }
+}
+
+export const TechTabSelected: Story = {
+    args: {
+        posts: [
+            {
+                id: "1",
+                title: "title1",
+                outline: "test用",
+                tag: "TECH",
+            },
+        ],
+        onClick: (id: string) => alert(`記事ID: ${id}がクリックされました`),
+        selectedTag: "TECH",
     }
 }
