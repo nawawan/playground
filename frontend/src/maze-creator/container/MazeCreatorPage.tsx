@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -20,8 +21,10 @@ import {
 import Grid from "@mui/material/Grid";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 
-import { draw_maze, MazeType } from "../wasm/pkg/wasm.js";
+import { create_random_maze, draw_maze, MazeType } from "../wasm/pkg/wasm.js";
+import type { MazePlayLocationState } from "../presentation/page/play/MazePlayPage";
 
 type GridParams = {
   cellSize: number;
@@ -34,11 +37,14 @@ type Mode = "random" | "single";
 
 function MazeCreatorPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const navigate = useNavigate();
 
   const [params, setParams] = useState<GridParams>(DEFAULT_PARAMS);
   const [autoPreview, setAutoPreview] = useState<boolean>(true);
   const [mode, setMode] = useState<Mode>("random");
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
+  const [playableMaze, setPlayableMaze] =
+    useState<MazePlayLocationState | null>(null);
 
   const { widthPx, heightPx } = useMemo(
     () => ({
@@ -91,8 +97,10 @@ function MazeCreatorPage() {
     canvas.height = height;
     if (m === "single") {
       draw_maze(0, 0, rows, cols, cellSize, MazeType.SingleStroke);
+      setPlayableMaze(null);
     } else {
-      draw_maze(0, 0, rows, cols, cellSize, MazeType.Random);
+      const walls = create_random_maze("canvas", rows, cols, cellSize);
+      setPlayableMaze({ walls: Array.from(walls), rows, cols, cellSize });
     }
   };
 
@@ -114,6 +122,11 @@ function MazeCreatorPage() {
     if (autoPreview) {
       ensureCanvasAndDraw(DEFAULT_PARAMS, "random");
     }
+  };
+
+  const onPlay = () => {
+    if (!playableMaze) return;
+    navigate("/maze/play", { state: playableMaze });
   };
 
   const theme = useMemo(
@@ -300,9 +313,27 @@ function MazeCreatorPage() {
 
           <Paper elevation={2} sx={{ p: 3 }}>
             <Stack spacing={1}>
-              <Typography variant="subtitle1">プレビュー</Typography>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="subtitle1">プレビュー</Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  size="small"
+                  startIcon={<SportsEsportsIcon />}
+                  disabled={!playableMaze}
+                  onClick={onPlay}
+                >
+                  この迷路で遊ぶ
+                </Button>
+              </Stack>
               <Typography variant="caption" color="text.secondary">
                 {widthPx} x {heightPx} px
+                {mode === "single" &&
+                  "（一筆書きモードはプレイに対応していません）"}
               </Typography>
               <Box
                 sx={{
