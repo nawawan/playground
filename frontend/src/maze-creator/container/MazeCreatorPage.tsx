@@ -22,8 +22,15 @@ import Grid from "@mui/material/Grid";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import GridViewIcon from "@mui/icons-material/GridView";
 
-import { create_random_maze, draw_maze, MazeType } from "../wasm/pkg/wasm.js";
+import {
+  create_random_maze,
+  draw_maze,
+  draw_random_maze,
+  draw_random_maze_tiles,
+  MazeType,
+} from "../wasm/pkg/wasm.js";
 import type { MazePlayLocationState } from "../presentation/page/play/MazePlayPage";
 
 type GridParams = {
@@ -34,6 +41,9 @@ type GridParams = {
 
 const DEFAULT_PARAMS: GridParams = { cellSize: 20, cols: 15, rows: 10 };
 type Mode = "random" | "single";
+type WallStyle = "1d" | "2d";
+
+const tileSizeFor = (cellSize: number) => Math.max(1, Math.floor(cellSize / 2));
 
 function MazeCreatorPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -45,6 +55,7 @@ function MazeCreatorPage() {
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
   const [playableMaze, setPlayableMaze] =
     useState<MazePlayLocationState | null>(null);
+  const [wallStyle, setWallStyle] = useState<WallStyle>("1d");
 
   const { widthPx, heightPx } = useMemo(
     () => ({
@@ -84,43 +95,98 @@ function MazeCreatorPage() {
     return { errors, valid };
   }, [params, mode]);
 
+  const renderLines = (
+    rows: number,
+    cols: number,
+    cellSize: number,
+    walls: Uint8Array,
+  ) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width = cols * cellSize;
+    canvas.height = rows * cellSize;
+    draw_random_maze("canvas", walls, rows, cols, cellSize);
+  };
+
+  const renderTiles = (
+    rows: number,
+    cols: number,
+    cellSize: number,
+    walls: Uint8Array,
+  ) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const tileSize = tileSizeFor(cellSize);
+    canvas.width = (2 * cols + 1) * tileSize;
+    canvas.height = (2 * rows + 1) * tileSize;
+    draw_random_maze_tiles("canvas", walls, rows, cols, tileSize);
+  };
+
   const ensureCanvasAndDraw = (
     { cellSize, cols, rows }: GridParams,
     m: Mode,
+    style: WallStyle,
   ) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const width = cellSize * cols;
-    const height = cellSize * rows;
-    canvas.width = width;
-    canvas.height = height;
     if (m === "single") {
+      canvas.width = cellSize * cols;
+      canvas.height = cellSize * rows;
       draw_maze(0, 0, rows, cols, cellSize, MazeType.SingleStroke);
       setPlayableMaze(null);
+      return;
+    }
+
+    canvas.width = cellSize * cols;
+    canvas.height = cellSize * rows;
+    const walls = create_random_maze("canvas", rows, cols, cellSize);
+    setPlayableMaze({ walls: Array.from(walls), rows, cols, cellSize });
+
+    if (style === "2d") {
+      renderTiles(rows, cols, cellSize, walls);
+    }
+  };
+
+  const onToggleWallStyle = () => {
+    if (!playableMaze) return;
+    const next: WallStyle = wallStyle === "1d" ? "2d" : "1d";
+    const { rows, cols, cellSize, walls } = playableMaze;
+    const wallsArray = Uint8Array.from(walls);
+
+    setWallStyle(next);
+    if (next === "2d") {
+      renderTiles(rows, cols, cellSize, wallsArray);
     } else {
-      const walls = create_random_maze("canvas", rows, cols, cellSize);
-      setPlayableMaze({ walls: Array.from(walls), rows, cols, cellSize });
+      renderLines(rows, cols, cellSize, wallsArray);
     }
   };
 
   useEffect(() => {
     if (!autoPreview || !validation.valid) return;
-    const t = setTimeout(() => ensureCanvasAndDraw(params, mode), 300);
+    const t = setTimeout(
+      () => ensureCanvasAndDraw(params, mode, wallStyle),
+      300,
+    );
     return () => clearTimeout(t);
+    // wallStyle is intentionally excluded: toggling it re-renders the
+    // existing maze in place (see onToggleWallStyle) and must not trigger
+    // a fresh create_random_maze regeneration here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPreview, validation.valid, params, mode]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validation.valid) return;
-    ensureCanvasAndDraw(params, mode);
+    ensureCanvasAndDraw(params, mode, wallStyle);
   };
 
   const onReset = () => {
     setParams(DEFAULT_PARAMS);
     setMode("random");
+    setWallStyle("1d");
     if (autoPreview) {
-      ensureCanvasAndDraw(DEFAULT_PARAMS, "random");
+      ensureCanvasAndDraw(DEFAULT_PARAMS, "random", "1d");
     }
   };
 
@@ -319,21 +385,33 @@ function MazeCreatorPage() {
                 justifyContent="space-between"
               >
                 <Typography variant="subtitle1">プレビュー</Typography>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  size="small"
-                  startIcon={<SportsEsportsIcon />}
-                  disabled={!playableMaze}
-                  onClick={onPlay}
-                >
-                  この迷路で遊ぶ
-                </Button>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    startIcon={<GridViewIcon />}
+                    disabled={!playableMaze}
+                    onClick={onToggleWallStyle}
+                  >
+                    {wallStyle === "1d" ? "2Dタイル表示に切替" : "1D表示に戻す"}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    size="small"
+                    startIcon={<SportsEsportsIcon />}
+                    disabled={!playableMaze}
+                    onClick={onPlay}
+                  >
+                    この迷路で遊ぶ
+                  </Button>
+                </Stack>
               </Stack>
               <Typography variant="caption" color="text.secondary">
                 {widthPx} x {heightPx} px
                 {mode === "single" &&
-                  "（一筆書きモードはプレイに対応していません）"}
+                  "（一筆書きモードはプレイ・2Dタイル表示に対応していません）"}
               </Typography>
               <Box
                 sx={{
