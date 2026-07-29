@@ -58,3 +58,26 @@ pub fn draw_maze(
     };
     ctx.stroke();
 }
+
+// ランダム迷路を生成して描画し、通路のビットマスク(セルごとにUP/RIGHT/DOWN/LEFTが開いているか)を返す。
+// このビットマスクをJS側で保持しておくことで、生成した迷路そのものをプレイ画面に引き継げる。
+#[wasm_bindgen]
+pub fn create_random_maze(canvas_id: String, row: usize, col: usize, space: f64) -> Vec<u8> {
+    let walls = maze::wall_grid::generate_walls(row, col);
+
+    if !random_maze::validate(row, col, space) {
+        return walls;
+    }
+
+    let ctx = dom::fetch_2d_context(&canvas_id);
+    let width = space * col as f64;
+    let height = space * row as f64;
+
+    ctx.clear_rect(0.0, 0.0, width, height);
+    ctx.begin_path();
+    ctx.rect(0.0, 0.0, width, height);
+    maze::wall_grid::draw_walls(&ctx, &walls, row, col, space);
+    ctx.stroke();
+
+    walls
+}
