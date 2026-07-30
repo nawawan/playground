@@ -1,4 +1,4 @@
-import { Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { LinearProgress, Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { BLOG_TAGS } from "../../../shared/types/blog";
 
 export type EntryCardProps = {
@@ -11,23 +11,27 @@ export type EntryCardProps = {
     onClick: (id: string) => void,
     selectedTag: string,
     onTagFilterChange?: (tag: string) => void,
+    isFetching?: boolean,
 };
 
 export const EntryCard = (props: EntryCardProps) => {
-    const { posts, onClick, selectedTag, onTagFilterChange } = props;
+    const { posts, onClick, selectedTag, onTagFilterChange, isFetching } = props;
 
     return (
         <Stack spacing={2}>
-            <Tabs
-                value={selectedTag}
-                onChange={(_, value: string) => onTagFilterChange?.(value)}
-                sx={{ borderBottom: 1, borderColor: "divider" }}
-            >
-                <Tab label="一覧" value="" />
-                {BLOG_TAGS.map((tag) => (
-                    <Tab key={tag} label={tag} value={tag} />
-                ))}
-            </Tabs>
+            <Stack>
+                <Tabs
+                    value={selectedTag}
+                    onChange={(_, value: string) => onTagFilterChange?.(value)}
+                    sx={{ borderBottom: 1, borderColor: "divider" }}
+                >
+                    <Tab label="一覧" value="" />
+                    {BLOG_TAGS.map((tag) => (
+                        <Tab key={tag} label={tag} value={tag} />
+                    ))}
+                </Tabs>
+                {isFetching && <LinearProgress />}
+            </Stack>
             <Stack spacing={2}>
                 {posts.map((post) => (
                 <Paper
