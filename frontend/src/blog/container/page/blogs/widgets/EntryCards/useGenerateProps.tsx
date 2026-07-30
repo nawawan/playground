@@ -21,19 +21,11 @@ export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
     const [isLoading, setIsLoading] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
 
-    // Cache fetched posts per tag so revisiting a tag is instant, and keep the
-    // previously rendered posts on screen while a new tag is being fetched.
-    const cacheRef = useRef<Record<string, Posts>>({});
+    // Keep the previously rendered posts on screen while a new tag is being
+    // fetched, guarding against a superseded request resolving out of order.
     const requestIdRef = useRef(0);
 
     useEffect(() => {
-        const cached = cacheRef.current[selectedTag];
-        if (cached) {
-            setPosts(cached);
-            setIsLoading(false);
-            return;
-        }
-
         const requestId = ++requestIdRef.current;
         setIsFetching(true);
 
@@ -50,7 +42,6 @@ export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
                 // A newer tag switch superseded this request; ignore its result.
                 if (requestId !== requestIdRef.current) return;
 
-                cacheRef.current[selectedTag] = fetchedPosts;
                 setPosts(fetchedPosts);
             } catch (e) {
                 Sentry.captureException(new Error("Failed to fetch blogs: " + (e instanceof Error ? e.message : String(e))));
