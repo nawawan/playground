@@ -17,4 +17,11 @@ export const sharedEditorStyle: CSSProperties = {
     whiteSpace: 'pre-wrap',
     overflowWrap: 'break-word',
     boxSizing: 'border-box',
+    // Reserve the scrollbar's width on all three overlapping layers (measure
+    // div, pre, textarea) regardless of whether a scrollbar is actually shown.
+    // Without this, the textarea (overflow: auto) narrows once it grows a real
+    // scrollbar while the pre/measure layers (overflow: hidden/visible) don't,
+    // so long lines wrap at a different column and the caret drifts from the
+    // highlighted text underneath it.
+    scrollbarGutter: 'stable',
 };

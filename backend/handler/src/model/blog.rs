@@ -13,6 +13,7 @@ pub struct UpdateBlogRequest {
     pub slug: Option<String>,
     pub content: String,
     pub status: Option<String>,
+    pub tag: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
@@ -33,6 +34,7 @@ pub struct BlogResponse {
     pub slug: String,
     pub status: String,
     pub published_at: Option<String>,
+    pub tag: Option<String>,
 }
 
 impl From<Blog> for BlogResponse {
@@ -44,6 +46,7 @@ impl From<Blog> for BlogResponse {
             slug: blog.slug,
             status: blog.status.to_string(),
             published_at: blog.published_at.map(|dt| dt.and_utc().to_rfc3339()),
+            tag: blog.tag,
         }
     }
 }

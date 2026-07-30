@@ -90,6 +90,7 @@ const EditorOverlay = ({ preRef, textareaRef, markdown, onChange, onScroll, onIn
                     top: 0,
                     left: 0,
                     right: 0,
+                    overflow: 'hidden',
                     visibility: 'hidden',
                     pointerEvents: 'none',
                 }}

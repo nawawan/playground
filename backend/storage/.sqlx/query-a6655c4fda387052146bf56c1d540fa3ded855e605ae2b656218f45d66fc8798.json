@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, title, slug, content_key, status, published_at FROM blogs WHERE id = $1",
+  "query": "SELECT id, title, slug, content_key, status, published_at, tag FROM blogs WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -32,6 +32,11 @@
         "ordinal": 5,
         "name": "published_at",
         "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 6,
+        "name": "tag",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -45,8 +50,9 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },
-  "hash": "406552364ad9727cc08db985e1a62351d456f3dae06971300c0ab7439c0ef71d"
+  "hash": "a6655c4fda387052146bf56c1d540fa3ded855e605ae2b656218f45d66fc8798"
 }

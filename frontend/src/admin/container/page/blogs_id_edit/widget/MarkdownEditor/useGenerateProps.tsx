@@ -8,6 +8,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
     const [markdown, setMarkdown] = useState<string | null>(null);
     const [title, setTitle] = useState<string | undefined>(undefined);
     const [slug, setSlug] = useState<string | undefined>(undefined);
+    const [tag, setTag] = useState<string | undefined>(undefined);
     const [isPublished, setIsPublished] = useState(false);
     const [statusLoaded, setStatusLoaded] = useState(false);
 
@@ -36,6 +37,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
                 setIsPublished(blog.status === 'PUBLISHED');
                 setTitle(blog.title);
                 setSlug(blog.slug);
+                setTag(blog.tag);
             } catch (e) {
                 Sentry.captureException(e);
             } finally {
@@ -56,7 +58,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
         handleTemporarySave(inputText);
     };
 
-    const handleSave = useCallback(async (markdown: string, id: string, title?: string, slug?: string, status?: string) => {
+    const handleSave = useCallback(async (markdown: string, id: string, title?: string, slug?: string, status?: string, tag?: string) => {
         try {
             const blogRes = await fetch("/api/admin/blogs", {
                 method: "POST",
@@ -66,6 +68,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
                     slug: slug,
                     content: markdown,
                     status: status,
+                    tag: tag,
                 }),
             });
             if (!blogRes.ok) throw new Error(`Failed to save blog: ${blogRes.status}`);
@@ -89,6 +92,7 @@ const useGenerateProps = (article_id: string): MarkdownEditorProps & { loaded: b
         loaded: markdown !== null && statusLoaded,
         title,
         slug,
+        tag,
         isPublished,
         onSave: handleSave,
         onSaveTemporary: temporarySave

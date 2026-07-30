@@ -8,12 +8,17 @@ import { formatElapsedTime } from "../../../../../../helper/FormatElapsedTime";
 export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState<EntryCardProps["posts"]>([]);
+    const [selectedTag, setSelectedTag] = useState("");
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true);
             try {
-                const res = await fetch("/api/blogs?status=PUBLISHED");
+                const url = selectedTag
+                    ? `/api/blogs?status=PUBLISHED&tag=${encodeURIComponent(selectedTag)}`
+                    : "/api/blogs?status=PUBLISHED";
+                const res = await fetch(url);
                 if (!res.ok) throw new Error("Failed to fetch blogs");
                 const data = (await res.json()) as BlogResponse[];
                 setPosts(
@@ -24,6 +29,7 @@ export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
                         elapsedTimeLabel: blog.published_at
                             ? formatElapsedTime(blog.published_at)
                             : undefined,
+                        tag: blog.tag,
                     }))
                 );
             } catch (e) {
@@ -34,13 +40,15 @@ export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
             }
         };
         fetchData();
-    }, []);
+    }, [selectedTag]);
 
     return {
         posts,
         onClick: (id: string) => {
             navigate(`/blogs/${id}`);
         },
+        selectedTag,
+        onTagFilterChange: setSelectedTag,
         isLoading,
     };
 }
