@@ -71,7 +71,6 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
     }, []);
 
     const updateMarkdown = useCallback(async (text: string) => {
-        if(text == '') return;
         setMarkdown(text);
         const rawHtml = await marked.parse(text);
         const sanitizedHtml = sanitizeHtml(rawHtml, {
