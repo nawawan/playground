@@ -54,3 +54,20 @@ export const TechTabSelected: Story = {
         selectedTag: "TECH",
     }
 }
+
+export const FetchingNextTag: Story = {
+    args: {
+        posts: [
+            {
+                id: "1",
+                title: "title1",
+                outline: "test用",
+                publishedAtLabel: "2026-07-31",
+                tag: "TECH",
+            },
+        ],
+        onClick: (id: string) => alert(`記事ID: ${id}がクリックされました`),
+        selectedTag: "TRAVEL",
+        isFetching: true,
+    }
+}
