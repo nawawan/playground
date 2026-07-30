@@ -18,7 +18,7 @@ impl BlogRepository for Repository {
     async fn get_blog(&self, id: Uuid) -> Result<Blog, RepoError> {
         let blog = sqlx::query_as!(
             Blog,
-            "SELECT id, title, slug, content_key, status, tag FROM blogs WHERE id = $1",
+            "SELECT id, title, slug, content_key, status, published_at, tag FROM blogs WHERE id = $1",
             id
         )
         .fetch_one(&self.pool)
@@ -33,7 +33,7 @@ impl BlogRepository for Repository {
 
     async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
         let mut builder = sqlx::QueryBuilder::new(
-            "SELECT id, title, slug, content_key, status, tag FROM blogs WHERE 1=1",
+            "SELECT id, title, slug, content_key, status, published_at, tag FROM blogs WHERE 1=1",
         );
         filter.apply(&mut builder);
         builder
@@ -97,11 +97,12 @@ impl BlogRepository for Repository {
 
     async fn update_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "UPDATE blogs SET title = $2, status = $3, content_key = $4, tag = $5 WHERE id = $1",
+            "UPDATE blogs SET title = $2, status = $3, content_key = $4, published_at = $5, tag = $6 WHERE id = $1",
             blog.id,
             blog.title,
             blog.status.to_string(),
             blog.content_key,
+            blog.published_at,
             blog.tag,
         )
         .execute(&mut **tx)
@@ -192,6 +193,7 @@ mod tests {
             content_key: format!("uploads/blogs/{}.html", id),
             slug: String::new(),
             status: usecase::model::blog::BlogStatus::Draft,
+            published_at: None,
             tag: None,
         };
         let mut tx = repo.pool.begin().await?;
@@ -213,6 +215,7 @@ mod tests {
             slug: "test".to_string(),
             content_key: "test-blog".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            published_at: None,
             tag: None,
         };
 
@@ -235,6 +238,7 @@ mod tests {
             slug: "tagged".to_string(),
             content_key: "tagged-key".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            published_at: None,
             tag: Some("TECH".to_string()),
         };
         let untagged = Blog {
@@ -243,6 +247,7 @@ mod tests {
             slug: "untagged".to_string(),
             content_key: "untagged-key".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            published_at: None,
             tag: None,
         };
 
@@ -270,6 +275,7 @@ mod tests {
             slug: "tech-post".to_string(),
             content_key: "tech-key".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            published_at: None,
             tag: Some("TECH".to_string()),
         };
         let travel = Blog {
@@ -278,6 +284,7 @@ mod tests {
             slug: "travel-post".to_string(),
             content_key: "travel-key".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            published_at: None,
             tag: Some("TRAVEL".to_string()),
         };
         let untagged = Blog {
@@ -286,6 +293,7 @@ mod tests {
             slug: "untagged-post".to_string(),
             content_key: "untagged-post-key".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            published_at: None,
             tag: None,
         };
 
@@ -302,6 +310,7 @@ mod tests {
             order_desc: None,
             start: None,
             end: None,
+            status: None,
             tag: Some("TECH".to_string()),
         };
         let results = repo.list_blogs(filter).await;

@@ -23,11 +23,12 @@ impl Handler {
     ) -> Json<serde_json::Value> {
         let year = params.get("year");
         let month = params.get("month");
+        let status = params.get("status").cloned().map(BlogStatus::from);
         let tag = params.get("tag");
 
         let service = state.0.clone();
 
-        let blogs = service.list_blogs(year, month, tag).await;
+        let blogs = service.list_blogs(year, month, status, tag).await;
 
         Json(serde_json::json!({
             "status": "success",

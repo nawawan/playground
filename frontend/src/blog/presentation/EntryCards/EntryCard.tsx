@@ -6,6 +6,7 @@ export type EntryCardProps = {
         id: string,
         title: string,
         outline: string | undefined,
+        publishedAtLabel: string | undefined,
         tag?: string,
     }[],
     onClick: (id: string) => void,
@@ -47,12 +48,12 @@ export const EntryCard = (props: EntryCardProps) => {
                     <Typography variant="subtitle1" fontWeight={600}>
                         {post.title}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ pl: 2 }}>
                       {post.outline}
                     </Typography>
-                    {post.tag && (
-                        <Typography variant="caption" color="text.secondary">
-                            #{post.tag}
+                    {post.publishedAtLabel && (
+                        <Typography variant="body2" color="text.secondary">
+                            {post.publishedAtLabel}
                         </Typography>
                     )}
                 </Paper>

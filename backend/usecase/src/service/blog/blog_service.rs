@@ -17,6 +17,7 @@ pub trait BlogService {
         &self,
         year: Option<&String>,
         month: Option<&String>,
+        status: Option<BlogStatus>,
         tag: Option<&String>,
     ) -> Vec<Blog>;
     async fn create_blog(&self, blog: BlogRequest) -> Result<Blog, AppError>;
@@ -31,9 +32,10 @@ impl BlogService for Service {
         &self,
         year: Option<&String>,
         month: Option<&String>,
+        status: Option<BlogStatus>,
         tag: Option<&String>,
     ) -> Vec<Blog> {
-        let filter = BlogFilter::new(year, month, tag);
+        let filter = BlogFilter::new(year, month, status, tag);
         let blogs = self.repository.list_blogs(filter).await;
 
         blogs
@@ -61,6 +63,7 @@ impl BlogService for Service {
             slug: initial_slug,
             content_key: format!("uploads/blogs/{}.html", id),
             status: BlogStatus::Draft,
+            published_at: None,
             tag: None,
         };
         let mut tx = self.repository.create_transaction().await?;
@@ -82,6 +85,7 @@ impl BlogService for Service {
             slug: "".to_string(),
             content_key: content_key,
             status: BlogStatus::Draft,
+            published_at: None,
             tag: None,
         };
 
@@ -125,6 +129,10 @@ impl BlogService for Service {
 
         if let Some(status) = blog_req.status {
             blog.status = status;
+        }
+
+        if matches!(blog.status, BlogStatus::Published) && blog.published_at.is_none() {
+            blog.published_at = Some(chrono::Utc::now().naive_utc());
         }
 
         if let Some(tag) = blog_req.tag {
