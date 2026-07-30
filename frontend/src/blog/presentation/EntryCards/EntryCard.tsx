@@ -6,7 +6,7 @@ export type EntryCardProps = {
         id: string,
         title: string,
         outline: string | undefined,
-        elapsedTimeLabel: string | undefined,
+        publishedAtLabel: string | undefined,
         tag?: string,
     }[],
     onClick: (id: string) => void,
@@ -47,9 +47,9 @@ export const EntryCard = (props: EntryCardProps) => {
                     <Typography variant="body2" color="text.secondary" sx={{ pl: 2 }}>
                       {post.outline}
                     </Typography>
-                    {post.elapsedTimeLabel && (
+                    {post.publishedAtLabel && (
                         <Typography variant="body2" color="text.secondary">
-                            {post.elapsedTimeLabel}
+                            {post.publishedAtLabel}
                         </Typography>
                     )}
                 </Paper>

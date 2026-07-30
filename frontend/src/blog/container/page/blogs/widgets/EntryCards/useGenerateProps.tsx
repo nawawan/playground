@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { type EntryCardProps } from "../../../../../presentation/EntryCards/EntryCard";
 import { type BlogResponse } from "../../../../../../shared/types/blog";
-import { formatElapsedTime } from "../../../../../../helper/FormatElapsedTime";
+import { formatPublishedDate } from "../../../../../../helper/FormatPublishedDate";
 
 export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
     const navigate = useNavigate();
@@ -26,8 +26,8 @@ export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
                         id: blog.id,
                         title: blog.title,
                         outline: undefined,
-                        elapsedTimeLabel: blog.published_at
-                            ? formatElapsedTime(blog.published_at)
+                        publishedAtLabel: blog.published_at
+                            ? formatPublishedDate(blog.published_at)
                             : undefined,
                         tag: blog.tag,
                     }))
