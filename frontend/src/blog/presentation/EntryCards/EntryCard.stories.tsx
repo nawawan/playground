@@ -62,6 +62,7 @@ export const FetchingNextTag: Story = {
                 id: "1",
                 title: "title1",
                 outline: "test用",
+                publishedAtLabel: "2026-07-31",
                 tag: "TECH",
             },
         ],
