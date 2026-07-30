@@ -38,6 +38,7 @@ pub struct Blog {
     pub slug: String,
     #[sqlx(try_from = "String")]
     pub status: BlogStatus,
+    pub published_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Clone)]
@@ -56,6 +57,7 @@ pub struct BlogFilter {
     pub order_desc: Option<bool>,
     pub start: Option<NaiveDateTime>,
     pub end: Option<NaiveDateTime>,
+    pub status: Option<BlogStatus>,
 }
 
 impl Blog {
@@ -65,7 +67,7 @@ impl Blog {
 }
 
 impl BlogFilter {
-    pub fn new(year: Option<&String>, month: Option<&String>) -> Self {
+    pub fn new(year: Option<&String>, month: Option<&String>, status: Option<BlogStatus>) -> Self {
         let (start, end) = converter_string_to_datetime(year, month);
         Self {
             start,
@@ -74,6 +76,7 @@ impl BlogFilter {
             limit: None,
             offset: None,
             order_desc: None,
+            status,
         }
     }
 
@@ -83,6 +86,9 @@ impl BlogFilter {
         }
         if let Some(end) = self.end {
             query.push(" AND created_at <= ").push_bind(end);
+        }
+        if let Some(status) = &self.status {
+            query.push(" AND status = ").push_bind(status.to_string());
         }
         if let Some(order_by) = &self.order_by {
             query.push(" ORDER BY ").push(order_by);

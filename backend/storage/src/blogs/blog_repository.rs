@@ -18,7 +18,7 @@ impl BlogRepository for Repository {
     async fn get_blog(&self, id: Uuid) -> Result<Blog, RepoError> {
         let blog = sqlx::query_as!(
             Blog,
-            "SELECT id, title, slug, content_key, status FROM blogs WHERE id = $1",
+            "SELECT id, title, slug, content_key, status, published_at FROM blogs WHERE id = $1",
             id
         )
         .fetch_one(&self.pool)
@@ -33,7 +33,7 @@ impl BlogRepository for Repository {
 
     async fn list_blogs(&self, filter: BlogFilter) -> Vec<Blog> {
         let mut builder = sqlx::QueryBuilder::new(
-            "SELECT id, title, slug, content_key, status FROM blogs WHERE 1=1",
+            "SELECT id, title, slug, content_key, status, published_at FROM blogs WHERE 1=1",
         );
         filter.apply(&mut builder);
         builder
@@ -95,11 +95,12 @@ impl BlogRepository for Repository {
 
     async fn update_blog(&self, tx: &mut Transaction<'_>, blog: Blog) -> Result<Blog, RepoError> {
         sqlx::query!(
-            "UPDATE blogs SET title = $2, status = $3, content_key = $4 WHERE id = $1",
+            "UPDATE blogs SET title = $2, status = $3, content_key = $4, published_at = $5 WHERE id = $1",
             blog.id,
             blog.title,
             blog.status.to_string(),
-            blog.content_key
+            blog.content_key,
+            blog.published_at
         )
         .execute(&mut **tx)
         .await
@@ -185,6 +186,7 @@ mod tests {
             content_key: format!("uploads/blogs/{}.html", id),
             slug: String::new(),
             status: usecase::model::blog::BlogStatus::Draft,
+            published_at: None,
         };
         let mut tx = repo.pool.begin().await?;
         let draft_id = repo.create_draft(&mut tx, blog).await;
@@ -215,6 +217,7 @@ mod tests {
             slug: "test".to_string(),
             content_key: "test-blog".to_string(),
             status: usecase::model::blog::BlogStatus::Published,
+            published_at: None,
         };
 
         let mut tx = repo.pool.begin().await?;

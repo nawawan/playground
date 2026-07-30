@@ -16,17 +16,20 @@ export const Default: Story = {
             {
                 id: "1",
                 title: "title1",
-                outline: "test用"
+                outline: "test用",
+                elapsedTimeLabel: "今さっき",
             },
             {
                 id: "2",
                 title: "title2",
-                outline: "test2用"
+                outline: "test2用",
+                elapsedTimeLabel: "3日前",
             },
             {
                 id: "3",
                 title: "title3",
-                outline: "test3用"
+                outline: "test3用",
+                elapsedTimeLabel: "2年前",
             },
         ],
         onClick: (id: string) => alert(`記事ID: ${id}がクリックされました`),

@@ -32,6 +32,7 @@ pub struct BlogResponse {
     pub content_key: String,
     pub slug: String,
     pub status: String,
+    pub published_at: Option<String>,
 }
 
 impl From<Blog> for BlogResponse {
@@ -42,6 +43,7 @@ impl From<Blog> for BlogResponse {
             content_key: blog.content_key,
             slug: blog.slug,
             status: blog.status.to_string(),
+            published_at: blog.published_at.map(|dt| dt.and_utc().to_rfc3339()),
         }
     }
 }

@@ -4,6 +4,7 @@ export type BlogResponse = {
     content_key: string;
     slug: string;
     status: string;
+    published_at: string | null;
 };
 
 export type BlogDetails = {

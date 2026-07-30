@@ -1,10 +1,11 @@
-import {Stack, Typography, Paper} from "@mui/material";
+import {Stack, Typography, Paper, Chip} from "@mui/material";
 
 export type EntryCardProps = {
     posts: {
         id: string,
         title: string,
         outline: string | undefined,
+        elapsedTimeLabel: string | undefined,
     }[],
     onClick: (id: string) => void,
 };
@@ -24,9 +25,14 @@ export const EntryCard = (props: EntryCardProps) => {
                 }}
                 onClick={() => onClick(post.id)}
                 >
-                <Typography variant="subtitle1" fontWeight={600}>
-                    {post.title}
-                </Typography>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                        {post.title}
+                    </Typography>
+                    {post.elapsedTimeLabel && (
+                        <Chip label={post.elapsedTimeLabel} size="small" />
+                    )}
+                </Stack>
                 <Typography variant="body2" color="text.secondary">
                   {post.outline}
                 </Typography>
