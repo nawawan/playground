@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE blogs SET title = $2, status = $3, content_key = $4, tag = $5 WHERE id = $1",
+  "query": "UPDATE blogs SET title = $2, status = $3, content_key = $4, published_at = $5, tag = $6 WHERE id = $1",
   "describe": {
     "columns": [],
     "parameters": {
@@ -9,10 +9,11 @@
         "Varchar",
         "Varchar",
         "Varchar",
+        "Timestamp",
         "Text"
       ]
     },
     "nullable": []
   },
-  "hash": "75f97e1645712967a523540fe46daa9cdbd220b94eef41f0b2dfb8081ce683ef"
+  "hash": "003b2758a47e8a4c51fc9048cfd29b434ae7ad3447e38ab8eea8038b387d217b"
 }
