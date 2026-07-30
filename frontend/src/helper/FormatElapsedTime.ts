@@ -9,7 +9,7 @@ export const formatElapsedTime = (publishedAt: string, now: Date = new Date()): 
     const nowDay = startOfDay(now);
 
     if (publishedDay.getTime() === nowDay.getTime()) {
-        return "今さっき";
+        return "今日";
     }
 
     const oneYearLater = new Date(published);

@@ -17,7 +17,7 @@ export const Default: Story = {
                 id: "1",
                 title: "title1",
                 outline: "test用",
-                elapsedTimeLabel: "今さっき",
+                elapsedTimeLabel: "今日",
                 tag: "TECH",
             },
             {
@@ -46,7 +46,7 @@ export const TechTabSelected: Story = {
                 id: "1",
                 title: "title1",
                 outline: "test用",
-                elapsedTimeLabel: "今さっき",
+                elapsedTimeLabel: "今日",
                 tag: "TECH",
             },
         ],

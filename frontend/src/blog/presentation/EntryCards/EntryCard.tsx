@@ -1,4 +1,4 @@
-import { Chip, Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { BLOG_TAGS } from "../../../shared/types/blog";
 
 export type EntryCardProps = {
@@ -41,20 +41,15 @@ export const EntryCard = (props: EntryCardProps) => {
                     }}
                     onClick={() => onClick(post.id)}
                     >
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="subtitle1" fontWeight={600}>
-                            {post.title}
-                        </Typography>
-                        {post.elapsedTimeLabel && (
-                            <Chip label={post.elapsedTimeLabel} size="small" />
-                        )}
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="subtitle1" fontWeight={600}>
+                        {post.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ pl: 2 }}>
                       {post.outline}
                     </Typography>
-                    {post.tag && (
-                        <Typography variant="caption" color="text.secondary">
-                            #{post.tag}
+                    {post.elapsedTimeLabel && (
+                        <Typography variant="body2" color="text.secondary">
+                            {post.elapsedTimeLabel}
                         </Typography>
                     )}
                 </Paper>
