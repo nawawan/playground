@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { type EntryCardProps } from "../../../../../presentation/EntryCards/EntryCard";
 import { type BlogResponse } from "../../../../../../shared/types/blog";
@@ -20,8 +20,9 @@ const toPosts = (data: BlogResponse[]): Posts =>
 
 export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedTag = searchParams.get("tag") ?? "";
     const [posts, setPosts] = useState<Posts>([]);
-    const [selectedTag, setSelectedTag] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
 
@@ -60,13 +61,28 @@ export const useGenerateProps = (): EntryCardProps & { isLoading: boolean } => {
         fetchData();
     }, [selectedTag]);
 
+    const handleTagFilterChange = (tag: string) => {
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev);
+                if (tag) {
+                    next.set("tag", tag);
+                } else {
+                    next.delete("tag");
+                }
+                return next;
+            },
+            { replace: true }
+        );
+    };
+
     return {
         posts,
         onClick: (id: string) => {
             navigate(`/blogs/${id}`);
         },
         selectedTag,
-        onTagFilterChange: setSelectedTag,
+        onTagFilterChange: handleTagFilterChange,
         isLoading,
         isFetching,
     };
