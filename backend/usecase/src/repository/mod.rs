@@ -3,3 +3,4 @@ pub mod blog;
 pub mod repositories;
 pub mod types;
 pub mod user;
+pub mod trajectory;
