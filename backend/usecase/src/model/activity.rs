@@ -1,6 +1,5 @@
+use chrono::NaiveDateTime;
 use uuid::Uuid;
-use chrono::{NaiveDateTime};
-
 
 #[derive(Clone)]
 pub struct Activity {

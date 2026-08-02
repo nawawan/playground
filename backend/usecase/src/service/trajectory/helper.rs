@@ -1,7 +1,7 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 
-use crate::model::trajectory::{LodTrajectory, RawTrajectory, Coordinate};
 use super::geo::{douglas_peucker_simplify, haversine_distance};
+use crate::model::trajectory::{Coordinate, LodTrajectory, RawTrajectory};
 
 pub fn thin_out_raw_trajectory_by_lod(trajectory: &RawTrajectory, lod: usize) -> LodTrajectory {
     let epsiron = match lod {
@@ -30,7 +30,7 @@ pub fn thin_out_raw_trajectory_by_lod(trajectory: &RawTrajectory, lod: usize) ->
         1 => (1, 2),
         2 => (3, 4),
         3 => (5, 6),
-        _ => (7, 8)
+        _ => (7, 8),
     };
 
     LodTrajectory {
@@ -50,20 +50,26 @@ pub fn thin_out_raw_trajectory_by_lod(trajectory: &RawTrajectory, lod: usize) ->
 
 // calculate the total distance (meter) of a trajectory represented by a vector of coordinates
 pub fn calculate_distance_sum(coordinates: &Vec<Coordinate>) -> f64 {
-    coordinates.windows(2).map(|pair| {
-        let prev = &pair[0];
-        let curr = &pair[1];
-        haversine_distance(prev, curr)
-    }).sum()
+    coordinates
+        .windows(2)
+        .map(|pair| {
+            let prev = &pair[0];
+            let curr = &pair[1];
+            haversine_distance(prev, curr)
+        })
+        .sum()
 }
 
 pub fn calculate_elevation_sum(elevations: &Vec<f64>) -> f64 {
-    elevations.windows(2).map(|pair| {
-        let prev = &pair[0];
-        let curr = &pair[1];
+    elevations
+        .windows(2)
+        .map(|pair| {
+            let prev = &pair[0];
+            let curr = &pair[1];
 
-        (curr - prev).max(0.0)
-    }).sum()
+            (curr - prev).max(0.0)
+        })
+        .sum()
 }
 
 pub fn calculate_duration(recorded_ats: &Vec<NaiveDateTime>) -> i64 {

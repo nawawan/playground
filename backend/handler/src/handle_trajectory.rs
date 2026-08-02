@@ -1,15 +1,15 @@
-use std::sync::Arc;
-use axum::extract::State;
 use axum::body::Bytes;
+use axum::extract::State;
+use std::sync::Arc;
 use tracing::error;
 
 use super::helper;
+use crate::error::UsecaseError;
+use crate::extractor::AuthorizedUser;
+use crate::handler::Handler;
+use crate::model::trajectory::{Gpx, Trajectory};
 use usecase::service::service::Service;
 use usecase::service::trajectory::trajectory_service::TrajectoryService;
-use crate::extractor::AuthorizedUser;
-use crate::model::trajectory::{Gpx, Trajectory};
-use crate::error::UsecaseError;
-use crate::handler::Handler;
 impl Handler {
     pub async fn upload_gpx(
         user: AuthorizedUser,
@@ -26,7 +26,9 @@ impl Handler {
         let trajectory = Trajectory::from(gpx);
 
         let service = state.0.clone();
-        service.create_activity_by_trajectory(trajectory.trajectory, user.user.id).await
+        service
+            .create_activity_by_trajectory(trajectory.trajectory, user.user.id)
+            .await
             .map_err(|e| UsecaseError::internal(&format!("Failed to create activity: {}", e)))?;
         Ok("GPX upload successful".to_string())
     }

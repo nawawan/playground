@@ -1,5 +1,5 @@
-use serde::{Deserialize};
 use chrono::{DateTime, Utc};
+use serde::Deserialize;
 
 use usecase::model::trajectory::RawTrajectory;
 
@@ -60,33 +60,50 @@ pub struct Trajectory {
     pub trajectory: RawTrajectory,
 }
 
-
 impl From<Gpx> for Trajectory {
     fn from(gpx: Gpx) -> Self {
-        let coordinates = gpx.track.track_segments.trkpt.iter().map(|trpt| {
-            usecase::model::trajectory::Coordinate {
+        let coordinates = gpx
+            .track
+            .track_segments
+            .trkpt
+            .iter()
+            .map(|trpt| usecase::model::trajectory::Coordinate {
                 latitude: trpt.latitude,
                 longitude: trpt.longitude,
-            }
-        }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
 
-        let elevations = gpx.track.track_segments.trkpt.iter().map(|trpt| {
-            trpt.elevation
-        }).collect::<Vec<_>>();
+        let elevations = gpx
+            .track
+            .track_segments
+            .trkpt
+            .iter()
+            .map(|trpt| trpt.elevation)
+            .collect::<Vec<_>>();
 
-        let heart_rates = gpx.track.track_segments.trkpt.iter().filter_map(|trpt| {
-            trpt.extensions.as_ref().and_then(|ext| {
-                ext.track_point_extension.as_ref().and_then(|tpe| {
-                    tpe.heart_rate
+        let heart_rates = gpx
+            .track
+            .track_segments
+            .trkpt
+            .iter()
+            .filter_map(|trpt| {
+                trpt.extensions.as_ref().and_then(|ext| {
+                    ext.track_point_extension
+                        .as_ref()
+                        .and_then(|tpe| tpe.heart_rate)
                 })
             })
-        }).collect::<Vec<_>>();
+            .collect::<Vec<_>>();
 
-        let recorded_ats = gpx.track.track_segments.trkpt.iter().map(|trpt| {
-            trpt.time.naive_local()
-        }).collect::<Vec<_>>();
+        let recorded_ats = gpx
+            .track
+            .track_segments
+            .trkpt
+            .iter()
+            .map(|trpt| trpt.time.naive_local())
+            .collect::<Vec<_>>();
 
-        Trajectory { 
+        Trajectory {
             trajectory: RawTrajectory {
                 name: gpx.track.name.clone(),
                 trajectory_type: gpx.track.activity_type.clone(),
@@ -95,7 +112,7 @@ impl From<Gpx> for Trajectory {
                 heart_rates,
                 recorded_ats,
                 started_at: gpx.metadata.time.naive_local(),
-            }
+            },
         }
     }
 }

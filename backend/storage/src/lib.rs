@@ -2,5 +2,5 @@ pub mod base;
 pub mod blogs;
 pub mod database;
 pub mod repository;
-pub mod users;
 pub mod trajectory;
+pub mod users;

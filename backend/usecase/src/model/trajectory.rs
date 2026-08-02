@@ -1,4 +1,4 @@
-use chrono::{NaiveDateTime};
+use chrono::NaiveDateTime;
 
 pub struct RawTrajectory {
     pub name: String,

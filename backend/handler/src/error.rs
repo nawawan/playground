@@ -34,7 +34,7 @@ impl UsecaseError {
         }
     }
     pub fn internal(message: &str) -> Self {
-        UsecaseError { 
+        UsecaseError {
             error: AppError::internal(Some(message)),
         }
     }

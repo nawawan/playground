@@ -5,21 +5,33 @@ use std::f64::consts::PI;
 const EARTH_RADIUS: f64 = 6378137.0; // in meters
 
 fn convert_coordinates_to_web_mercator(coordinates: &Vec<Coordinate>) -> Vec<(f64, f64)> {
-    coordinates.iter().map(|coord| {
-        let x = coord.longitude.to_radians() * EARTH_RADIUS;
-        let y = (coord.latitude.to_radians() + PI / 4.0).tan().abs().ln() * EARTH_RADIUS;
-        (x, y)
-    }).collect()
+    coordinates
+        .iter()
+        .map(|coord| {
+            let x = coord.longitude.to_radians() * EARTH_RADIUS;
+            let y = (coord.latitude.to_radians() + PI / 4.0).tan().abs().ln() * EARTH_RADIUS;
+            (x, y)
+        })
+        .collect()
 }
 
-fn convert_coordinates_to_equidistant_cylindrical(coordinates: &Vec<Coordinate>) -> Vec<(f64, f64)> {
-    let lon0 = coordinates.first().map_or(0.0, |coord| coord.longitude.to_radians());
-    let lat0 = coordinates.first().map_or(0.0, |coord| coord.latitude.to_radians());
-    coordinates.iter().map(|coord| {
-        let x = (coord.longitude.to_radians() - lon0) * EARTH_RADIUS * lat0.cos();
-        let y = (coord.latitude.to_radians() - lat0) * EARTH_RADIUS;
-        (x, y)
-    }).collect()
+fn convert_coordinates_to_equidistant_cylindrical(
+    coordinates: &Vec<Coordinate>,
+) -> Vec<(f64, f64)> {
+    let lon0 = coordinates
+        .first()
+        .map_or(0.0, |coord| coord.longitude.to_radians());
+    let lat0 = coordinates
+        .first()
+        .map_or(0.0, |coord| coord.latitude.to_radians());
+    coordinates
+        .iter()
+        .map(|coord| {
+            let x = (coord.longitude.to_radians() - lon0) * EARTH_RADIUS * lat0.cos();
+            let y = (coord.latitude.to_radians() - lat0) * EARTH_RADIUS;
+            (x, y)
+        })
+        .collect()
 }
 
 // calculater the distance (meter) between two coordinates using haversine formula
@@ -87,7 +99,6 @@ fn douglas_peucker(coordinate: &Vec<(f64, f64)>, epsilon: f64) -> Vec<usize> {
             stack.push((index, r));
             result_indices.push(index);
         }
-
     }
 
     result_indices.sort_unstable();

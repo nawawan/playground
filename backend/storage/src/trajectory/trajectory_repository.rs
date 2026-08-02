@@ -1,25 +1,34 @@
 use async_trait::async_trait;
-use tracing::error;
 use geo_types::{Coord, Geometry, LineString};
 use geozero::wkb;
+use tracing::error;
 
+use crate::repository::Repository;
 use usecase::errors::repo_error::RepoError;
 use usecase::model::{activity::Activity, trajectory::LodTrajectory};
 use usecase::repository::trajectory::TrajectoryRepository;
-use crate::repository::Repository;
 
 #[async_trait]
 impl TrajectoryRepository for Repository {
     // Implementation for each method would go here
-    async fn create_trajectory(&self, tx: &mut sqlx::Transaction<'_, sqlx::Postgres>, trajectory: LodTrajectory) -> Result<LodTrajectory, RepoError> {
+    async fn create_trajectory(
+        &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        trajectory: LodTrajectory,
+    ) -> Result<LodTrajectory, RepoError> {
         // I hate this conversion
         // Convert the domain model before opening a transaction.
         // Geometry conversion and WKB encoding may be CPU-intensive,
         // so they should not extend the transaction lifetime.
         let line_string = LineString::new(
-            trajectory.coordinates.iter().map(|coord| {
-                Coord {x: coord.longitude, y: coord.latitude}
-            }).collect()
+            trajectory
+                .coordinates
+                .iter()
+                .map(|coord| Coord {
+                    x: coord.longitude,
+                    y: coord.latitude,
+                })
+                .collect(),
         );
         sqlx::query!(
             r#"
@@ -42,16 +51,27 @@ impl TrajectoryRepository for Repository {
         })?;
         Ok(trajectory)
     }
-    async fn upload_trajectory(&self, trajectory: LodTrajectory) -> Result<LodTrajectory, RepoError> {
+    async fn upload_trajectory(
+        &self,
+        trajectory: LodTrajectory,
+    ) -> Result<LodTrajectory, RepoError> {
         // Implementation for uploading a trajectory
         Ok(trajectory)
     }
-    async fn get_trajectory(&self, activity_id: String, zoom_level: i32) -> Result<LodTrajectory, RepoError> {
+    async fn get_trajectory(
+        &self,
+        activity_id: String,
+        zoom_level: i32,
+    ) -> Result<LodTrajectory, RepoError> {
         // Implementation for getting a trajectory
-        Err(RepoError::NotFound(format!("a"))) 
+        Err(RepoError::NotFound(format!("a")))
     }
 
-    async fn create_activity(&self, tx: &mut sqlx::Transaction<'_, sqlx::Postgres>, mut activity: Activity) -> Result<Activity, RepoError> {
+    async fn create_activity(
+        &self,
+        tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+        mut activity: Activity,
+    ) -> Result<Activity, RepoError> {
         // Implementation for creating an activity
         let record = sqlx::query!(
             r#"INSERT INTO activity (user_id, name, started_at, distance, elevation, duration) 
@@ -75,7 +95,10 @@ impl TrajectoryRepository for Repository {
     }
     async fn get_activity(&self, activity_id: String) -> Result<Activity, RepoError> {
         // Implementation for getting an activity
-        Err(RepoError::NotFound(format!("Activity with id: {} not found", activity_id)))
+        Err(RepoError::NotFound(format!(
+            "Activity with id: {} not found",
+            activity_id
+        )))
     }
     async fn list_activities(&self, user_id: String) -> Vec<Activity> {
         // Implementation for listing activities
