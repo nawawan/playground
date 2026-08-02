@@ -1,9 +1,11 @@
 use std::sync::Arc;
 use axum::extract::State;
 use axum::body::Bytes;
+use tracing::error;
 
 use super::helper;
 use usecase::service::service::Service;
+use usecase::service::trajectory::trajectory_service::TrajectoryService;
 use crate::extractor::AuthorizedUser;
 use crate::model::trajectory::{Gpx, Trajectory};
 use crate::error::UsecaseError;

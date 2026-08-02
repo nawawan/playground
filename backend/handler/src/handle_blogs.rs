@@ -99,10 +99,8 @@ impl Handler {
 
         let service = state.0.clone();
 
-        let result = service.update_blog(blog_req).await;
-        if let Err(ref e) = result {
-            error!("Failed to update blog: {}", e.message);
-        }
+        let result = service.update_blog(blog_req).await
+            .map_err(UsecaseError::from);
         let blog = result?;
         Ok(Json(blog.into()))
     }
