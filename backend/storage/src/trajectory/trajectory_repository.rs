@@ -12,7 +12,10 @@ use crate::repository::Repository;
 impl TrajectoryRepository for Repository {
     // Implementation for each method would go here
     async fn create_trajectory(&self, tx: &mut sqlx::Transaction<'_, sqlx::Postgres>, trajectory: LodTrajectory) -> Result<LodTrajectory, RepoError> {
-        // Implementation for creating a trajectory
+        // I hate this conversion
+        // Convert the domain model before opening a transaction.
+        // Geometry conversion and WKB encoding may be CPU-intensive,
+        // so they should not extend the transaction lifetime.
         let line_string = LineString::new(
             trajectory.coordinates.iter().map(|coord| {
                 Coord {x: coord.longitude, y: coord.latitude}

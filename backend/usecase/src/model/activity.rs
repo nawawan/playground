@@ -1,5 +1,5 @@
 use uuid::Uuid;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{NaiveDateTime};
 
 
 #[derive(Clone)]
