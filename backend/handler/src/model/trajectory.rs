@@ -82,6 +82,10 @@ impl From<Gpx> for Trajectory {
             })
         }).collect::<Vec<_>>();
 
+        let recorded_ats = gpx.track.track_segments.trkpt.iter().map(|trpt| {
+            trpt.time.fixed_offset()
+        }).collect::<Vec<_>>();
+
         Trajectory { 
             trajectory: RawTrajectory {
                 name: gpx.track.name.clone(),
@@ -89,6 +93,7 @@ impl From<Gpx> for Trajectory {
                 coordinates,
                 elevations,
                 heart_rates,
+                recorded_ats,
                 started_at: gpx.metadata.time.fixed_offset(),
             }
         }

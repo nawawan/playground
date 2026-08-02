@@ -11,9 +11,11 @@ pub struct RawTrajectory {
     pub coordinates: Vec<Coordinate>,
     pub elevations: Vec<f64>,
     pub heart_rates: Vec<u32>,
+    pub recorded_ats: Vec<DateTime<FixedOffset>>,
     pub started_at: DateTime<FixedOffset>,
 }
 
+#[derive(Clone)]
 pub struct Coordinate {
     pub latitude: f64,
     pub longitude: f64,
