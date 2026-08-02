@@ -12,6 +12,7 @@ use crate::{extractor::AuthorizedUser, model::blog::UpdateBlogRequest};
 
 use super::error::UsecaseError;
 use super::handler::Handler;
+use super::helper;
 use usecase::model::blog::{BlogRequest, BlogStatus, BlogTag};
 use usecase::service::blog::blog_service::BlogService;
 use usecase::service::service::Service;
@@ -58,7 +59,7 @@ impl Handler {
     ) -> Result<Json<String>, UsecaseError> {
         let service = state.0.clone();
 
-        if let Err(e) = validate_admin(&user) {
+        if let Err(e) = helper::validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -73,7 +74,7 @@ impl Handler {
         state: State<Arc<Service>>,
         Json(req): Json<UpdateBlogRequest>,
     ) -> Result<Json<BlogResponse>, UsecaseError> {
-        if let Err(e) = validate_admin(&user) {
+        if let Err(e) = helper::validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -111,7 +112,7 @@ impl Handler {
         state: State<Arc<Service>>,
         mut multipart: Multipart,
     ) -> Result<Json<ImageResponse>, UsecaseError> {
-        if let Err(e) = validate_admin(&user) {
+        if let Err(e) = helper::validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -137,15 +138,5 @@ impl Handler {
                 .map_err(UsecaseError::from);
         }
         Err(UsecaseError::bad_request("No image field in multipart"))
-    }
-}
-
-fn validate_admin(user: &AuthorizedUser) -> Result<(), UsecaseError> {
-    if user.user.role == "admin" {
-        Ok(())
-    } else {
-        Err(UsecaseError::permission_denied(
-            "User does not have admin role",
-        ))
     }
 }
