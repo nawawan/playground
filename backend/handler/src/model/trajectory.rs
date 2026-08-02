@@ -51,7 +51,7 @@ pub struct Extensions {
 #[derive(Deserialize, Debug)]
 pub struct TrackPointExtension {
     #[serde(rename = "hr")]
-    pub heart_rate: Option<u32>,
+    pub heart_rate: Option<i64>,
     #[serde(rename = "atemp")]
     pub ambient_temperature: Option<f64>,
 }
@@ -83,7 +83,7 @@ impl From<Gpx> for Trajectory {
         }).collect::<Vec<_>>();
 
         let recorded_ats = gpx.track.track_segments.trkpt.iter().map(|trpt| {
-            trpt.time.fixed_offset()
+            trpt.time.naive_local()
         }).collect::<Vec<_>>();
 
         Trajectory { 
@@ -94,7 +94,7 @@ impl From<Gpx> for Trajectory {
                 elevations,
                 heart_rates,
                 recorded_ats,
-                started_at: gpx.metadata.time.fixed_offset(),
+                started_at: gpx.metadata.time.naive_local(),
             }
         }
     }

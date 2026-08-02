@@ -1,3 +1,4 @@
+use crate::service::service::Service;
 use crate::model::activity::Activity;
 use crate::model::trajectory::{LodTrajectory, RawTrajectory};
 use crate::errors::app_error::AppError;
@@ -9,7 +10,7 @@ use uuid::Uuid;
 
 
 #[async_trait]
-trait TrajectoryService {
+pub trait TrajectoryService {
     // async fn upload_trajectory(&self, trajectory: Trajectory) -> Result<Trajectory, AppError>;
     // async fn get_trajectory(&self, activity_id: String, zoom_level: i32) -> Result<Trajectory, AppError>;
     // async fn delete_trajectory(&self, activity_id: String) -> Result<(), AppError>;
@@ -22,6 +23,8 @@ trait TrajectoryService {
 impl TrajectoryService for Service {
     async fn create_activity_by_trajectory(&self, trajectory: RawTrajectory, user_id: Uuid) -> Result<Activity, AppError> {
         let sum_distance = helper::calculate_distance_sum(&trajectory.coordinates);
+        let duration = helper::calculate_duration(&trajectory.recorded_ats);
+        let elevation = helper::calculate_elevation_sum(&trajectory.elevations);
 
         let mut trajectories = Vec::<LodTrajectory>::new();
         for i in 1..5 {
@@ -29,11 +32,23 @@ impl TrajectoryService for Service {
         }
 
         let activity = Activity {
-
-        }
+            id: 0,
+            user_id: user_id,
+            name: trajectory.name,
+            distance: sum_distance,
+            duration: duration,
+            elevation_gain: elevation,
+            start_time: trajectory.started_at
+        };
 
         let mut tx = self.repository.create_transaction().await?;
+
         let activity = self.repository.create_activity(&mut tx, activity).await?;
+
+        for mut lod_trajectory in trajectories {
+            lod_trajectory.activity_id = activity.id;
+            self.repository.create_trajectory(&mut tx, lod_trajectory).await?;
+        }
         tx.commit().await.map_err(|e| {
             error!("Failed to commit transaction for creating activity: {e}");
             AppError::internal(Some("Transaction commit failed"))

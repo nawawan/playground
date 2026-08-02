@@ -1,13 +1,14 @@
-use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+use chrono::{DateTime, NaiveDateTime, Utc};
 
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Clone)]
 pub struct Activity {
     pub id: i64,
-    pub user_id: String,
+    pub user_id: Uuid,
     pub name: String,
     pub distance: f64,
-    pub duration: i32,
-    pub elevation_gain: i32,
-    pub start_time: chrono::NaiveDateTime,
+    pub duration: i64,
+    pub elevation_gain: f64,
+    pub start_time: NaiveDateTime,
 }

@@ -36,15 +36,6 @@ pub fn haversine_distance(coord1: &Coordinate, coord2: &Coordinate) -> f64 {
     EARTH_RADIUS * c
 }
 
-// calculate the total distance (meter) of a trajectory represented by a vector of coordinates
-pub fn calculate_distance_sum(coordinates: &Vec<Coordinate>) -> f64 {
-    coordinates.windows(2).map(|pair| {
-        let prev = &pair[0];
-        let curr = &pair[1];
-        haversine_distance(prev, curr)
-    }).sum()
-}
-
 // calculate the picked up index of coordinates using Douglas-Peucker algorithm
 pub fn douglas_peucker_simplify(coordinates: &Vec<Coordinate>, epsilon: f64) -> Vec<usize> {
     if coordinates.len() < 3 {

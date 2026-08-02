@@ -56,7 +56,8 @@ jsonwebtoken = "9"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
 pulldown-cmark = "0.13.3"
 quick-xml = { version = "0.41.0", features = ["serialize"] }
-geozero = { version = "0.15.1", features = ["with-wkb"] }
+geozero = { version = "0.15.1", features = ["with-wkb", "with-geo", "with-postgis-sqlx"] }
+geo-types = "0.7.19"
 
 
 
@@ -90,3 +91,4 @@ axum-extra.workspace = true
 pulldown-cmark.workspace = true
 quick-xml.workspace = true
 geozero.workspace = true
+geo-types.workspace = true
