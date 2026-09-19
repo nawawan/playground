@@ -23,22 +23,28 @@ const HeightRoot = styled(Stack)({
 });
 
 const HeaderRow = styled(Stack)({
-  alignItems: "baseline",
+  alignItems: "flex-start",
   justifyContent: "space-between",
 });
 
 const Label = styled(Typography)({
   color: "var(--ink-soft)",
-  fontSize: 10,
-  letterSpacing: 0.5,
+  fontSize: 12,
 });
 
-const Stats = styled(Stack)({
-  color: "var(--ink-2)",
+const StatGroup = styled(Stack)({
+  alignItems: "flex-end",
+});
+
+const StatCaption = styled(Typography)({
+  color: "var(--ink-soft)",
   fontSize: 11,
-  "& span:nth-of-type(2)": {
-    color: "var(--trace)",
-  },
+});
+
+const StatNumber = styled(Typography)({
+  color: "var(--ink)",
+  fontSize: 13,
+  fontWeight: 700,
 });
 
 export const TrajectryHeight = ({
@@ -71,16 +77,32 @@ export const TrajectryHeight = ({
   return (
     <HeightRoot spacing={0.75}>
       <HeaderRow direction="row">
-        <Label className="trajectry-mono">
-          ELEVATION PROFILE · drag or hover to scrub
-        </Label>
-        <Stats className="trajectry-mono" direction="row" spacing={1.75}>
-          <Typography component="span">{minElevation}m</Typography>
-          <Typography component="span">↑ {Math.round(maxElevation)}m</Typography>
-          <Typography component="span">{activity.km} km</Typography>
-        </Stats>
+        <Label>ELEVATION PROFILE · drag or hover to scrub</Label>
+        <Stack direction="row" spacing={2.5}>
+          <StatGroup>
+            <StatNumber>{minElevation}m</StatNumber>
+          </StatGroup>
+          <StatGroup>
+            <StatCaption>max</StatCaption>
+            <StatNumber>{Math.round(maxElevation)}m</StatNumber>
+          </StatGroup>
+          <StatGroup>
+            <StatNumber>{activity.km}</StatNumber>
+            <StatCaption>km</StatCaption>
+          </StatGroup>
+        </Stack>
       </HeaderRow>
-      <Box className="trajectry-height__chart" onPointerDown={scrub} onPointerMove={scrub}>
+      <Box
+        onPointerDown={scrub}
+        onPointerMove={scrub}
+        sx={{
+          cursor: "crosshair",
+          height: 92,
+          position: "relative",
+          userSelect: "none",
+          "& svg": { height: "100%", inset: 0, position: "absolute", width: "100%" },
+        }}
+      >
         <svg viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} preserveAspectRatio="none">
           <defs>
             <linearGradient id={`elevation-fill-${activity.id}`} x1="0" x2="0" y1="0" y2="1">
@@ -91,7 +113,7 @@ export const TrajectryHeight = ({
           {[0.25, 0.5, 0.75].map((grid) => (
             <line
               key={grid}
-              stroke="rgba(42,38,34,0.06)"
+              stroke="rgba(0, 0, 0, 0.06)"
               strokeWidth="0.2"
               vectorEffect="non-scaling-stroke"
               x1="0"
@@ -114,7 +136,7 @@ export const TrajectryHeight = ({
         {activity.photos.map((photo) => (
           <Button
             aria-label={photo.caption}
-            className={`trajectry-height__photo${activePhotoId === photo.id ? " is-active" : ""}`}
+            className="trajectry-height__photo"
             disableRipple
             key={photo.id}
             onClick={(event) => {
@@ -122,11 +144,31 @@ export const TrajectryHeight = ({
               onPhotoSelect(photo.id);
             }}
             style={{ left: `${photo.at * 100}%` }}
+            sx={activePhotoId === photo.id ? { background: "var(--pin)" } : undefined}
             type="button"
           />
         ))}
-        <Box className="trajectry-height__here-line" style={{ left: `${here * 100}%` }} />
-        <Typography className="trajectry-mono trajectry-height__tooltip" component="div" style={{ left: `${here * 100}%` }}>
+        <Box
+          style={{ left: `${here * 100}%` }}
+          sx={{ borderLeft: "1.5px solid var(--pin)", bottom: 0, pointerEvents: "none", position: "absolute", top: 0 }}
+        />
+        <Typography
+          component="div"
+          style={{ left: `${here * 100}%` }}
+          sx={{
+            background: "var(--paper)",
+            border: "1px solid var(--rule)",
+            borderRadius: "6px",
+            color: "var(--ink)",
+            fontSize: 11,
+            padding: "3px 8px",
+            pointerEvents: "none",
+            position: "absolute",
+            top: -2,
+            transform: "translateX(8px)",
+            whiteSpace: "nowrap",
+          }}
+        >
           {hereElevation}m · {hereKm}km
         </Typography>
       </Box>

@@ -25,3 +25,6 @@ export const pointAt = (track: LngLat[], t: number): LngLat => {
 };
 
 export const formatKmAt = (totalKm: number, t: number) => (totalKm * t).toFixed(1);
+
+export const photoBackground = (color: string) =>
+  `repeating-linear-gradient(135deg, ${color}cc 0 8px, ${color}99 8px 16px)`;

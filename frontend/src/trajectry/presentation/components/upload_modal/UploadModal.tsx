@@ -10,7 +10,7 @@ type UploadModalProps = {
 const StyledDialog = styled(Dialog)({
   backdropFilter: "blur(2px)",
   "& .MuiBackdrop-root": {
-    background: "rgba(42, 38, 34, 0.4)",
+    background: "rgba(0, 0, 0, 0.25)",
   },
 });
 
@@ -25,29 +25,21 @@ const Content = styled(DialogContent)({
 });
 
 const DropZone = styled(Stack)({
-  background: "var(--paper-2)",
-  border: "2px dashed var(--rule-strong)",
-  borderRadius: 10,
+  borderRadius: 14,
   padding: "40px 20px",
   textAlign: "center",
   transition: "all 0.15s",
-  "&.is-dragging": {
-    background: "#fff5e9",
-    borderColor: "var(--trace)",
-  },
 });
 
 const BrowseButton = styled(Button)({
-  background: "var(--trace)",
-  border: "1px solid var(--trace-2)",
+  background: "var(--accent)",
   borderRadius: 999,
-  boxShadow: "0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 2px 4px rgba(178, 90, 22, 0.25)",
   color: "#fff",
   cursor: "pointer",
   flexShrink: 0,
   fontSize: 13,
   fontWeight: 700,
-  marginTop: 8,
+  marginTop: 12,
   padding: "8px 16px",
   whiteSpace: "nowrap",
 });
@@ -67,15 +59,15 @@ const ActionButton = styled(Button)({
 
 const CancelButton = styled(ActionButton)({
   background: "transparent",
-  border: "1px solid var(--rule-strong)",
+  border: "1px solid var(--rule)",
+  color: "var(--ink)",
 });
 
 const ImportButton = styled(ActionButton)({
-  background: "var(--ink-faint)",
+  background: "var(--paper-2)",
   border: 0,
-  color: "#fff",
+  color: "var(--ink-soft)",
   fontWeight: 700,
-  opacity: 0.5,
 });
 
 export const UploadModal = ({ open, onClose }: UploadModalProps) => {
@@ -91,26 +83,24 @@ export const UploadModal = ({ open, onClose }: UploadModalProps) => {
       PaperProps={{
         sx: {
           background: "var(--paper)",
-          border: "1px solid var(--rule-strong)",
-          borderRadius: "12px",
-          boxShadow: "0 20px 50px rgba(0, 0, 0, 0.25)",
+          borderRadius: "20px",
+          boxShadow: "0 20px 50px rgba(0, 0, 0, 0.2)",
           padding: "24px",
           width: "min(480px, calc(100vw - 32px))",
         },
       }}
     >
       <Heading>
-        <Typography className="trajectry-hand" component="div" sx={{ fontSize: 28, lineHeight: 1 }}>
+        <Typography component="div" sx={{ color: "var(--ink)", fontSize: 22, fontWeight: 700, lineHeight: 1 }}>
           + new activity
         </Typography>
-        <Typography className="trajectry-mono" component="div" sx={{ color: "var(--ink-soft)", fontSize: 11, mt: 0.5 }}>
+        <Typography component="div" sx={{ color: "var(--ink-soft)", fontSize: 13, mt: 0.75 }}>
           upload a GPX file from your bike computer or watch
         </Typography>
       </Heading>
       <Content>
         <DropZone
           alignItems="center"
-          className={dragging ? "is-dragging" : ""}
           onDragLeave={() => setDragging(false)}
           onDragOver={(event) => {
             event.preventDefault();
@@ -120,14 +110,15 @@ export const UploadModal = ({ open, onClose }: UploadModalProps) => {
             event.preventDefault();
             setDragging(false);
           }}
+          sx={{
+            background: dragging ? "var(--paper)" : "var(--paper-2)",
+            border: `1.5px dashed ${dragging ? "var(--accent)" : "var(--ink-faint)"}`,
+          }}
         >
-          <Typography component="div" sx={{ fontSize: 38 }}>
-            📍
-          </Typography>
-          <Typography className="trajectry-hand" component="div" sx={{ fontSize: 22, mt: 0.75 }}>
+          <Typography component="div" sx={{ color: "var(--ink)", fontSize: 16, fontWeight: 700 }}>
             drop your .gpx here
           </Typography>
-          <Typography className="trajectry-mono" component="div" sx={{ color: "var(--ink-soft)", fontSize: 11, mt: 0.75 }}>
+          <Typography component="div" sx={{ color: "var(--ink-soft)", fontSize: 13, mt: 1 }}>
             or
           </Typography>
           <BrowseButton disableRipple type="button">

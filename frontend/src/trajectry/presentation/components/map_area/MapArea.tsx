@@ -1,7 +1,10 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { AttributionControl, LngLatBounds, Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import type { StyleSpecification } from "@maplibre/maplibre-gl-style-spec";
+import { useEffect, useRef, useState } from "react";
 import { pointAt } from "../../../domain/geo";
-import type { MapStyleKey, TrajectryActivity } from "../../../domain/types";
-import { ImageIcon } from "../image_icon/ImageIcon";
+import type { LngLat, MapStyleKey, TrajectryActivity } from "../../../domain/types";
 
 type MapAreaProps = {
   activity: TrajectryActivity;
@@ -11,83 +14,167 @@ type MapAreaProps = {
   onPhotoSelect: (photoId: string) => void;
 };
 
-const projectTrack = (activity: TrajectryActivity) => {
-  const lngs = activity.track.map(([lng]) => lng);
-  const lats = activity.track.map(([, lat]) => lat);
-  const minLng = Math.min(...lngs);
-  const maxLng = Math.max(...lngs);
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const width = maxLng - minLng || 1;
-  const height = maxLat - minLat || 1;
+// Free-for-prototyping tile sources. OpenTopoMap/OpenStreetMap raster tiles
+// have usage policies that make them unsuitable for real production traffic
+// — swap for MapTiler/Stadia/self-hosted tiles before this app sees real load.
+const rasterStyle = (tileUrl: string, attribution: string): StyleSpecification => ({
+  version: 8,
+  sources: {
+    base: {
+      type: "raster",
+      tiles: [tileUrl],
+      tileSize: 256,
+      attribution,
+    },
+  },
+  layers: [
+    { id: "bg", type: "background", paint: { "background-color": "#f4f4f5" } },
+    { id: "base", type: "raster", source: "base" },
+  ],
+});
 
-  return (point: [number, number]) => {
-    const x = 8 + ((point[0] - minLng) / width) * 84;
-    const y = 8 + (1 - (point[1] - minLat) / height) * 84;
-    return { x, y };
-  };
+const MAP_STYLE_SOURCES: Record<MapStyleKey, () => StyleSpecification | string> = {
+  terrain: () =>
+    rasterStyle("https://a.tile.opentopomap.org/{z}/{x}/{y}.png", "© OpenTopoMap (CC-BY-SA), © OpenStreetMap"),
+  streets: () => rasterStyle("https://tile.openstreetmap.org/{z}/{x}/{y}.png", "© OpenStreetMap contributors"),
 };
 
-const pathFromPoints = (points: { x: number; y: number }[]) =>
-  points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
+const TRACK_SOURCE_ID = "trajectry-track";
+
+const addTrackLayers = (map: MapLibreMap, activity: TrajectryActivity) => {
+  if (map.getLayer("track-glow")) map.removeLayer("track-glow");
+  if (map.getLayer("track")) map.removeLayer("track");
+  if (map.getSource(TRACK_SOURCE_ID)) map.removeSource(TRACK_SOURCE_ID);
+
+  map.addSource(TRACK_SOURCE_ID, {
+    type: "geojson",
+    data: {
+      type: "Feature",
+      geometry: { type: "LineString", coordinates: activity.track },
+      properties: {},
+    },
+  });
+  map.addLayer({
+    id: "track-glow",
+    type: "line",
+    source: TRACK_SOURCE_ID,
+    paint: { "line-color": activity.color, "line-width": 10, "line-opacity": 0.18, "line-blur": 3 },
+    layout: { "line-cap": "round", "line-join": "round" },
+  });
+  map.addLayer({
+    id: "track",
+    type: "line",
+    source: TRACK_SOURCE_ID,
+    paint: { "line-color": activity.color, "line-width": 4, "line-opacity": 0.95 },
+    layout: { "line-cap": "round", "line-join": "round" },
+  });
+};
+
+const boundsOf = (track: LngLat[]) =>
+  track.reduce((bounds, point) => bounds.extend(point), new LngLatBounds(track[0], track[0]));
 
 export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect }: MapAreaProps) => {
-  const project = projectTrack(activity);
-  const points = activity.track.map(project);
-  const herePoint = project(pointAt(activity.track, here));
-  const start = points[0];
-  const end = points[points.length - 1];
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
+  const [ready, setReady] = useState(false);
+  const hereMarkerRef = useRef<Marker | null>(null);
+  const startEndMarkersRef = useRef<Marker[]>([]);
+  const photoMarkersRef = useRef<{ id: string; element: HTMLDivElement; marker: Marker }[]>([]);
+  const onPhotoSelectRef = useRef(onPhotoSelect);
+  onPhotoSelectRef.current = onPhotoSelect;
+  const mapStyleRef = useRef(mapStyle);
+  mapStyleRef.current = mapStyle;
 
-  return (
-    <Box className={`trajectry-map-area trajectry-map-area--${mapStyle}`} component="section" aria-label="route map">
-      <Box className="trajectry-map-area__texture" />
-      <svg className="trajectry-map-area__svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <pattern id={`grid-${activity.id}`} width="12" height="12" patternUnits="userSpaceOnUse">
-            <path d="M 12 0 L 0 0 0 12" fill="none" stroke="rgba(42,38,34,0.08)" strokeWidth="0.25" />
-          </pattern>
-        </defs>
-        <rect width="100" height="100" fill={`url(#grid-${activity.id})`} />
-        <path d="M 4 72 C 20 60 26 68 38 55 S 60 32 78 45 S 86 70 96 61" className="trajectry-map-area__river" />
-        <path d="M 10 24 C 26 30 40 25 54 18 S 78 12 92 20" className="trajectry-map-area__road" />
-        <path d="M 8 84 C 24 72 36 78 52 66 S 76 54 92 60" className="trajectry-map-area__road" />
-        <path d={pathFromPoints(points)} className="trajectry-map-area__track-glow" stroke={activity.color} />
-        <path d={pathFromPoints(points)} className="trajectry-map-area__track" stroke={activity.color} />
-      </svg>
-      <Box className="trajectry-map-area__labels">
-        <Typography component="span" style={{ left: "12%", top: "16%" }}>
-          {activity.title}
-        </Typography>
-        <Typography component="span" style={{ right: "11%", bottom: "18%" }}>
-          {activity.subtitle}
-        </Typography>
-      </Box>
-      <Box
-        className="trajectry-map-area__marker trajectry-map-area__marker--start"
-        component="span"
-        style={{ left: `${start.x}%`, top: `${start.y}%` }}
-      />
-      <Box
-        className="trajectry-map-area__marker trajectry-map-area__marker--end"
-        component="span"
-        style={{ left: `${end.x}%`, top: `${end.y}%` }}
-      />
-      {activity.photos.map((photo) => {
-        const position = project(pointAt(activity.track, photo.at));
-        return (
-          <ImageIcon
-            active={photo.id === activePhotoId}
-            key={photo.id}
-            label={photo.caption}
-            onClick={() => onPhotoSelect(photo.id)}
-            style={{ left: `${position.x}%`, top: `${position.y}%` }}
-          />
-        );
-      })}
-      <Box className="trajectry-map-area__here" component="span" style={{ left: `${herePoint.x}%`, top: `${herePoint.y}%` }} />
-      <Typography className="trajectry-mono trajectry-map-area__attribution" component="div">
-        mock route layer · presentational map area
-      </Typography>
-    </Box>
-  );
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = new MapLibreMap({
+      container: containerRef.current,
+      style: MAP_STYLE_SOURCES[mapStyleRef.current](),
+      center: activity.center,
+      zoom: activity.zoom,
+      attributionControl: false,
+      pitchWithRotate: false,
+      dragRotate: false,
+    });
+    map.addControl(new AttributionControl({ compact: true }), "bottom-right");
+    map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
+    map.on("load", () => setReady(true));
+    mapRef.current = map;
+
+    return () => {
+      photoMarkersRef.current.forEach(({ marker }) => marker.remove());
+      photoMarkersRef.current = [];
+      startEndMarkersRef.current.forEach((marker) => marker.remove());
+      startEndMarkersRef.current = [];
+      hereMarkerRef.current?.remove();
+      hereMarkerRef.current = null;
+      map.remove();
+      mapRef.current = null;
+      setReady(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    map.setStyle(MAP_STYLE_SOURCES[mapStyle]());
+    map.once("style.load", () => addTrackLayers(map, activity));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapStyle]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    addTrackLayers(map, activity);
+    map.fitBounds(boundsOf(activity.track), { padding: 80, duration: 900 });
+
+    startEndMarkersRef.current.forEach((marker) => marker.remove());
+    const startEl = document.createElement("div");
+    startEl.className = "trajectry-map-area__marker";
+    const endEl = document.createElement("div");
+    endEl.className = "trajectry-map-area__marker";
+    startEndMarkersRef.current = [
+      new Marker({ element: startEl }).setLngLat(activity.track[0]).addTo(map),
+      new Marker({ element: endEl }).setLngLat(activity.track[activity.track.length - 1]).addTo(map),
+    ];
+
+    photoMarkersRef.current.forEach(({ marker }) => marker.remove());
+    photoMarkersRef.current = activity.photos.map((photo) => {
+      const el = document.createElement("div");
+      el.className = "trajectry-map-area__photo-marker";
+      el.setAttribute("aria-label", photo.caption);
+      el.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onPhotoSelectRef.current(photo.id);
+      });
+      const marker = new Marker({ element: el }).setLngLat(pointAt(activity.track, photo.at)).addTo(map);
+      return { id: photo.id, element: el, marker };
+    });
+  }, [activity, ready]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    const lngLat = pointAt(activity.track, here);
+    if (!hereMarkerRef.current) {
+      const el = document.createElement("div");
+      el.className = "trajectry-map-area__here";
+      hereMarkerRef.current = new Marker({ element: el }).setLngLat(lngLat).addTo(map);
+    } else {
+      hereMarkerRef.current.setLngLat(lngLat);
+    }
+  }, [activity, here, ready]);
+
+  useEffect(() => {
+    photoMarkersRef.current.forEach(({ id, element }) => {
+      element.classList.toggle("is-active", id === activePhotoId);
+    });
+  }, [activePhotoId]);
+
+  return <Box className="trajectry-map-area" component="section" aria-label="route map" ref={containerRef} />;
 };

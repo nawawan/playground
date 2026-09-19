@@ -2,6 +2,7 @@ import { Box, Button, ButtonGroup } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { MapArea } from "../../../../presentation/components/map_area/MapArea";
 import { useTrajectryPageState } from "../../state/useTrajectryPageState";
+import type { MapStyleKey } from "../../../../domain/types";
 
 const MapShell = styled(Box)({
   flex: 1,
@@ -10,10 +11,9 @@ const MapShell = styled(Box)({
 });
 
 const StyleSwitcher = styled(ButtonGroup)({
-  background: "rgba(250, 247, 241, 0.88)",
-  border: "1px solid var(--rule)",
+  background: "#fff",
   borderRadius: 999,
-  boxShadow: "0 2px 8px rgba(42, 38, 34, 0.08)",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
   padding: 3,
   position: "absolute",
   right: 14,
@@ -23,17 +23,18 @@ const StyleSwitcher = styled(ButtonGroup)({
     background: "transparent",
     border: 0,
     borderRadius: 999,
-    color: "var(--ink-soft)",
+    color: "var(--ink)",
     cursor: "pointer",
-    fontFamily: '"JetBrains Mono", monospace',
-    fontSize: 10,
-    padding: "6px 9px",
-  },
-  "& button.is-active": {
-    background: "var(--trace)",
-    color: "#fff",
+    fontSize: 13,
+    fontWeight: 700,
+    padding: "8px 16px",
   },
 });
+
+const MAP_STYLE_LABELS: Record<MapStyleKey, string> = {
+  terrain: "地形",
+  streets: "ストリート",
+};
 
 export const MapAreaContainer = () => {
   const { activeActivity, activePhotoId, here, mapStyle, onMapStyleChange, onSelectPhoto } = useTrajectryPageState();
@@ -41,15 +42,19 @@ export const MapAreaContainer = () => {
   return (
     <MapShell>
       <StyleSwitcher aria-label="map style" variant="text">
-        {(["terrain", "streets", "sepia"] as const).map((style) => (
+        {(["terrain", "streets"] as const).map((style) => (
           <Button
-            className={style === mapStyle ? "is-active" : ""}
             disableRipple
             key={style}
             onClick={() => onMapStyleChange(style)}
+            sx={
+              style === mapStyle
+                ? { background: "var(--accent)", color: "#fff" }
+                : undefined
+            }
             type="button"
           >
-            {style}
+            {MAP_STYLE_LABELS[style]}
           </Button>
         ))}
       </StyleSwitcher>
