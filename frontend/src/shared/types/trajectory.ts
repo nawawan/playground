@@ -26,6 +26,7 @@ export const toTrajectoryActivity = (activity: ActivityResponse): TrajectryActiv
     gain: activity.elevation_gain,
     duration: activity.duration.toString(),
     note: "",
+    color: "var(--accent)",
     center: activity.trajectory?.coordinates[0] ?? [1, 1],
     zoom: 1,
     track: activity.trajectory?.coordinates ?? [],
