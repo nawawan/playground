@@ -1,4 +1,4 @@
-import { Box, Button, ButtonBase, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, ButtonBase, LinearProgress, Stack, Tab, Tabs, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { BLOG_TAGS } from "../../../shared/types/blog";
 
@@ -15,10 +15,11 @@ export type AdminHomeProps = {
   onWriteClick?: () => void;
   onPostClick?: (id: string, title: string) => void;
   onTagFilterChange?: (tag: string) => void;
+  isFetching?: boolean;
 };
 
 function AdminHome(props: AdminHomeProps) {
-  const { posts, selectedTag, onWriteClick, onPostClick, onTagFilterChange } = props;
+  const { posts, selectedTag, onWriteClick, onPostClick, onTagFilterChange, isFetching } = props;
 
   return (
     <Box sx={{ p: 4 }}>
@@ -41,16 +42,19 @@ function AdminHome(props: AdminHomeProps) {
           ブログを書く
         </Button>
       </Box>
-      <Tabs
-        value={selectedTag}
-        onChange={(_, value: string) => onTagFilterChange?.(value)}
-        sx={{ mb: 3, borderBottom: 1, borderColor: "divider" }}
-      >
-        <Tab label="一覧" value="" />
-        {BLOG_TAGS.map((tag) => (
-          <Tab key={tag} label={tag} value={tag} />
-        ))}
-      </Tabs>
+      <Stack sx={{ mb: 3 }}>
+        <Tabs
+          value={selectedTag}
+          onChange={(_, value: string) => onTagFilterChange?.(value)}
+          sx={{ borderBottom: 1, borderColor: "divider" }}
+        >
+          <Tab label="一覧" value="" />
+          {BLOG_TAGS.map((tag) => (
+            <Tab key={tag} label={tag} value={tag} />
+          ))}
+        </Tabs>
+        {isFetching && <LinearProgress />}
+      </Stack>
       <Box
         sx={{
           display: "grid",

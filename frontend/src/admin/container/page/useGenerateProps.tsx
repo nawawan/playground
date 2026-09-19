@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as Sentry from '@sentry/react';
 import { type Blog, type AdminHomeProps } from "../../presentation/page/AdminHome";
 import { useNavigate } from "react-router-dom";
@@ -15,22 +15,44 @@ export const useGenerateProps = (): AdminHomeProps & { isLoading: boolean } => {
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [selectedTag, setSelectedTag] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
+    const blogsCacheRef = useRef(new Map<string, Blog[]>());
+    const requestIdRef = useRef(0);
     const navigate = useNavigate();
 
     useEffect(() => {
+        const requestId = ++requestIdRef.current;
+        const cacheKey = selectedTag;
+        const cachedBlogs = blogsCacheRef.current.get(cacheKey);
+        if (cachedBlogs) {
+            setBlogs(cachedBlogs);
+            setIsLoading(false);
+            setIsFetching(false);
+            return;
+        }
+
+        setIsFetching(true);
+
         const fetchData = async () => {
-            setIsLoading(true);
             try {
                 const url = selectedTag ? `/api/blogs?tag=${encodeURIComponent(selectedTag)}` : "/api/blogs";
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("Failed to fetch blogs");
                 const data = (await res.json()) as BlogResponse[];
-                setBlogs(data.map(toBlog));
+                const fetchedBlogs = data.map(toBlog);
+
+                if (requestId !== requestIdRef.current) return;
+
+                blogsCacheRef.current.set(cacheKey, fetchedBlogs);
+                setBlogs(fetchedBlogs);
             } catch (e) {
                 Sentry.captureException(new Error("Failed to fetch blogs: " + (e instanceof Error ? e.message : String(e))));
-                setBlogs([]);
+                // Keep the previous list on screen when a tag fetch fails.
             } finally {
-                setIsLoading(false);
+                if (requestId === requestIdRef.current) {
+                    setIsLoading(false);
+                    setIsFetching(false);
+                }
             }
         };
         fetchData();
@@ -52,6 +74,7 @@ export const useGenerateProps = (): AdminHomeProps & { isLoading: boolean } => {
             navigate(`/admin/blogs/${id}/edit?title=${title}`);
         },
         onTagFilterChange: setSelectedTag,
+        isFetching,
         isLoading,
     }
 };
