@@ -30,6 +30,7 @@ const InteractiveTrajectryPage = () => (
       TrajectryHeight={<TrajectryHeightContainer />}
       TrajectrySideBar={<TrajectrySideBarContainer />}
       UploadModal={<UploadModalContainer />}
+      status="ready"
     />
   </TrajectryPageStateProvider>
 );
@@ -43,6 +44,7 @@ export const Default: Story = {
     TrajectryHeight: <TrajectryHeightContainer />,
     TrajectrySideBar: <TrajectrySideBarContainer />,
     UploadModal: <UploadModalContainer />,
+    status: "ready",
   },
   render: () => <InteractiveTrajectryPage />,
 };

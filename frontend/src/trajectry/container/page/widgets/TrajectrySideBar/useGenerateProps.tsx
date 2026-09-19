@@ -5,7 +5,7 @@ import { useTrajectryPageState } from "../../state/useTrajectryPageState";
 
 
 export const useGenerateProps = () => {
-    const { addActivities } = useTrajectryPageState();
+    const { addActivities, finishLoading } = useTrajectryPageState();
     useEffect(() => {
         const initializeData = async() => {
         try {
@@ -13,7 +13,9 @@ export const useGenerateProps = () => {
                 const activityTrajectries = (await res.json()) as ActivityResponse[];
                 addActivities(activityTrajectries.map(toTrajectoryActivity))
             } catch (e) {
-                Sentry.captureException(new Error("Failed to fetch activities :" + + (e instanceof Error ? e.message : String(e))));
+                Sentry.captureException(new Error("Failed to fetch activities :" + (e instanceof Error ? e.message : String(e))));
+            } finally {
+                finishLoading();
             }
         }
         initializeData();

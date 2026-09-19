@@ -1,19 +1,17 @@
 import { useMemo, useState } from "react";
 
-import { trajectryActivities } from "../../domain/mockData";
 import type { MapStyleKey, TrajectryActivity } from "../../domain/types";
 
 export const useGenerateTrajectryPageProps = () => {
-  const [activeId, setActiveId] = useState(trajectryActivities[0].id);
-  const [activities, setActivities] = useState(trajectryActivities);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activities, setActivities] = useState<TrajectryActivity[]>([]);
+  const [loading, setLoading] = useState(true);
   const activeActivity = useMemo(
-    () => activities.find((activity) => activity.id === activeId) ?? activities[0],
+    () => activities.find((activity) => activity.id === activeId) ?? activities[0] ?? null,
     [activities, activeId],
   );
-  const [here, setHere] = useState(activeActivity.photos[2]?.at ?? activeActivity.photos[0]?.at ?? 0.5);
-  const [activePhotoId, setActivePhotoId] = useState<string | null>(
-    activeActivity.photos[2]?.id ?? activeActivity.photos[0]?.id ?? null,
-  );
+  const [here, setHere] = useState(0.5);
+  const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
   const [mapStyle, setMapStyle] = useState<MapStyleKey>("terrain");
   const [uploadOpen, setUploadOpen] = useState(false);
 
@@ -28,13 +26,22 @@ export const useGenerateTrajectryPageProps = () => {
   };
 
   const selectPhoto = (photoId: string) => {
+    if (!activeActivity) return;
     const nextPhoto = activeActivity.photos.find((photo) => photo.id === photoId);
     setActivePhotoId(photoId);
     if (nextPhoto) setHere(nextPhoto.at);
   };
 
-  const addActivity = (activity: TrajectryActivity[]) => {
-    setActivities((prev) => [...activity, ...prev]);
+  const addActivity = (newActivities: TrajectryActivity[]) => {
+    setActivities((prev) => [...newActivities, ...prev]);
+
+    const first = newActivities[0];
+    if (activeId === null && first) {
+      const initialPhoto = first.photos[2] ?? first.photos[0] ?? null;
+      setActiveId(first.id);
+      setHere(initialPhoto?.at ?? 0.5);
+      setActivePhotoId(initialPhoto?.id ?? null);
+    }
   };
 
   return {
@@ -43,6 +50,7 @@ export const useGenerateTrajectryPageProps = () => {
     activeId,
     activePhotoId,
     here,
+    loading,
     mapStyle,
     uploadOpen,
     onCloseUpload: () => setUploadOpen(false),
@@ -52,5 +60,6 @@ export const useGenerateTrajectryPageProps = () => {
     onSelectActivity: selectActivity,
     onSelectPhoto: selectPhoto,
     addActivities: addActivity,
+    finishLoading: () => setLoading(false),
   };
 };

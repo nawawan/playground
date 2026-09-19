@@ -39,6 +39,8 @@ const MAP_STYLE_LABELS: Record<MapStyleKey, string> = {
 export const MapAreaContainer = () => {
   const { activeActivity, activePhotoId, here, mapStyle, onMapStyleChange, onSelectPhoto } = useTrajectryPageState();
 
+  if (!activeActivity) return null;
+
   return (
     <MapShell>
       <StyleSwitcher aria-label="map style" variant="text">
