@@ -11,15 +11,11 @@ resource "google_cloud_run_v2_service" "nawawan_prod_service" {
     min_instance_count = 0
   }
 
-  lifecycle {
-    ignore_changes = [template[0].containers[0].image]
-  }
-
   template {
     service_account = google_service_account.nawawan_prod_reader.email
 
     containers {
-      image = "asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:v1.0.5"
+      image = "asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:v1.2.0"
 
       env {
         name  = "ENV"
@@ -70,8 +66,12 @@ resource "google_cloud_run_v2_service" "nawawan_prod_service" {
         value = "756ccca02f1b6db0c85afe0ff0edf345ee5a8bed3b56d65f6b6178e9d2bc3b5a"
       }
       env {
+        name = "BLOG_R2_BUCKET"
+        value = "blog-assets-prod"
+      }
+      env {
         name  = "PAGE_HOST"
-        value = "https://nawawan.com"
+        value = "https://image.nawawan.com"
       }
     }
   }

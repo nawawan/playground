@@ -12,7 +12,8 @@ use crate::{extractor::AuthorizedUser, model::blog::UpdateBlogRequest};
 
 use super::error::UsecaseError;
 use super::handler::Handler;
-use usecase::model::blog::BlogRequest;
+use super::helper;
+use usecase::model::blog::{BlogRequest, BlogStatus, BlogTag};
 use usecase::service::blog::blog_service::BlogService;
 use usecase::service::service::Service;
 
@@ -23,10 +24,12 @@ impl Handler {
     ) -> Json<serde_json::Value> {
         let year = params.get("year");
         let month = params.get("month");
+        let status = params.get("status").cloned().map(BlogStatus::from);
+        let tag = params.get("tag");
 
         let service = state.0.clone();
 
-        let blogs = service.list_blogs(year, month).await;
+        let blogs = service.list_blogs(year, month, status, tag).await;
 
         Json(serde_json::json!({
             "status": "success",
@@ -51,13 +54,13 @@ impl Handler {
         })))
     }
 
-    pub async fn craete_draft(
+    pub async fn create_draft(
         user: AuthorizedUser,
         state: State<Arc<Service>>,
     ) -> Result<Json<String>, UsecaseError> {
         let service = state.0.clone();
 
-        if let Err(e) = validate_admmin(&user) {
+        if let Err(e) = helper::validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -72,24 +75,35 @@ impl Handler {
         state: State<Arc<Service>>,
         Json(req): Json<UpdateBlogRequest>,
     ) -> Result<Json<BlogResponse>, UsecaseError> {
-        if let Err(e) = validate_admmin(&user) {
+        if let Err(e) = helper::validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
+
+        let tag = match req.tag {
+            Some(t) => Some(
+                BlogTag::try_from(t)
+                    .map_err(|e| UsecaseError::bad_request(&e))?
+                    .to_string(),
+            ),
+            None => None,
+        };
 
         let blog_req = BlogRequest {
             id: req.id,
             title: req.title,
             slug: req.slug,
             content: req.content,
+            status: req.status.map(BlogStatus::from),
+            tag,
         };
 
         let service = state.0.clone();
 
-        let result = service.update_blog(blog_req).await;
-        if let Err(ref e) = result {
-            error!("Failed to update blog: {}", e.message);
-        }
+        let result = service
+            .update_blog(blog_req)
+            .await
+            .map_err(UsecaseError::from);
         let blog = result?;
         Ok(Json(blog.into()))
     }
@@ -99,7 +113,7 @@ impl Handler {
         state: State<Arc<Service>>,
         mut multipart: Multipart,
     ) -> Result<Json<ImageResponse>, UsecaseError> {
-        if let Err(e) = validate_admmin(&user) {
+        if let Err(e) = helper::validate_admin(&user) {
             error!("Permission denied: {}", e.error.message);
             return Err(e);
         }
@@ -125,15 +139,5 @@ impl Handler {
                 .map_err(UsecaseError::from);
         }
         Err(UsecaseError::bad_request("No image field in multipart"))
-    }
-}
-
-fn validate_admmin(user: &AuthorizedUser) -> Result<(), UsecaseError> {
-    if user.user.role == "admin" {
-        Ok(())
-    } else {
-        Err(UsecaseError::permission_denied(
-            "User does not have admin role",
-        ))
     }
 }

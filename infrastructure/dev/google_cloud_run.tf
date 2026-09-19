@@ -10,10 +10,6 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
     max_instance_count = 2
   }
 
-  lifecycle {
-    ignore_changes = [template[0].containers[0].image]
-  }
-
   template {
     service_account = google_service_account.nawawan_dev_reader.email
 
@@ -67,6 +63,10 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
       env {
         name = "CF_ACCESS_AUD"
         value = "756ccca02f1b6db0c85afe0ff0edf345ee5a8bed3b56d65f6b6178e9d2bc3b5a"
+      }
+      env {
+        name = "BLOG_R2_BUCKET"
+        value = "blog-assets"
       }
       env {
         name  = "PAGE_HOST"

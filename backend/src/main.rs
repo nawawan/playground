@@ -33,6 +33,7 @@ async fn main() {
         cf_access_team_domain: env::var("CF_ACCESS_TEAM_DOMAIN")
             .expect("CF_ACCESS_TEAM_DOMAIN must be set"),
         cf_access_aud: env::var("CF_ACCESS_AUD").expect("CF_ACCESS_AUD must be set"),
+        blog_r2_bucket: env::var("BLOG_R2_BUCKET").expect("BLOG_R2_BUCKET must be set"),
     };
 
     let jwks_cache = JwksCache::new(config.cf_access_team_domain.clone());
@@ -43,7 +44,8 @@ async fn main() {
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .nest("/health", create_health_router(pool))
-        .nest("/api", create_blog_router(service))
+        .nest("/api", create_blog_router(service.clone()))
+        .nest("/api", create_trajectory_router(service.clone()))
         .fallback(fallback);
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
@@ -70,11 +72,20 @@ fn create_blog_router(service: Arc<Service>) -> Router {
         .route("/", get(Handler::list_blogs).post(Handler::update_blog))
         .route("/{id}", get(Handler::get_blog))
         .route("/images", post(Handler::upload_blog_image))
-        .route("/drafts", post(Handler::craete_draft))
+        .route("/drafts", post(Handler::create_draft))
         .fallback(api_fallback)
         .with_state(service);
 
     Router::new().nest("/blogs", blog_routers)
+}
+
+fn create_trajectory_router(service: Arc<Service>) -> Router {
+    let trajectory_routers = Router::new()
+        .route("/upload", post(Handler::upload_gpx))
+        .fallback(api_fallback)
+        .with_state(service);
+
+    Router::new().nest("/trajectory", trajectory_routers)
 }
 
 fn create_health_router(pool: PgPool) -> Router {

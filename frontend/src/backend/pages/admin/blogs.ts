@@ -5,7 +5,7 @@ import { zValidator } from '@hono/zod-validator';
 import * as Sentry from '@sentry/cloudflare';
 import { accessAuth } from '../../middleware/auth';
 
-import { type BlogResponse } from '../../../shared/types/blog';
+import { type BlogDetails, type BlogResponse } from '../../../shared/types/blog';
 
 const JWT_HEADER = "Cf-Access-Jwt-Assertion";
 
@@ -21,10 +21,10 @@ const blogs = new Hono<{ Bindings: Env }>();
 
 blogs.post('/', async (c) => {
     const apiUrl = c.env.API_URL;
-    const { id, title, content, slug } = await c.req.json();
+    const { id, title, content, slug, status, tag } = await c.req.json();
     const jwt = c.req.header(JWT_HEADER) ?? "";
 
-    const resp: BlogResponse = await BlogService.createBlog(apiUrl, jwt, id, content, title, slug);
+    const resp: BlogResponse = await BlogService.createBlog(apiUrl, jwt, id, content, title, slug, status, tag);
     return c.json(resp);
 });
 
@@ -36,7 +36,17 @@ blogs.post('/drafts', async (c)  => {
     return c.json(resp);
 });
 
-blogs.post('/:id/md', 
+blogs.get('/:id',
+    zValidator('param', z.object({ id: z.string() })),
+    accessAuth,
+    async (c) => {
+    const { id } = c.req.valid('param');
+
+    const blogWithContent: BlogDetails = await BlogService.getBlogWithContent(c.env.API_URL, c.env.BLOG_BUCKET, id);
+    return c.json(blogWithContent);
+});
+
+blogs.post('/:id/md',
     zValidator('param', z.object({id: z.string()})),
     accessAuth, 
     async(c) => {

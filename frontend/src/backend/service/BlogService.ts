@@ -1,9 +1,10 @@
-import { type BlogResponse } from "../../shared/types/blog";
+import { type BlogDetails, type BlogResponse } from "../../shared/types/blog";
 
 export const BlogService = {
-    async getBlogs(apiUrl: string, status?: string) : Promise<BlogResponse[]> {
+    async getBlogs(apiUrl: string, status?: string, tag?: string) : Promise<BlogResponse[]> {
         const url = new URL(`${apiUrl}/api/blogs`);
         if (status) url.searchParams.set('status', status);
+        if (tag) url.searchParams.set('tag', tag);
         const response = await fetch(url.toString());
         if (!response.ok) {
             throw new Error('Failed to fetch blogs');
@@ -12,14 +13,14 @@ export const BlogService = {
         return json.data.blogs;
     },
 
-    async createBlog(apiUrl: string, jwt: string, id: string, content: string, title?: string, slug?: string) : Promise<BlogResponse> {
+    async createBlog(apiUrl: string, jwt: string, id: string, content: string, title?: string, slug?: string, status?: string, tag?: string) : Promise<BlogResponse> {
         const response = await fetch(`${apiUrl}/api/blogs`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Cf-Access-Jwt-Assertion': jwt,
             },
-            body: JSON.stringify({ id, title, slug, content }),
+            body: JSON.stringify({ id, title, slug, content, status, tag }),
         });
         if (!response.ok) {
             throw new Error('Failed to create blog');
@@ -43,6 +44,26 @@ export const BlogService = {
             throw new Error('Failed to get blog content');
         }
         return await object.text();
+    },
+
+    async getBlogWithContent(apiUrl: string, bucket: R2Bucket, id: string): Promise<BlogDetails> {
+        const blog = await BlogService.getBlogById(apiUrl, id)
+            .catch((e) => {
+                throw new Error("Failed to fetch blog by id: " + (e instanceof Error ? e.message : String(e)));
+            });
+        const content = await BlogService.getBlogContent(bucket, blog.content_key)
+            .catch((e) => {
+                throw new Error("Failed to fetch blog content: " + (e instanceof Error ? e.message : String(e)));
+            });
+
+        return {
+            id: blog.id,
+            title: blog.title,
+            slug: blog.slug === "" ? undefined : blog.slug,
+            content_html: content,
+            status: blog.status,
+            tag: blog.tag,
+        };
     },
 
     async createBlogId(apiUrl: string, jwt: string) : Promise<string> {
