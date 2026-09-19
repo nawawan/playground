@@ -15,6 +15,8 @@ type Story = StoryObj<typeof meta>;
 export const Open: Story = {
   args: {
     open: true,
+    isLoading: false,
     onClose: () => undefined,
+    onImport: () => undefined,
   },
 };

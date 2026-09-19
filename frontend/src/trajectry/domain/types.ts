@@ -19,8 +19,8 @@ export type TrajectryActivity = {
   km: number;
   gain: number;
   duration: string;
-  color: string;
   note: string;
+  color: string;
   center: LngLat;
   zoom: number;
   track: LngLat[];

@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
+
 import { trajectryActivities } from "../../domain/mockData";
-import type { MapStyleKey } from "../../domain/types";
+import type { MapStyleKey, TrajectryActivity } from "../../domain/types";
 
 export const useGenerateTrajectryPageProps = () => {
   const [activeId, setActiveId] = useState(trajectryActivities[0].id);
+  const [activities, setActivities] = useState(trajectryActivities);
   const activeActivity = useMemo(
-    () => trajectryActivities.find((activity) => activity.id === activeId) ?? trajectryActivities[0],
-    [activeId],
+    () => activities.find((activity) => activity.id === activeId) ?? activities[0],
+    [activities, activeId],
   );
   const [here, setHere] = useState(activeActivity.photos[2]?.at ?? activeActivity.photos[0]?.at ?? 0.5);
   const [activePhotoId, setActivePhotoId] = useState<string | null>(
@@ -16,7 +18,7 @@ export const useGenerateTrajectryPageProps = () => {
   const [uploadOpen, setUploadOpen] = useState(false);
 
   const selectActivity = (activityId: string) => {
-    const nextActivity = trajectryActivities.find((activity) => activity.id === activityId);
+    const nextActivity = activities.find((activity) => activity.id === activityId);
     if (!nextActivity) return;
 
     setActiveId(activityId);
@@ -31,8 +33,12 @@ export const useGenerateTrajectryPageProps = () => {
     if (nextPhoto) setHere(nextPhoto.at);
   };
 
+  const addActivity = (activity: TrajectryActivity[]) => {
+    setActivities((prev) => [...activity, ...prev]);
+  };
+
   return {
-    activities: trajectryActivities,
+    activities,
     activeActivity,
     activeId,
     activePhotoId,
@@ -45,5 +51,6 @@ export const useGenerateTrajectryPageProps = () => {
     onOpenUpload: () => setUploadOpen(true),
     onSelectActivity: selectActivity,
     onSelectPhoto: selectPhoto,
+    addActivities: addActivity,
   };
 };
