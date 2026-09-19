@@ -16,7 +16,7 @@ export const useGenerateProps = (): UploadModalProps => {
         onImport: async (file) => {
             setIsLoading(true);
             try {
-                const res = await fetch('/api/admin/trajectories', {
+                const res = await fetch('/api/admin/trajectory/trajectories', {
                     method: "POST",
                     body: file,
                     headers: { 'Content-Type': file.type }
