@@ -39,19 +39,6 @@ const UploadButton = styled(Button)({
   whiteSpace: "nowrap",
 });
 
-const Avatar = styled(Typography)({
-  alignItems: "center",
-  background: "var(--paper)",
-  border: "1px solid var(--rule)",
-  borderRadius: "50%",
-  display: "flex",
-  flexShrink: 0,
-  fontSize: 15,
-  height: 36,
-  justifyContent: "center",
-  width: 36,
-});
-
 export const Header = ({ onUpload }: HeaderProps) => (
   <HeaderRoot alignItems="center" direction="row" spacing={2}>
     <Logo>trajectry</Logo>
@@ -59,6 +46,5 @@ export const Header = ({ onUpload }: HeaderProps) => (
     <UploadButton disableRipple type="button" onClick={onUpload}>
       + Upload GPX
     </UploadButton>
-    {/* <Avatar>あ</Avatar> */}
   </HeaderRoot>
 );

@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import * as Sentry from "@sentry/react";
+import { useMemo, useState } from "react";
 
 import { trajectryActivities } from "../../domain/mockData";
 import type { MapStyleKey, TrajectryActivity } from "../../domain/types";
-import { toTrajectoryActivity, type ActivityResponse } from "../../../shared/types/trajectory";
 
 export const useGenerateTrajectryPageProps = () => {
   const [activeId, setActiveId] = useState(trajectryActivities[0].id);
-  const [activities, setActivities] = useState(trajectryActivities);
+  const [, setActivities] = useState(trajectryActivities);
   const activeActivity = useMemo(
     () => trajectryActivities.find((activity) => activity.id === activeId) ?? trajectryActivities[0],
     [activeId],

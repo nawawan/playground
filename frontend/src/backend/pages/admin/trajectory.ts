@@ -1,7 +1,5 @@
 import { Hono } from 'hono';
 import { TrajectoryService } from '../../service/TrajectoryService';
-import { z } from 'zod';
-import { zValidator } from '@hono/zod-validator';
 import * as Sentry from '@sentry/cloudflare';
 import { accessAuth } from '../../middleware/auth';
 

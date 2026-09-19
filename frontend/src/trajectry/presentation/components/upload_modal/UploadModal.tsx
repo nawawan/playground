@@ -135,7 +135,7 @@ export const UploadModal = (props: UploadModalProps) => {
         <CancelButton disableRipple onClick={props.onClose} type="button">
           cancel
         </CancelButton>
-        <ImportButton loading={props.isLoading} disabled={uploadFile ? true : false} onClick={() => props.onImport(uploadFile!!)} disableRipple type="button">
+        <ImportButton loading={props.isLoading} disabled={uploadFile ? true : false} onClick={() => props.onImport(uploadFile!)} disableRipple type="button">
           import
         </ImportButton>
       </Actions>
