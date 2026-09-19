@@ -8,16 +8,20 @@ import { TrajectrySideBarContainer } from "./widgets/TrajectrySideBar/Container"
 import { UploadModalContainer } from "./widgets/UploadModal/Container";
 import { TrajectryPageStateProvider } from "./state/TrajectryPageStateProvider";
 
-const TrajectryPageContainer = () => (
+type TrajectryPageContainerProps = {
+  canUpload?: boolean;
+};
+
+const TrajectryPageContainer = ({ canUpload = false }: TrajectryPageContainerProps) => (
   <TrajectryPageStateProvider>
     <TrajectryPage
-      Header={<HeaderContainer />}
+      Header={<HeaderContainer canUpload={canUpload} />}
       ImagePanel={<ImagePanelContainer />}
       MapArea={<MapAreaContainer />}
       TrajectryDetail={<TrajectryDetailContainer />}
       TrajectryHeight={<TrajectryHeightContainer />}
       TrajectrySideBar={<TrajectrySideBarContainer />}
-      UploadModal={<UploadModalContainer />}
+      UploadModal={canUpload ? <UploadModalContainer /> : null}
     />
   </TrajectryPageStateProvider>
 );

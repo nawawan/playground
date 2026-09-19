@@ -32,7 +32,7 @@ trajectories.post("/trajectories", accessAuth, async(c) => {
     return c.json(activityResponse);
 });
 
-trajectories.get("/trajectories", accessAuth, async(c) => {
+trajectories.get("/trajectories", async(c) => {
     const apiUrl = c.env.API_URL;
 
     const activityResponse = await TrajectoryService.listActivities(apiUrl)

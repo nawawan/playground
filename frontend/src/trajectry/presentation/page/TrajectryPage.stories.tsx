@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 const InteractiveTrajectryPage = () => (
   <TrajectryPageStateProvider>
     <TrajectryPage
-      Header={<HeaderContainer />}
+      Header={<HeaderContainer canUpload />}
       ImagePanel={<ImagePanelContainer />}
       MapArea={<MapAreaContainer />}
       TrajectryDetail={<TrajectryDetailContainer />}
@@ -36,7 +36,7 @@ const InteractiveTrajectryPage = () => (
 
 export const Default: Story = {
   args: {
-    Header: <HeaderContainer />,
+    Header: <HeaderContainer canUpload />,
     ImagePanel: <ImagePanelContainer />,
     MapArea: <MapAreaContainer />,
     TrajectryDetail: <TrajectryDetailContainer />,

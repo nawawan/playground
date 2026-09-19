@@ -2,6 +2,7 @@ import { Button, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 type HeaderProps = {
+  canUpload: boolean;
   onUpload: () => void;
 };
 
@@ -39,12 +40,14 @@ const UploadButton = styled(Button)({
   whiteSpace: "nowrap",
 });
 
-export const Header = ({ onUpload }: HeaderProps) => (
+export const Header = ({ canUpload, onUpload }: HeaderProps) => (
   <HeaderRoot alignItems="center" direction="row" spacing={2}>
     <Logo>trajectry</Logo>
     <Spacer />
-    <UploadButton disableRipple type="button" onClick={onUpload}>
-      + Upload GPX
-    </UploadButton>
+    {canUpload && (
+      <UploadButton disableRipple type="button" onClick={onUpload}>
+        + Upload GPX
+      </UploadButton>
+    )}
   </HeaderRoot>
 );
