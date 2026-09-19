@@ -34,6 +34,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d app_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
       redis:
         image: redis:7-alpine
         ports:
@@ -44,22 +57,12 @@ jobs:
           --health-timeout=5s
           --health-retries=5
     env:
-      DATABASE_URL: postgres://root@localhost:26257/app_test?sslmode=disable
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/app_test
       REDIS_HOST: localhost
       REDIS_PORT: 6379
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-      - name: Start CockroachDB
-        run: |
-          docker run -d --name crdb -p 26257:26257 cockroachdb/cockroach:latest-v23.2 start-single-node --insecure
-          for i in $(seq 1 30); do
-            if docker exec crdb ./cockroach sql --insecure -e "SELECT 1" > /dev/null 2>&1; then
-              break
-            fi
-            sleep 1
-          done
-          docker exec crdb ./cockroach sql --insecure -e "CREATE DATABASE app_test"
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
         with:
