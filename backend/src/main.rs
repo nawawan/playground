@@ -82,6 +82,7 @@ fn create_blog_router(service: Arc<Service>) -> Router {
 fn create_trajectory_router(service: Arc<Service>) -> Router {
     let trajectory_routers = Router::new()
         .route("/upload", post(Handler::upload_gpx))
+        .route("/", get(Handler::list_activities))
         .fallback(api_fallback)
         .with_state(service);
 
