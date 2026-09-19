@@ -29,6 +29,7 @@ function App() {
           <Route path="/admin">
             <Route index element={<AdminHomeContainer />} />
             <Route path="blogs/:blogId/edit"  element={<EditBlogContainer />}/>
+            <Route path="trajectry" element={<TrajectryPageContainer canUpload />} />
           </Route>
         </Route>
       </Routes>
