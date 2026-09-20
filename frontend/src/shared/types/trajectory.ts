@@ -1,4 +1,4 @@
-import { type TrajectryActivity } from "../../trajectry/domain/types";
+import { type TrajectoryActivity } from "../../trajectory/domain/types";
 
 export type LineString = {
   type: "LineString";
@@ -16,7 +16,7 @@ export type ActivityResponse = {
     trajectory:  LineString | null;
 };
 
-export const toTrajectoryActivity = (activity: ActivityResponse): TrajectryActivity => ({
+export const toTrajectoryActivity = (activity: ActivityResponse): TrajectoryActivity => ({
     id: activity.id,
     title: activity.name,
     type: "bike",
