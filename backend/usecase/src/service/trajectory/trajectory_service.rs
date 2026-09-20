@@ -19,7 +19,7 @@ pub trait TrajectoryService {
         user_id: Uuid,
     ) -> Result<Activity, AppError>;
     async fn get_activity(&self, activity_id: String) -> Result<Activity, AppError>;
-    async fn list_activities(&self, user_id: String) -> Vec<Activity>;
+    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, AppError>;
 }
 
 #[async_trait]
@@ -73,7 +73,8 @@ impl TrajectoryService for Service {
         let activity = self.repository.get_activity(activity_id).await?;
         Ok(activity)
     }
-    async fn list_activities(&self, user_id: String) -> Vec<Activity> {
-        self.repository.list_activities(user_id).await
+    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, AppError> {
+        let activities = self.repository.list_activities(user_id).await?;
+        Ok(activities)
     }
 }

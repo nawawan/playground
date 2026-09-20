@@ -27,5 +27,5 @@ pub trait TrajectoryRepository: Send + Sync {
         activity: Activity,
     ) -> Result<Activity, RepoError>;
     async fn get_activity(&self, activity_id: String) -> Result<Activity, RepoError>;
-    async fn list_activities(&self, user_id: String) -> Vec<Activity>;
+    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, RepoError>;
 }

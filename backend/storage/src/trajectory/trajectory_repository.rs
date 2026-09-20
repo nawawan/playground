@@ -1,12 +1,45 @@
 use async_trait::async_trait;
+use chrono::NaiveDateTime;
 use geo_types::{Coord, Geometry, LineString};
 use geozero::wkb;
 use tracing::error;
+use usecase::model::trajectory::Coordinate;
+use uuid::Uuid;
 
 use crate::repository::Repository;
 use usecase::errors::repo_error::RepoError;
 use usecase::model::{activity::Activity, trajectory::LodTrajectory};
 use usecase::repository::trajectory::TrajectoryRepository;
+
+// The thinnest LOD band, produced for every activity at upload time. Joining
+// on it guarantees exactly one trajectory_lod row per activity_id.
+const THIN_TRAJECTORY_ZOOM_FROM: i32 = 1;
+
+#[derive(sqlx::FromRow)]
+struct ActivityRow {
+    id: i64,
+    user_id: Uuid,
+    name: String,
+    started_at: NaiveDateTime,
+    distance: f64,
+    elevation: f64,
+    duration: i64,
+    trajectory: wkb::Decode<Geometry<f64>>,
+}
+
+fn geometry_to_coordinates(geometry: Geometry<f64>) -> Vec<Coordinate> {
+    let Geometry::LineString(line_string) = geometry else {
+        return Vec::new();
+    };
+
+    line_string
+        .coords()
+        .map(|coord| Coordinate {
+            latitude: coord.y,
+            longitude: coord.x,
+        })
+        .collect()
+}
 
 #[async_trait]
 impl TrajectoryRepository for Repository {
@@ -100,8 +133,40 @@ impl TrajectoryRepository for Repository {
             activity_id
         )))
     }
-    async fn list_activities(&self, user_id: String) -> Vec<Activity> {
-        // Implementation for listing activities
-        Vec::<Activity>::new()
+    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, RepoError> {
+        let user_id: Uuid = user_id
+            .parse()
+            .map_err(|_| RepoError::Internal("Invalid user id".to_string()))?;
+
+        let mut builder = sqlx::QueryBuilder::new(
+            "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, t.trajectory
+             FROM activity a
+             INNER JOIN trajectory_lod t ON t.activity_id = a.id AND t.zoom_from = ",
+        );
+        builder.push_bind(THIN_TRAJECTORY_ZOOM_FROM);
+        builder.push(" WHERE a.user_id = ").push_bind(user_id);
+
+        let records: Vec<ActivityRow> = builder
+            .build_query_as::<ActivityRow>()
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| {
+                error!("Failed to list activities: {}", e);
+                RepoError::Internal("Failed to list activities".to_string())
+            })?;
+
+        Ok(records
+            .into_iter()
+            .map(|record| Activity {
+                id: record.id,
+                user_id: record.user_id,
+                name: record.name,
+                start_time: record.started_at,
+                distance: record.distance,
+                elevation_gain: record.elevation,
+                duration: record.duration,
+                thin_trajectory: record.trajectory.geometry.map(geometry_to_coordinates),
+            })
+            .collect())
     }
 }
