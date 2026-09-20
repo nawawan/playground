@@ -1,0 +1,129 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap");
+
+.trajectory-page,
+.trajectory-upload-modal {
+  --ink: #1a1a1a;
+  --ink-soft: #8a8a8a;
+  --ink-faint: #c7c7c7;
+  --paper: #ffffff;
+  --paper-2: #f4f4f5;
+  --rule: #e2e2e1;
+  --accent: #2b2b30;
+  --pin: #d33b3b;
+  --muted-dot: #5d6062;
+}
+
+.trajectory-page button {
+  font: inherit;
+}
+
+.trajectory-page .MuiTypography-root,
+.trajectory-upload-modal .MuiTypography-root {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.trajectory-page .MuiButton-root,
+.trajectory-upload-modal .MuiButton-root {
+  line-height: inherit;
+  min-width: 0;
+  text-transform: none;
+}
+
+.trajectory-page .MuiButtonBase-root:focus,
+.trajectory-upload-modal .MuiButtonBase-root:focus {
+  outline: none;
+}
+
+.trajectory-page .MuiButtonBase-root:focus-visible,
+.trajectory-upload-modal .MuiButtonBase-root:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.trajectory-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.trajectory-map-area {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/*
+ * These are used as MapLibre `Marker({ element })` nodes, so MapLibre owns
+ * `position`/`transform` on them directly — keep them plain shapes with no
+ * CSS transform of their own.
+ */
+.trajectory-map-area__marker {
+  background: var(--paper);
+  border: 2px solid var(--ink-faint);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  height: 12px;
+  width: 12px;
+}
+
+.trajectory-map-area__photo-marker {
+  background: var(--muted-dot);
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  height: 14px;
+  width: 14px;
+}
+
+.trajectory-map-area__photo-marker.is-active {
+  background: var(--pin);
+  height: 18px;
+  width: 18px;
+}
+
+.trajectory-map-area__here {
+  background: var(--pin);
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(211, 59, 59, 0.18);
+  height: 16px;
+  pointer-events: none;
+  width: 16px;
+}
+
+.trajectory-map-area .maplibregl-ctrl-attrib {
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--ink-soft);
+  font-size: 10px;
+}
+
+.trajectory-map-area .maplibregl-ctrl-group {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--rule);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.trajectory-height__photo {
+  background: var(--muted-dot);
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  height: 14px;
+  padding: 0;
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  width: 14px;
+  z-index: 2;
+}
+
+@media (max-width: 1100px) {
+  .trajectory-page .hide-narrow {
+    display: none;
+  }
+}
