@@ -11,8 +11,7 @@ export const TrajectoryService = {
             body: file,
         });
 
-        const json = await res.json<{ activity: ActivityResponse }>();
-        return json.activity;
+        return await res.json<ActivityResponse>();
     },
     async listActivities(apiUrl: string, jwt: string): Promise<ActivityResponse[]> {
         const res = await fetch(`${apiUrl}/api/trajectory`, {
@@ -20,7 +19,6 @@ export const TrajectoryService = {
                 'Cf-Access-Jwt-Assertion': jwt,
             },
         });
-        const json = await res.json<{activities: ActivityResponse[]}>();
-        return json.activities;
+        return await res.json<ActivityResponse[]>();
     },
 };
