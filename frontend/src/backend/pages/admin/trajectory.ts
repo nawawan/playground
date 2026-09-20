@@ -34,8 +34,9 @@ trajectories.post("/trajectories", accessAuth, async(c) => {
 
 trajectories.get("/trajectories", async(c) => {
     const apiUrl = c.env.API_URL;
+    const jwt = c.req.header(JWT_HEADER) ?? "";
 
-    const activityResponse = await TrajectoryService.listActivities(apiUrl)
+    const activityResponse = await TrajectoryService.listActivities(apiUrl, jwt)
         .catch((e) => {
             Sentry.captureException("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
             throw new Error("Failed to update blog image: " + (e instanceof Error ? e.message : String(e)));
