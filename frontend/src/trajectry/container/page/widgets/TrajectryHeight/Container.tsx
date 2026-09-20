@@ -4,6 +4,8 @@ import { useTrajectryPageState } from "../../state/useTrajectryPageState";
 export const TrajectryHeightContainer = () => {
   const { activeActivity, activePhotoId, here, onHereChange, onSelectPhoto } = useTrajectryPageState();
 
+  if (!activeActivity) return null;
+
   return (
     <TrajectryHeight
       activePhotoId={activePhotoId}

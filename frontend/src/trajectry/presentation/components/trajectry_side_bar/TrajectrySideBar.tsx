@@ -5,7 +5,7 @@ import { ActivityCard } from "../activity_card/ActivityCard";
 
 type TrajectrySideBarProps = {
   activities: TrajectryActivity[];
-  activeId: string;
+  activeId: string | null;
   onSelectActivity: (activityId: string) => void;
   onUpload: () => void;
 };
