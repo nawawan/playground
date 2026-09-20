@@ -15,7 +15,7 @@ export const TrajectoryService = {
         return json.activity;
     },
     async listActivities(apiUrl: string): Promise<ActivityResponse[]> {
-        const res = await fetch(`${apiUrl}/api/trajectry/`);
+        const res = await fetch(`${apiUrl}/api/trajectory`);
         const json = await res.json<{activities: ActivityResponse[]}>();
         return json.activities;
     },
