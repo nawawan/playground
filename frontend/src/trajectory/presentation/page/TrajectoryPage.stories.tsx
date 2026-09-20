@@ -28,7 +28,7 @@ const InteractiveTrajectoryPage = () => (
       MapArea={<MapAreaContainer />}
       TrajectoryDetail={<TrajectoryDetailContainer />}
       TrajectoryHeight={<TrajectoryHeightContainer />}
-      TrajectorySideBar={<TrajectorySideBarContainer />}
+      TrajectorySideBar={<TrajectorySideBarContainer canUpload={true} />}
       UploadModal={<UploadModalContainer />}
       status="ready"
     />
@@ -42,7 +42,7 @@ export const Default: Story = {
     MapArea: <MapAreaContainer />,
     TrajectoryDetail: <TrajectoryDetailContainer />,
     TrajectoryHeight: <TrajectoryHeightContainer />,
-    TrajectorySideBar: <TrajectorySideBarContainer />,
+    TrajectorySideBar: <TrajectorySideBarContainer canUpload={true} />,
     UploadModal: <UploadModalContainer />,
     status: "ready",
   },
