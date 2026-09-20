@@ -11,12 +11,14 @@ export const TrajectoryService = {
             body: file,
         });
 
-        const json = await res.json<{ activity: ActivityResponse }>();
-        return json.activity;
+        return await res.json<ActivityResponse>();
     },
-    async listActivities(apiUrl: string): Promise<ActivityResponse[]> {
-        const res = await fetch(`${apiUrl}/api/trajectory/`);
-        const json = await res.json<{activities: ActivityResponse[]}>();
-        return json.activities;
+    async listActivities(apiUrl: string, jwt: string): Promise<ActivityResponse[]> {
+        const res = await fetch(`${apiUrl}/api/trajectory`, {
+            headers: {
+                'Cf-Access-Jwt-Assertion': jwt,
+            },
+        });
+        return await res.json<ActivityResponse[]>();
     },
 };
