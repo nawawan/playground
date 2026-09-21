@@ -67,7 +67,8 @@ export const TrajectoryHeight = ({
   const linePath = `M ${points.map(([x, y]) => `${x},${y}`).join(" L ")}`;
   const fillPath = `${linePath} L ${SVG_WIDTH},${SVG_HEIGHT} L 0,${SVG_HEIGHT} Z`;
   const hereElevation = Math.round(elevationAt(activity.elevation, here));
-  const hereKm = formatKmAt(activity.km, here);
+  const km = Math.trunc(activity.km / 1000);
+  const hereKm = formatKmAt(km, here);
 
   const scrub = (event: React.PointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -87,7 +88,7 @@ export const TrajectoryHeight = ({
             <StatNumber>{Math.round(maxElevation)}m</StatNumber>
           </StatGroup>
           <StatGroup>
-            <StatNumber>{activity.km}</StatNumber>
+            <StatNumber>{km}</StatNumber>
             <StatCaption>km</StatCaption>
           </StatGroup>
         </Stack>
