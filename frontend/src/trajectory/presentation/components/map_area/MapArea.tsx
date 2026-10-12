@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { AttributionControl, LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { StyleSpecification } from "@maplibre/maplibre-gl-style-spec";
 import { useEffect, useRef, useState } from "react";
@@ -15,8 +15,9 @@ type MapAreaProps = {
   onPhotoSelect: (photoId: string) => void;
 };
 
-// maplibre-gl v6 loads its worker as a separate ESM file. Vite does not serve
-// it from the pre-bundled deps (404), so GeoJSON sources never load. Point to it explicitly.
+// maplibre-gl v6 loads its worker as a separate ESM file that imports a shared
+// chunk. Vite serves neither from the bundle (404), so GeoJSON sources never
+// load. Let Vite bundle the worker with its deps and point maplibre to it.
 setWorkerUrl(maplibreWorkerUrl);
 
 // Free-for-prototyping tile sources. OpenTopoMap/OpenStreetMap raster tiles
