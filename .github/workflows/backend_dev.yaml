@@ -122,3 +122,10 @@ jobs:
             asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Deploy to Cloud Run (dev)
+        run: |
+          gcloud run deploy nawawan-dev-service \
+            --project=nawawan-dev \
+            --region=asia-northeast1 \
+            --image=asia-northeast1-docker.pkg.dev/nawawan/nawawan-prod-repository/nawawan-playground:${{ github.sha }} \
+            --quiet
