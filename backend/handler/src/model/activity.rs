@@ -13,6 +13,7 @@ pub struct ActivityResponse {
     pub elevation_gain: f64,
     pub start_time: NaiveDateTime,
     pub trajectory: Option<LineString>,
+    pub elevations: Vec<f64>,
 }
 
 impl From<Activity> for ActivityResponse {
@@ -24,6 +25,7 @@ impl From<Activity> for ActivityResponse {
             duration: activity.duration,
             elevation_gain: activity.elevation_gain,
             start_time: activity.start_time,
+            elevations: activity.thin_elevation.unwrap_or_default(),
             trajectory: activity
                 .thin_trajectory
                 .map_or(None, |coord| Some(coord.into())),

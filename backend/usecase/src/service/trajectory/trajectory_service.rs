@@ -39,6 +39,7 @@ impl TrajectoryService for Service {
         }
 
         let thin_trajectory = trajectories[0].coordinates.clone();
+        let thin_elevation = trajectories[0].elevations.clone();
 
         let activity = Activity {
             id: 0,
@@ -49,6 +50,7 @@ impl TrajectoryService for Service {
             elevation_gain: elevation,
             start_time: trajectory.started_at,
             thin_trajectory: None,
+            thin_elevation: None,
         };
 
         let mut tx = self.repository.create_transaction().await?;
@@ -66,6 +68,7 @@ impl TrajectoryService for Service {
             AppError::internal(Some("Transaction commit failed"))
         })?;
         activity.thin_trajectory = Some(thin_trajectory);
+        activity.thin_elevation = Some(thin_elevation);
 
         Ok(activity)
     }

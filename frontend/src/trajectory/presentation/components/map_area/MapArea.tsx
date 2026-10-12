@@ -84,6 +84,9 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
   onPhotoSelectRef.current = onPhotoSelect;
   const mapStyleRef = useRef(mapStyle);
   mapStyleRef.current = mapStyle;
+  const appliedStyleRef = useRef(mapStyle);
+  const activityRef = useRef(activity);
+  activityRef.current = activity;
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -120,8 +123,13 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
     const map = mapRef.current;
     if (!map || !ready) return;
 
+    // The initial style is already applied at construction; resetting it here
+    // would wipe the track layers added by the activity effect below.
+    if (appliedStyleRef.current === mapStyle) return;
+    appliedStyleRef.current = mapStyle;
+
     map.setStyle(MAP_STYLE_SOURCES[mapStyle]());
-    map.once("style.load", () => addTrackLayers(map, activity));
+    map.once("style.load", () => addTrackLayers(map, activityRef.current));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapStyle]);
 

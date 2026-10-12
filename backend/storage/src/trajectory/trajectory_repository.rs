@@ -25,6 +25,7 @@ struct ActivityRow {
     elevation: f64,
     duration: i64,
     trajectory: wkb::Decode<Geometry<f64>>,
+    elevations: Vec<f64>,
 }
 
 fn geometry_to_coordinates(geometry: Geometry<f64>) -> Vec<Coordinate> {
@@ -139,7 +140,7 @@ impl TrajectoryRepository for Repository {
             .map_err(|_| RepoError::Internal("Invalid user id".to_string()))?;
 
         let mut builder = sqlx::QueryBuilder::new(
-            "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, t.trajectory
+            "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, t.trajectory, t.elevations
              FROM activity a
              INNER JOIN trajectory_lod t ON t.activity_id = a.id AND t.zoom_from = ",
         );
@@ -166,6 +167,7 @@ impl TrajectoryRepository for Repository {
                 elevation_gain: record.elevation,
                 duration: record.duration,
                 thin_trajectory: record.trajectory.geometry.map(geometry_to_coordinates),
+                thin_elevation: Some(record.elevations),
             })
             .collect())
     }

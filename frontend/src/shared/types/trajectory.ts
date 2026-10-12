@@ -14,6 +14,7 @@ export type ActivityResponse = {
     elevation_gain: number;
     start_time: string;
     trajectory:  LineString | null;
+    elevations: number[];
 };
 
 export const toTrajectoryActivity = (activity: ActivityResponse): TrajectoryActivity => ({
@@ -30,6 +31,6 @@ export const toTrajectoryActivity = (activity: ActivityResponse): TrajectoryActi
     center: activity.trajectory?.coordinates[0] ?? [1, 1],
     zoom: 1,
     track: activity.trajectory?.coordinates ?? [],
-    elevation: [],
+    elevation: activity.elevations ?? [],
     photos: [],
 });
