@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
-import { AttributionControl, LngLatBounds, Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl";
+import { AttributionControl, LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { StyleSpecification } from "@maplibre/maplibre-gl-style-spec";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +14,11 @@ type MapAreaProps = {
   mapStyle: MapStyleKey;
   onPhotoSelect: (photoId: string) => void;
 };
+
+// maplibre-gl v6 loads its worker as a separate ESM file that imports a shared
+// chunk. Vite serves neither from the bundle (404), so GeoJSON sources never
+// load. Let Vite bundle the worker with its deps and point maplibre to it.
+setWorkerUrl(maplibreWorkerUrl);
 
 // Free-for-prototyping tile sources. OpenTopoMap/OpenStreetMap raster tiles
 // have usage policies that make them unsuitable for real production traffic
@@ -84,6 +90,9 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
   onPhotoSelectRef.current = onPhotoSelect;
   const mapStyleRef = useRef(mapStyle);
   mapStyleRef.current = mapStyle;
+  const appliedStyleRef = useRef(mapStyle);
+  const activityRef = useRef(activity);
+  activityRef.current = activity;
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -120,8 +129,13 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
     const map = mapRef.current;
     if (!map || !ready) return;
 
+    // The initial style is already applied at construction; resetting it here
+    // would wipe the track layers added by the activity effect below.
+    if (appliedStyleRef.current === mapStyle) return;
+    appliedStyleRef.current = mapStyle;
+
     map.setStyle(MAP_STYLE_SOURCES[mapStyle]());
-    map.once("style.load", () => addTrackLayers(map, activity));
+    map.once("style.load", () => addTrackLayers(map, activityRef.current));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapStyle]);
 

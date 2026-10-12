@@ -49,7 +49,9 @@ const Stats = styled(Stack)({
   paddingLeft: 16,
 });
 
-export const ActivityCard = ({ activity, active, onSelect }: ActivityCardProps) => (
+export const ActivityCard = ({ activity, active, onSelect }: ActivityCardProps) => {
+  const startDate = new Date(activity.date);
+  return (
   <CardButton
     disableRipple
     type="button"
@@ -59,12 +61,12 @@ export const ActivityCard = ({ activity, active, onSelect }: ActivityCardProps) 
     <Stack alignItems="center" direction="row" spacing={1}>
       <Dot style={{ background: activity.color }} />
       <CardTitle>{activity.title}</CardTitle>
-      <ActivityDate>{activity.date}</ActivityDate>
+      <ActivityDate>{startDate.getDate()}</ActivityDate>
     </Stack>
     <Stats direction="row" spacing={1.5}>
-      <Typography component="span">{activity.km} km</Typography>
-      <Typography component="span">+{activity.gain}m</Typography>
+      <Typography component="span">{Math.trunc(activity.km / 1000)} km</Typography>
+      <Typography component="span">+{Math.trunc(activity.gain)}m</Typography>
       <Typography component="span">{activity.duration}</Typography>
     </Stats>
   </CardButton>
-);
+)};

@@ -116,13 +116,14 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
 
 export const ImagePanel = ({ activity, activePhotoId, here, onPhotoSelect }: ImagePanelProps) => {
   const hereElevation = Math.round(elevationAt(activity.elevation, here));
-  const hereKm = formatKmAt(activity.km, here);
+  const km = Math.trunc(activity.km / 1000);
+  const hereKm = formatKmAt(km, here);
 
   return (
     <PanelRoot spacing={2.5}>
       <StatGrid>
         <Stat label="elev here" value={`${hereElevation}m`} />
-        <Stat label="at" value={`${hereKm} / ${activity.km}km`} />
+        <Stat label="at" value={`${hereKm} / ${km}km`} />
       </StatGrid>
       {activity.photos.length > 0 && (
         <Box>
