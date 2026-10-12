@@ -54,10 +54,11 @@ export const TrajectoryHeight = ({
   onHereChange,
   onPhotoSelect,
 }: TrajectoryHeightProps) => {
-  const minElevation = Math.min(...activity.elevation);
-  const maxElevation = Math.max(...activity.elevation);
+  const hasElevation = activity.elevation.length > 0;
+  const minElevation = hasElevation ? Math.min(...activity.elevation) : 0;
+  const maxElevation = hasElevation ? Math.max(...activity.elevation) : 0;
   const points = activity.elevation.map((elevation, index) => {
-    const x = (index / (activity.elevation.length - 1)) * SVG_WIDTH;
+    const x = (index / Math.max(activity.elevation.length - 1, 1)) * SVG_WIDTH;
     const y =
       SVG_HEIGHT -
       PADDING -
@@ -123,16 +124,20 @@ export const TrajectoryHeight = ({
               y2={SVG_HEIGHT * grid}
             />
           ))}
-          <path d={fillPath} fill={`url(#elevation-fill-${activity.id})`} />
-          <path
-            d={linePath}
-            fill="none"
-            stroke="red"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.4"
-            vectorEffect="non-scaling-stroke"
-          />
+          {hasElevation && (
+            <>
+              <path d={fillPath} fill={`url(#elevation-fill-${activity.id})`} />
+              <path
+                d={linePath}
+                fill="none"
+                stroke="red"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.4"
+                vectorEffect="non-scaling-stroke"
+              />
+            </>
+          )}
         </svg>
         {activity.photos.map((photo) => (
           <Button
