@@ -10,7 +10,7 @@
     "deploy": "wrangler deploy --env production",
     "preview": "wrangler deploy --env preview",
     "lint": "eslint .",
-    "formatter": "npx prettier ./src --write",
+    "formatter": "prettier ./src --write",
     "start": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -67,5 +67,6 @@
     "vite": "^7.1.4",
     "vitest": "^4.1.10",
     "wrangler": "^4.87.0"
-  }
+  },
+  "packageManager": "pnpm@11.24.0"
 }

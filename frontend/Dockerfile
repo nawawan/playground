@@ -7,7 +7,7 @@ RUN apt-get install -y git
 
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 RUN apt-get install -y nodejs
-RUN npm install -g npm@11.5.2
+RUN corepack enable
 
 RUN rustup component add clippy
 RUN rustup component add rustfmt
