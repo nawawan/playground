@@ -1,8 +1,10 @@
+import { MemoryRouter } from "react-router-dom";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import EntryList from "./EntryList";
 
 const meta = {
+    decorators: [(Story) => <MemoryRouter><Story /></MemoryRouter>],
   title: "EntryList",
   component: EntryList,
 } satisfies Meta<typeof EntryList>;

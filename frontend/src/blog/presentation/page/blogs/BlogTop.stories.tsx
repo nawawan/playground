@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { MemoryRouter } from 'react-router-dom';
 
 import BlogTop from './BlogTop';
 import EntryList from "../../EntryList/EntryList";
@@ -6,6 +7,7 @@ import * as EntryListStories from "../../EntryList/EntryList.stories";
 import SiteFooter from "../../../../presentation/widgets/SiteFooter/SiteFooter";
 
 const meta = {
+    decorators: [(Story) => <MemoryRouter><Story /></MemoryRouter>],
     title: "BlogTop",
     component: BlogTop,
     args: {

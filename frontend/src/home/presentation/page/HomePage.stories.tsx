@@ -1,9 +1,11 @@
+import { MemoryRouter } from "react-router-dom";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import HomePage from "./HomePage";
 import SiteFooter from "../../../presentation/widgets/SiteFooter/SiteFooter";
 
 const meta = {
+    decorators: [(Story) => <MemoryRouter><Story /></MemoryRouter>],
   title: "HomePage",
   component: HomePage,
   args: {

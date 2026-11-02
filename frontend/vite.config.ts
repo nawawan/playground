@@ -6,6 +6,8 @@ import wasm from "vite-plugin-wasm";
 export default defineConfig({
   plugins: [react(), wasm()],
   build: {
+    // maplibre-gl alone is ~1MB; it is split into the trajectory route chunk via React.lazy
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       input: {
         home: 'index.html',

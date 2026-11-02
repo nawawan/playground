@@ -5,18 +5,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev          # Start Vite dev server (localhost:5173)
-npm run build        # TypeScript check + Vite build
-npm run lint         # ESLint
-npm run formatter    # Prettier format src/
-npm start            # Storybook dev server (localhost:6006)
-npm run build-storybook  # Build Storybook static site
-npm run dev:worker   # Cloudflare Workers local dev (Wrangler)
-npm run deploy       # Deploy to production (Cloudflare Workers)
-npm run preview      # Deploy to preview environment
+pnpm run dev          # Start Vite dev server (localhost:5173)
+pnpm run build        # TypeScript check + Vite build
+pnpm run lint         # ESLint
+pnpm run formatter    # Prettier format src/
+pnpm start            # Storybook dev server (localhost:6006)
+pnpm run build-storybook  # Build Storybook static site
+pnpm run dev:worker   # Cloudflare Workers local dev (Wrangler)
+pnpm run deploy       # Deploy to production (Cloudflare Workers)
+pnpm run preview      # Deploy to preview environment
 ```
 
-No test runner is configured via `npm test`; Vitest runs through the Storybook addon.
+No test runner is configured via `pnpm test`; Vitest runs through the Storybook addon.
 
 ## Architecture
 

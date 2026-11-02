@@ -51,18 +51,31 @@ const toSections = (data: BlogResponse[]): { sections: EntryListProps["sections"
     return { sections, years: sections.filter((s) => s.id !== NO_DATE_SECTION_ID).map((s) => s.heading) };
 };
 
-export const useGenerateProps = (): BlogTopProps => {
+export const useGenerateProps = (initialBlogs?: BlogResponse[]): BlogTopProps => {
     const [searchParams, setSearchParams] = useSearchParams();
     const selectedTag = searchParams.get("tag") ?? "";
-    const [sections, setSections] = useState<EntryListProps["sections"]>([]);
-    const [years, setYears] = useState<string[]>([]);
+    const seededBlogs = initialBlogs ?? (typeof window !== "undefined" ? window.__BLOG_LIST_INITIAL_DATA__ : undefined);
+    const [seeded] = useState(() => (seededBlogs ? toSections(seededBlogs) : undefined));
+    const [sections, setSections] = useState<EntryListProps["sections"]>(seeded?.sections ?? []);
+    const [years, setYears] = useState<string[]>(seeded?.years ?? []);
     const [isFetching, setIsFetching] = useState(false);
 
     // Keep the previously rendered posts on screen while a new tag is being
     // fetched, guarding against a superseded request resolving out of order.
     const requestIdRef = useRef(0);
+    const hasSeededRef = useRef(!!seeded);
 
     useEffect(() => {
+        if (typeof window !== "undefined") {
+            window.__BLOG_LIST_INITIAL_DATA__ = undefined;
+        }
+        // SSR already provided the untagged list, so skip the redundant first fetch.
+        if (hasSeededRef.current && selectedTag === "") {
+            hasSeededRef.current = false;
+            return;
+        }
+        hasSeededRef.current = false;
+
         const requestId = ++requestIdRef.current;
         setIsFetching(true);
 

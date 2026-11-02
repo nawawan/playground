@@ -10,10 +10,6 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
     max_instance_count = 2
   }
 
-  lifecycle {
-    ignore_changes = [template[0].containers[0].image]
-  }
-
   template {
     service_account = google_service_account.nawawan_dev_reader.email
 
@@ -77,5 +73,11 @@ resource "google_cloud_run_v2_service" "nawawan_dev_service" {
         value = "https://nawawan.com"
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+    ]
   }
 }

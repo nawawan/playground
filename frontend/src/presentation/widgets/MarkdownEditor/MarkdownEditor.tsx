@@ -1,7 +1,21 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
-import hljs from 'highlight.js';
+import hljs from 'highlight.js/lib/core';
+import bash from 'highlight.js/lib/languages/bash';
+import css from 'highlight.js/lib/languages/css';
+import diff from 'highlight.js/lib/languages/diff';
+import dockerfile from 'highlight.js/lib/languages/dockerfile';
+import go from 'highlight.js/lib/languages/go';
+import javascript from 'highlight.js/lib/languages/javascript';
+import json from 'highlight.js/lib/languages/json';
+import markdown from 'highlight.js/lib/languages/markdown';
+import python from 'highlight.js/lib/languages/python';
+import rust from 'highlight.js/lib/languages/rust';
+import sql from 'highlight.js/lib/languages/sql';
+import typescript from 'highlight.js/lib/languages/typescript';
+import xml from 'highlight.js/lib/languages/xml';
+import yaml from 'highlight.js/lib/languages/yaml';
 import sanitizeHtml from 'sanitize-html';
 import { Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Stack, styled } from '@mui/material';
 import EditorPane from './parts/EditorPane/EditorPane';
@@ -10,6 +24,21 @@ import InlineEditableField from '../../primitive/InlineEditableField/InlineEdita
 import Snackbar from '../../primitive/Snackbar/Snackbar';
 import { MarkdownEditorSchema } from './validation/SubmitBlogValidation';
 import { BLOG_TAGS } from '../../../shared/types/blog';
+
+hljs.registerLanguage('bash', bash);
+hljs.registerLanguage('css', css);
+hljs.registerLanguage('diff', diff);
+hljs.registerLanguage('dockerfile', dockerfile);
+hljs.registerLanguage('go', go);
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('json', json);
+hljs.registerLanguage('markdown', markdown);
+hljs.registerLanguage('python', python);
+hljs.registerLanguage('rust', rust);
+hljs.registerLanguage('sql', sql);
+hljs.registerLanguage('typescript', typescript);
+hljs.registerLanguage('xml', xml);
+hljs.registerLanguage('yaml', yaml);
 
 const marked = new Marked(
     markedHighlight({
@@ -163,6 +192,20 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
         }
     };
 
+    const handleUnpublish = async () => {
+        if (!validateFields()) return;
+        setIsSaving(true);
+        try {
+            await props.onSave(markdown, props.id, title, slug, 'DRAFT', tag);
+            setPublished(false);
+            Snackbar.Notify({ message: '公開を取り下げました', severity: 'success' });
+        } catch {
+            Snackbar.Notify({ message: '公開の取り下げに失敗しました', severity: 'error' });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <Stack spacing={2} sx={{ height: '100%', overflow: 'hidden', position: 'relative', pb: '80px' }}>
             <Stack direction="row" sx={{ justifyContent: 'center'}}>
@@ -232,10 +275,14 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
                 <Button variant="outlined" onClick={handleSave} disabled={isSaving} startIcon={isSaving ? <CircularProgress size={16} /> : undefined}>
                     SAVE
                 </Button>
-                {!published && (
+                {!published ? (
                     <StyledButton onClick={handlePublish} disabled={isSaving} startIcon={isSaving ? <CircularProgress size={16} sx={{ color: '#fff' }} /> : undefined}>
                         公開する
                     </StyledButton>
+                ) : (
+                    <Button variant="outlined" color="warning" onClick={handleUnpublish} disabled={isSaving} startIcon={isSaving ? <CircularProgress size={16} /> : undefined}>
+                        公開を取り下げる
+                    </Button>
                 )}
             </Box>
             <Snackbar />

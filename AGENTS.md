@@ -7,10 +7,10 @@
 - Root `Dockerfile`: Base image helpers for the stack (see service-level Dockerfiles as primary).
 
 ## Build, Test, and Development Commands
-- Local dev (no Docker): `cd frontend && npm install && npm run dev` → http://localhost:5173
+- Local dev (no Docker): `cd frontend && pnpm install && pnpm run dev` → http://localhost:5173
 - Dev with Docker Compose: `docker compose up --build` → http://localhost:8080 via Nginx.
-- Lint: `cd frontend && npm run lint` (TypeScript + React rules).
-- Production build: `cd frontend && npm run build`; preview locally via `npm run preview`.
+- Lint: `cd frontend && pnpm run lint` (TypeScript + React rules).
+- Production build: `cd frontend && pnpm run build`; preview locally via `pnpm run preview`.
 
 ## Coding Style & Naming Conventions
 - TypeScript, 2‑space indentation; prefer explicit types at module boundaries.
