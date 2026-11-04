@@ -1,3 +1,4 @@
+import { GITHUB_URL, X_URL } from "../../../../../../shared/constants/links";
 import { type SidebarProps } from "../../../../../presentation/Sidebar/Sidebar";
 
 export const useGenerateProps = (): SidebarProps => {
@@ -9,10 +10,10 @@ export const useGenerateProps = (): SidebarProps => {
             window.location.href = "/";
         },
         onClickGitHub: () => {
-            window.open("https://github.com/nawawan", "_blank");
+            window.open(GITHUB_URL, "_blank");
         },
         onClickX: () => {
-            window.open("https://x.com/nawawan_kpr", "_blank");
+            window.open(X_URL, "_blank");
         }
     }
 }

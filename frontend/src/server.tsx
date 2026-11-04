@@ -9,6 +9,7 @@ import blogs from './backend/pages/blogs';
 import admin from './backend/pages/admin';
 import { BlogService } from './backend/service/BlogService';
 import { escapeHtml, serializeInitialData, toExcerpt } from './backend/util/html';
+import { BLOG_TAGS } from './shared/types/blog';
 import type { BlogDetails, BlogNotFoundReason, BlogResponse } from './shared/types/blog';
 
 type Bindings = {
@@ -39,6 +40,9 @@ const renderBlogPage = (opts: {
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <title>${escapeHtml(opts.title)}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
           <meta name="description" content="${escapeHtml(opts.description)}" />
           <link rel="canonical" href="${escapeHtml(opts.canonicalUrl)}" />
           ${opts.indexable ? '' : '<meta name="robots" content="noindex, nofollow" />'}
@@ -109,10 +113,13 @@ app.get('/sitemap.xml', async (c) => {
 
 app.get('/blogs', async (c) => {
   const origin = new URL(c.req.url).origin;
-  const publishedBlogs: BlogResponse[] = await BlogService.getBlogs(c.env.API_URL, 'PUBLISHED').catch(() => []);
+  // Seed the list for the tag in the URL so SSR markup and hydration agree.
+  const queryTag = c.req.query('tag');
+  const tag = (BLOG_TAGS as readonly string[]).includes(queryTag ?? '') ? queryTag : undefined;
+  const publishedBlogs: BlogResponse[] = await BlogService.getBlogs(c.env.API_URL, 'PUBLISHED', tag).catch(() => []);
 
   const htmlContent = renderToString(
-    <StaticRouter location={c.req.path}>
+    <StaticRouter location={tag ? `${c.req.path}?tag=${encodeURIComponent(tag)}` : c.req.path}>
       <BlogTopContainer initialBlogs={publishedBlogs} />
     </StaticRouter>);
 
