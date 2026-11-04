@@ -53,7 +53,9 @@ const toSections = (data: BlogResponse[]): { sections: EntryListProps["sections"
 
 export const useGenerateProps = (initialBlogs?: BlogResponse[]): BlogTopProps => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const selectedTag = searchParams.get("tag") ?? "";
+    // Unknown tags are treated as "all", matching what the server renders.
+    const tagParam = searchParams.get("tag") ?? "";
+    const selectedTag = (BLOG_TAGS as readonly string[]).includes(tagParam) ? tagParam : "";
     const seededBlogs = initialBlogs ?? (typeof window !== "undefined" ? window.__BLOG_LIST_INITIAL_DATA__ : undefined);
     const [seeded] = useState(() => (seededBlogs ? toSections(seededBlogs) : undefined));
     const [sections, setSections] = useState<EntryListProps["sections"]>(seeded?.sections ?? []);
@@ -69,8 +71,8 @@ export const useGenerateProps = (initialBlogs?: BlogResponse[]): BlogTopProps =>
         if (typeof window !== "undefined") {
             window.__BLOG_LIST_INITIAL_DATA__ = undefined;
         }
-        // SSR already provided the untagged list, so skip the redundant first fetch.
-        if (hasSeededRef.current && selectedTag === "") {
+        // SSR already provided the list for the tag in the URL, so skip the redundant first fetch.
+        if (hasSeededRef.current) {
             hasSeededRef.current = false;
             return;
         }

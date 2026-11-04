@@ -9,6 +9,7 @@ import blogs from './backend/pages/blogs';
 import admin from './backend/pages/admin';
 import { BlogService } from './backend/service/BlogService';
 import { escapeHtml, serializeInitialData, toExcerpt } from './backend/util/html';
+import { BLOG_TAGS } from './shared/types/blog';
 import type { BlogDetails, BlogNotFoundReason, BlogResponse } from './shared/types/blog';
 
 type Bindings = {
@@ -112,10 +113,13 @@ app.get('/sitemap.xml', async (c) => {
 
 app.get('/blogs', async (c) => {
   const origin = new URL(c.req.url).origin;
-  const publishedBlogs: BlogResponse[] = await BlogService.getBlogs(c.env.API_URL, 'PUBLISHED').catch(() => []);
+  // Seed the list for the tag in the URL so SSR markup and hydration agree.
+  const queryTag = c.req.query('tag');
+  const tag = (BLOG_TAGS as readonly string[]).includes(queryTag ?? '') ? queryTag : undefined;
+  const publishedBlogs: BlogResponse[] = await BlogService.getBlogs(c.env.API_URL, 'PUBLISHED', tag).catch(() => []);
 
   const htmlContent = renderToString(
-    <StaticRouter location={c.req.path}>
+    <StaticRouter location={tag ? `${c.req.path}?tag=${encodeURIComponent(tag)}` : c.req.path}>
       <BlogTopContainer initialBlogs={publishedBlogs} />
     </StaticRouter>);
 
