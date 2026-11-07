@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, activity_id, trajectory AS \"coordinates!: _\", recorded_ats, elevations, heart_rates, zoom_from, zoom_to FROM trajectory_lod\n            WHERE activity_id = $1 AND zoom_from <= $2 AND $3 <= zoom_to\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "activity_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "coordinates!: _",
+        "type_info": {
+          "Custom": {
+            "name": "geometry",
+            "kind": "Simple"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "recorded_ats",
+        "type_info": "TimestampArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "elevations",
+        "type_info": "Float8Array"
+      },
+      {
+        "ordinal": 5,
+        "name": "heart_rates",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 6,
+        "name": "zoom_from",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "zoom_to",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "42db070e9907e4f1aa7d059bf053fb39553732d4055ba911e8cd53cf6cdc5694"
+}
