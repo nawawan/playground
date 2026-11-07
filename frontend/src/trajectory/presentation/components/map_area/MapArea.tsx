@@ -13,6 +13,9 @@ type MapAreaProps = {
   here: number;
   mapStyle: MapStyleKey;
   onPhotoSelect: (photoId: string) => void;
+  // Optional overlays used to compare a thinned track against the original.
+  referenceTrack?: LngLat[];
+  showCheckpoints?: boolean;
 };
 
 // maplibre-gl v6 loads its worker as a separate ESM file that imports a shared
@@ -46,11 +49,35 @@ const MAP_STYLE_SOURCES: Record<MapStyleKey, () => StyleSpecification | string> 
 };
 
 const TRACK_SOURCE_ID = "trajectory-track";
+const REFERENCE_SOURCE_ID = "trajectory-reference";
+const CHECKPOINT_SOURCE_ID = "trajectory-checkpoints";
 
-const addTrackLayers = (map: MapLibreMap, activity: TrajectoryActivity) => {
-  if (map.getLayer("track-glow")) map.removeLayer("track-glow");
-  if (map.getLayer("track")) map.removeLayer("track");
-  if (map.getSource(TRACK_SOURCE_ID)) map.removeSource(TRACK_SOURCE_ID);
+type TrackOverlays = { referenceTrack?: LngLat[]; showCheckpoints?: boolean };
+
+const addTrackLayers = (map: MapLibreMap, activity: TrajectoryActivity, overlays: TrackOverlays = {}) => {
+  ["checkpoints", "reference", "track-glow", "track"].forEach((id) => {
+    if (map.getLayer(id)) map.removeLayer(id);
+  });
+  [CHECKPOINT_SOURCE_ID, REFERENCE_SOURCE_ID, TRACK_SOURCE_ID].forEach((id) => {
+    if (map.getSource(id)) map.removeSource(id);
+  });
+
+  if (overlays.referenceTrack) {
+    map.addSource(REFERENCE_SOURCE_ID, {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        geometry: { type: "LineString", coordinates: overlays.referenceTrack },
+        properties: {},
+      },
+    });
+    map.addLayer({
+      id: "reference",
+      type: "line",
+      source: REFERENCE_SOURCE_ID,
+      paint: { "line-color": "#2563eb", "line-width": 2, "line-opacity": 0.8 },
+    });
+  }
 
   map.addSource(TRACK_SOURCE_ID, {
     type: "geojson",
@@ -74,12 +101,40 @@ const addTrackLayers = (map: MapLibreMap, activity: TrajectoryActivity) => {
     paint: { "line-color": "red", "line-width": 4, "line-opacity": 0.95 },
     layout: { "line-cap": "round", "line-join": "round" },
   });
+
+  if (overlays.showCheckpoints) {
+    map.addSource(CHECKPOINT_SOURCE_ID, {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: activity.track.map((coordinates) => ({
+          type: "Feature",
+          geometry: { type: "Point", coordinates },
+          properties: {},
+        })),
+      },
+    });
+    map.addLayer({
+      id: "checkpoints",
+      type: "circle",
+      source: CHECKPOINT_SOURCE_ID,
+      paint: { "circle-radius": 3, "circle-color": "#fff", "circle-stroke-color": "#111", "circle-stroke-width": 1.5 },
+    });
+  }
 };
 
 const boundsOf = (track: LngLat[]) =>
   track.reduce((bounds, point) => bounds.extend(point), new LngLatBounds(track[0], track[0]));
 
-export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect }: MapAreaProps) => {
+export const MapArea = ({
+  activity,
+  activePhotoId,
+  here,
+  mapStyle,
+  onPhotoSelect,
+  referenceTrack,
+  showCheckpoints,
+}: MapAreaProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [ready, setReady] = useState(false);
@@ -93,6 +148,9 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
   const appliedStyleRef = useRef(mapStyle);
   const activityRef = useRef(activity);
   activityRef.current = activity;
+  const fittedActivityRef = useRef<string | null>(null);
+  const overlaysRef = useRef<TrackOverlays>({});
+  overlaysRef.current = { referenceTrack, showCheckpoints };
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -135,7 +193,7 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
     appliedStyleRef.current = mapStyle;
 
     map.setStyle(MAP_STYLE_SOURCES[mapStyle]());
-    map.once("style.load", () => addTrackLayers(map, activityRef.current));
+    map.once("style.load", () => addTrackLayers(map, activityRef.current, overlaysRef.current));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapStyle]);
 
@@ -143,8 +201,12 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
     const map = mapRef.current;
     if (!map || !ready) return;
 
-    addTrackLayers(map, activity);
-    map.fitBounds(boundsOf(activity.track), { padding: 80, duration: 900 });
+    addTrackLayers(map, activity, { referenceTrack, showCheckpoints });
+    // Only re-fit when the activity itself changes, not when toggling overlays.
+    if (fittedActivityRef.current !== activity.id) {
+      fittedActivityRef.current = activity.id;
+      map.fitBounds(boundsOf(referenceTrack ?? activity.track), { padding: 80, duration: 900 });
+    }
 
     startEndMarkersRef.current.forEach((marker) => marker.remove());
     const startEl = document.createElement("div");
@@ -168,7 +230,7 @@ export const MapArea = ({ activity, activePhotoId, here, mapStyle, onPhotoSelect
       const marker = new Marker({ element: el }).setLngLat(pointAt(activity.track, photo.at)).addTo(map);
       return { id: photo.id, element: el, marker };
     });
-  }, [activity, ready]);
+  }, [activity, ready, referenceTrack, showCheckpoints]);
 
   useEffect(() => {
     const map = mapRef.current;
