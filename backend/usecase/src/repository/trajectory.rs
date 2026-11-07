@@ -18,7 +18,7 @@ pub trait TrajectoryRepository: Send + Sync {
     async fn get_trajectory(
         &self,
         activity_id: i64,
-        zoom_level: i32,
+        zoom_level: i64,
     ) -> Result<LodTrajectory, RepoError>;
 
     async fn create_activity(
@@ -26,6 +26,6 @@ pub trait TrajectoryRepository: Send + Sync {
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         activity: Activity,
     ) -> Result<Activity, RepoError>;
-    async fn get_activity(&self, activity_id: String) -> Result<Activity, RepoError>;
+    async fn get_activity(&self, activity_id: i64) -> Result<Activity, RepoError>;
     async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, RepoError>;
 }
