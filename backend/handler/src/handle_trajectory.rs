@@ -44,13 +44,10 @@ impl Handler {
     ) -> Result<Json<Vec<ActivityResponse>>, UsecaseError> {
         let service = state.0.clone();
 
-        let activities = service
-            .list_activities()
-            .await
-            .map_err(|e| {
-                error!(e.message);
-                UsecaseError::internal(&format!("Failed to list activities: {}", e))
-            })?;
+        let activities = service.list_activities().await.map_err(|e| {
+            error!(e.message);
+            UsecaseError::internal(&format!("Failed to list activities: {}", e))
+        })?;
 
         Ok(Json(
             activities.into_iter().map(ActivityResponse::from).collect(),

@@ -1,2 +1,2 @@
-pub mod trajectory_repository;
 pub mod model;
+pub mod trajectory_repository;

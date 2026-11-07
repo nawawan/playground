@@ -114,7 +114,10 @@ impl TrajectoryRepository for Repository {
 
         let lod_trajectory = trajectory.try_into().map_err(|e| {
             error!("Failed to convert trajectory row to domain model: {}", e);
-            RepoError::Internal(format!("Failed to convert trajectory row to domain model from activity id: {}", activity_id))
+            RepoError::Internal(format!(
+                "Failed to convert trajectory row to domain model from activity id: {}",
+                activity_id
+            ))
         })?;
         Ok(lod_trajectory)
     }
@@ -153,7 +156,6 @@ impl TrajectoryRepository for Repository {
         )))
     }
     async fn list_activities(&self) -> Result<Vec<Activity>, RepoError> {
-
         let mut builder = sqlx::QueryBuilder::new(
             "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, t.trajectory, t.elevations
              FROM activity a

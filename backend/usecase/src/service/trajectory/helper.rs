@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 
 use super::geo::{douglas_peucker_simplify, haversine_distance};
 use crate::model::trajectory::{Coordinate, LodTrajectory, RawTrajectory};

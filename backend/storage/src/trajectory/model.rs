@@ -1,7 +1,7 @@
-use usecase::model::trajectory::{Coordinate, LodTrajectory};
-use geozero::wkb;
-use geo_types::{Coord, Geometry, LineString};
 use chrono::NaiveDateTime;
+use geo_types::{Coord, Geometry, LineString};
+use geozero::wkb;
+use usecase::model::trajectory::{Coordinate, LodTrajectory};
 
 pub struct LodTrajectoryRow {
     pub id: i64,
@@ -18,7 +18,10 @@ impl TryFrom<LodTrajectoryRow> for LodTrajectory {
     type Error = String;
 
     fn try_from(row: LodTrajectoryRow) -> Result<Self, Self::Error> {
-        let geometry = row.coordinates.geometry.ok_or_else(|| "Failed to decode geometry from WKB")?;
+        let geometry = row
+            .coordinates
+            .geometry
+            .ok_or_else(|| "Failed to decode geometry from WKB")?;
 
         let Geometry::LineString(line) = geometry else {
             return Err("Expected LineString geometry".to_string());
