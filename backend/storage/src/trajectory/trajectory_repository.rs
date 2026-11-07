@@ -152,10 +152,7 @@ impl TrajectoryRepository for Repository {
             activity_id
         )))
     }
-    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, RepoError> {
-        let user_id: Uuid = user_id
-            .parse()
-            .map_err(|_| RepoError::Internal("Invalid user id".to_string()))?;
+    async fn list_activities(&self) -> Result<Vec<Activity>, RepoError> {
 
         let mut builder = sqlx::QueryBuilder::new(
             "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, t.trajectory, t.elevations
@@ -163,7 +160,6 @@ impl TrajectoryRepository for Repository {
              INNER JOIN trajectory_lod t ON t.activity_id = a.id AND t.zoom_from = ",
         );
         builder.push_bind(THIN_TRAJECTORY_ZOOM_FROM);
-        builder.push(" WHERE a.user_id = ").push_bind(user_id);
 
         let records: Vec<ActivityRow> = builder
             .build_query_as::<ActivityRow>()
