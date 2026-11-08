@@ -2,7 +2,7 @@ use async_trait::async_trait;
 
 use crate::errors::repo_error::RepoError;
 use crate::model::activity::Activity;
-use crate::model::trajectory::LodTrajectory;
+use crate::model::trajectory::{LodTrajectory, Tile};
 
 #[async_trait]
 pub trait TrajectoryRepository: Send + Sync {
@@ -20,6 +20,13 @@ pub trait TrajectoryRepository: Send + Sync {
         activity_id: i64,
         zoom_level: i64,
     ) -> Result<LodTrajectory, RepoError>;
+    /// Lists the trajectories of the given LOD level, optionally only those
+    /// intersecting `tile`.
+    async fn list_trajectories(
+        &self,
+        lod_level: i64,
+        tile: Option<Tile>,
+    ) -> Result<Vec<LodTrajectory>, RepoError>;
 
     async fn create_activity(
         &self,

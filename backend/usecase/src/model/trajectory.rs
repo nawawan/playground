@@ -34,6 +34,15 @@ pub struct TrajectoryView {
     pub started_at: NaiveDateTime,
 }
 
+/// A slippy-map tile (XYZ scheme, Web Mercator): `x` counts from the west and
+/// `y` from the north, both in `0..2^z`.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Tile {
+    pub z: u32,
+    pub x: u32,
+    pub y: u32,
+}
+
 #[derive(Clone, Copy)]
 pub struct Coordinate {
     pub latitude: f64,

@@ -1,6 +1,7 @@
 use axum::Json;
 use axum::body::Bytes;
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
+use serde::Deserialize;
 use std::sync::Arc;
 use tracing::error;
 
@@ -9,9 +10,20 @@ use crate::error::UsecaseError;
 use crate::extractor::AuthorizedUser;
 use crate::handler::Handler;
 use crate::model::activity::ActivityResponse;
-use crate::model::trajectory::{Gpx, Trajectory};
+use crate::model::trajectory::{Gpx, LodTrajectoryResponse, Trajectory, parse_tile, validate_lod};
 use usecase::service::service::Service;
 use usecase::service::trajectory::trajectory_service::TrajectoryService;
+#[derive(Deserialize)]
+pub struct LodQuery {
+    lod: Option<i64>,
+}
+
+#[derive(Deserialize)]
+pub struct ListTrajectoriesQuery {
+    lod: Option<i64>,
+    tile: Option<String>,
+}
+
 impl Handler {
     pub async fn upload_gpx(
         user: AuthorizedUser,
@@ -51,6 +63,50 @@ impl Handler {
 
         Ok(Json(
             activities.into_iter().map(ActivityResponse::from).collect(),
+        ))
+    }
+
+    pub async fn get_activity_trajectory(
+        state: State<Arc<Service>>,
+        Path(activity_id): Path<i64>,
+        Query(query): Query<LodQuery>,
+    ) -> Result<Json<LodTrajectoryResponse>, UsecaseError> {
+        let lod = validate_lod(query.lod).map_err(|e| UsecaseError::bad_request(&e))?;
+
+        let trajectory = state
+            .0
+            .get_trajectory(activity_id, lod)
+            .await
+            .map_err(|e| {
+                error!(e.message);
+                UsecaseError { error: e }
+            })?;
+
+        Ok(Json(LodTrajectoryResponse::new(trajectory, true)))
+    }
+
+    pub async fn list_trajectories(
+        state: State<Arc<Service>>,
+        Query(query): Query<ListTrajectoriesQuery>,
+    ) -> Result<Json<Vec<LodTrajectoryResponse>>, UsecaseError> {
+        let lod = validate_lod(query.lod).map_err(|e| UsecaseError::bad_request(&e))?;
+        let tile = query
+            .tile
+            .as_deref()
+            .map(parse_tile)
+            .transpose()
+            .map_err(|e| UsecaseError::bad_request(&e))?;
+
+        let trajectories = state.0.list_trajectories(lod, tile).await.map_err(|e| {
+            error!(e.message);
+            UsecaseError { error: e }
+        })?;
+
+        Ok(Json(
+            trajectories
+                .into_iter()
+                .map(|t| LodTrajectoryResponse::new(t, false))
+                .collect(),
         ))
     }
 }
