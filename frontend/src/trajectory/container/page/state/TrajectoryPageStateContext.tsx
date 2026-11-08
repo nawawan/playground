@@ -1,16 +1,19 @@
 import { createContext } from "react";
-import type { MapStyleKey, TrajectoryActivity } from "../../../domain/types";
+import type { LodOverrides, MapStyleKey, TrajectoryActivity } from "../../../domain/types";
 
 type TrajectoryPageState = {
   activities: TrajectoryActivity[];
   activeActivity: TrajectoryActivity | null;
-  activeId: string | null;
+  activeId: string;
+  viewMode: "all" | "single";
+  lodOverrides: LodOverrides;
   activePhotoId: string | null;
   here: number;
   loading: boolean;
   mapStyle: MapStyleKey;
   uploadOpen: boolean;
   onCloseUpload: () => void;
+  onLodOverridesChange: (overrides: LodOverrides) => void;
   onHereChange: (here: number) => void;
   onMapStyleChange: (style: MapStyleKey) => void;
   onOpenUpload: () => void;

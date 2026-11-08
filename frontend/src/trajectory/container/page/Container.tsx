@@ -14,8 +14,8 @@ type TrajectoryPageContainerProps = {
 };
 
 const TrajectoryPageContent = ({ canUpload }: { canUpload: boolean }) => {
-  const { activeActivity, loading } = useTrajectoryPageState();
-  const status = loading ? "loading" : activeActivity ? "ready" : "empty";
+  const { activities, loading, viewMode } = useTrajectoryPageState();
+  const status = loading ? "loading" : activities.length > 0 ? "ready" : "empty";
 
   return (
     <TrajectoryPage
@@ -27,6 +27,7 @@ const TrajectoryPageContent = ({ canUpload }: { canUpload: boolean }) => {
       TrajectorySideBar={<TrajectorySideBarContainer canUpload={canUpload} />}
       UploadModal={canUpload ? <UploadModalContainer /> : null}
       status={status}
+      viewMode={viewMode}
     />
   );
 };
