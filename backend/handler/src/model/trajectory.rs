@@ -142,6 +142,7 @@ impl From<Vec<Coordinate>> for LineString {
 /// endpoint leaves it out to keep the payload small.
 #[derive(Serialize, Clone)]
 pub struct LodTrajectoryResponse {
+    #[serde(with = "super::id_string")]
     pub activity_id: i64,
     pub lod: i64,
     pub trajectory: LineString,

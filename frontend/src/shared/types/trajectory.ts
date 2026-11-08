@@ -7,7 +7,8 @@ export type LineString = {
 
 
 export type ActivityResponse = {
-    id: number;
+    // string: ids exceed Number.MAX_SAFE_INTEGER, so a JSON number would be rounded.
+    id: string;
     name: string;
     distance: number;
     duration: number;
@@ -20,14 +21,14 @@ export type ActivityResponse = {
 // A trajectory of one activity at one LOD level. `elevations` is only present
 // for the single-activity endpoint (GET /api/activities/{id}/trajectory).
 export type LodTrajectoryResponse = {
-    activity_id: number;
+    activity_id: string;
     lod: number;
     trajectory: LineString;
     elevations?: number[];
 };
 
 export const toTrajectoryActivity = (activity: ActivityResponse): TrajectoryActivity => ({
-    id: String(activity.id),
+    id: activity.id,
     title: activity.name,
     type: "bike",
     subtitle: "",
