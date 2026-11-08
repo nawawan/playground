@@ -2,7 +2,9 @@ use async_shutdown::ShutdownManager;
 use aws_config::{BehaviorVersion, Region};
 use aws_sdk_s3::Client;
 use aws_sdk_s3::config::Credentials;
-use axum::{Json, Router, extract::State, http::StatusCode, routing::get, routing::post};
+use axum::{
+    Json, Router, extract::State, http::StatusCode, routing::get, routing::post, routing::put,
+};
 use dotenv::dotenv;
 use serde_json;
 use sqlx::PgPool;
@@ -46,6 +48,7 @@ async fn main() {
         .nest("/health", create_health_router(pool))
         .nest("/api", create_blog_router(service.clone()))
         .nest("/api", create_trajectory_router(service.clone()))
+        .nest("/api", create_user_router(service.clone()))
         .fallback(fallback);
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
@@ -94,6 +97,16 @@ fn create_trajectory_router(service: Arc<Service>) -> Router {
     Router::new()
         .nest("/activities", activity_routers)
         .nest("/trajectories", trajectory_routers)
+}
+
+fn create_user_router(service: Arc<Service>) -> Router {
+    let user_routers = Router::new()
+        .route("/", put(Handler::update_user))
+        .route("/{name}", get(Handler::get_user))
+        .fallback(api_fallback)
+        .with_state(service);
+
+    Router::new().nest("/users", user_routers)
 }
 
 fn create_health_router(pool: PgPool) -> Router {

@@ -1,0 +1,4 @@
+-- Add up migration script here
+ALTER TABLE users ADD COLUMN IF NOT EXISTS thumbnail TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS summary TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS place TEXT;

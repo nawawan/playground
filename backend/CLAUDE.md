@@ -66,6 +66,8 @@ cargo make -p backend create-uuid
 | POST | `/api/blogs` | Create blog (auth required) |
 | GET | `/api/blogs` | List blogs |
 | POST | `/api/blogs/images` | Upload blog image (auth required) |
+| GET | `/api/users/{name}` | Get public profile (thumbnail / summary / place) |
+| PUT | `/api/users` | Update own profile (auth + admin required; target is the JWT user) |
 | GET | `/api/activities` | List activities (with the thinnest LOD trajectory) |
 | POST | `/api/activities` | Create an activity from a GPX body (admin only) |
 | GET | `/api/activities/{id}/trajectory?lod=` | One activity's trajectory at a LOD (1-4, default 1), with elevations |
