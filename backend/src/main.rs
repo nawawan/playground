@@ -3,7 +3,12 @@ use aws_config::{BehaviorVersion, Region};
 use aws_sdk_s3::Client;
 use aws_sdk_s3::config::Credentials;
 use axum::{
-    Json, Router, extract::State, http::StatusCode, routing::get, routing::post, routing::put,
+    Json, Router,
+    extract::{DefaultBodyLimit, State},
+    http::StatusCode,
+    routing::get,
+    routing::post,
+    routing::put,
 };
 use dotenv::dotenv;
 use serde_json;
@@ -82,9 +87,18 @@ fn create_blog_router(service: Arc<Service>) -> Router {
     Router::new().nest("/blogs", blog_routers)
 }
 
+// axum's default body limit is 2MB, which GPX files easily exceed.
+// Cloud Run rejects requests over 32MB, so stay below that.
+const GPX_UPLOAD_BODY_LIMIT: usize = 30 * 1024 * 1024;
+
 fn create_trajectory_router(service: Arc<Service>) -> Router {
     let activity_routers = Router::new()
-        .route("/", get(Handler::list_activities).post(Handler::upload_gpx))
+        .route(
+            "/",
+            get(Handler::list_activities)
+                .post(Handler::upload_gpx)
+                .layer(DefaultBodyLimit::max(GPX_UPLOAD_BODY_LIMIT)),
+        )
         .route("/{id}/trajectory", get(Handler::get_activity_trajectory))
         .fallback(api_fallback)
         .with_state(service.clone());
