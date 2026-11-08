@@ -8,6 +8,7 @@ const BlogTopContainer = lazy(() =>
   import("./blog/container/page/blogs/Container").then((m) => ({ default: m.BlogTopContainer })),
 );
 const BlogContainer = lazy(() => import("./blog/container/page/blog_id/Container"));
+const AdminProfileContainer = lazy(() => import("./admin/container/page/profile/Container"));
 const AdminHomeContainer = lazy(() => import("./admin/container/page/Container"));
 const EditBlogContainer = lazy(() => import("./admin/container/page/blogs_id_edit/Container"));
 const TrajectoryPageContainer = lazy(() => import("./trajectory/container/page/Container"));
@@ -32,7 +33,8 @@ function App() {
 
         <Route element={<RequireAuth />}>
           <Route path="/admin">
-            <Route index element={<AdminHomeContainer />} />
+            <Route index element={<AdminProfileContainer />} />
+            <Route path="blogs" element={<AdminHomeContainer />} />
             <Route path="blogs/:blogId/edit"  element={<EditBlogContainer />}/>
             <Route path="trajectory" element={<TrajectoryPageContainer canUpload />} />
           </Route>

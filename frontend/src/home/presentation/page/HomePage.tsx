@@ -6,12 +6,14 @@ import { AVATAR_PLACEHOLDER_COLOR, BUTTON_BORDER_COLOR, TAG_BACKGROUND_COLOR } f
 export type HomePageProps = {
   profile: {
     name: string;
-    affiliation: string;
-    bio: string;
+    // undefined = 未設定（非表示）
+    affiliation?: string;
+    bio?: string;
     avatarUrl?: string;
     githubUrl: string;
     xUrl: string;
   };
+  isProfileLoading?: boolean;
   contents: {
     id: string;
     title: string;
@@ -46,7 +48,7 @@ const pillSx = {
 } as const;
 
 export const HomePage = (props: HomePageProps) => {
-  const { profile, contents, latestPosts, isLatestPostsLoading, footer } = props;
+  const { profile, isProfileLoading, contents, latestPosts, isLatestPostsLoading, footer } = props;
   return (
     <Box
       sx={{
@@ -80,11 +82,27 @@ export const HomePage = (props: HomePageProps) => {
           <Typography component="h1" sx={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
             {profile.name}
           </Typography>
-          <Typography sx={{ mt: "6px", fontSize: 14, color: "text.secondary" }}>
-            {profile.affiliation}
-          </Typography>
+          {isProfileLoading ? (
+            <Skeleton width={120} height={20} />
+          ) : (
+            profile.affiliation && (
+              <Typography sx={{ mt: "6px", fontSize: 14, color: "text.secondary" }}>
+                {profile.affiliation}
+              </Typography>
+            )
+          )}
         </Box>
-        <Typography sx={{ fontSize: 15, lineHeight: 1.9 }}>{profile.bio}</Typography>
+        {isProfileLoading ? (
+          <Box>
+            <Skeleton width="100%" height={22} />
+            <Skeleton width="90%" height={22} />
+            <Skeleton width="70%" height={22} />
+          </Box>
+        ) : (
+          profile.bio && (
+            <Typography sx={{ fontSize: 15, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{profile.bio}</Typography>
+          )
+        )}
         <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
           <Box component="a" href={profile.githubUrl} target="_blank" rel="noopener noreferrer" sx={pillSx}>
             GitHub

@@ -69,6 +69,7 @@ export const useGenerateProps = (): AdminHomeProps & { isLoading: boolean } => {
     return {
         posts: blogs,
         selectedTag,
+        onProfileClick: () => navigate('/admin'),
         onWriteClick: onWriteClick,
         onPostClick: (id: string, title: string) => {
             navigate(`/admin/blogs/${id}/edit?title=${title}`);
