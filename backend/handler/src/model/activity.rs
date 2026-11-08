@@ -6,6 +6,7 @@ use crate::model::trajectory::LineString;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ActivityResponse {
+    #[serde(with = "super::id_string")]
     pub id: i64,
     pub name: String,
     pub distance: f64,
