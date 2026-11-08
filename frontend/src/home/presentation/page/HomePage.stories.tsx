@@ -44,3 +44,17 @@ export const Loading: Story = {
 export const FetchFailed: Story = {
   args: { latestPosts: undefined },
 };
+
+export const ProfileLoading: Story = {
+  args: { isProfileLoading: true },
+};
+
+export const ProfileEmpty: Story = {
+  args: {
+    profile: {
+      name: "nawa",
+      githubUrl: "https://github.com/nawawan",
+      xUrl: "https://x.com/nawawan_kpr",
+    },
+  },
+};

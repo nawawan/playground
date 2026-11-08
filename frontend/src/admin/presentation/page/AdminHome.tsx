@@ -12,6 +12,7 @@ export type Blog = {
 export type AdminHomeProps = {
   posts: Blog[];
   selectedTag: string;
+  onProfileClick?: () => void;
   onWriteClick?: () => void;
   onPostClick?: (id: string, title: string) => void;
   onTagFilterChange?: (tag: string) => void;
@@ -19,7 +20,7 @@ export type AdminHomeProps = {
 };
 
 function AdminHome(props: AdminHomeProps) {
-  const { posts, selectedTag, onWriteClick, onPostClick, onTagFilterChange, isFetching } = props;
+  const { posts, selectedTag, onProfileClick, onWriteClick, onPostClick, onTagFilterChange, isFetching } = props;
 
   return (
     <Box sx={{ p: 4 }}>
@@ -34,6 +35,9 @@ function AdminHome(props: AdminHomeProps) {
         <Typography variant="h5" fontWeight={600}>
           ブログ一覧
         </Typography>
+        <Button color="inherit" onClick={onProfileClick}>
+          ← プロフィール
+        </Button>
         <Button
           variant="outlined"
           startIcon={<EditIcon />}
