@@ -1,4 +1,4 @@
-import type { BoundingBox, LodOverrides, TrajectoryActivity } from "./types";
+import type { LodOverrides, TrajectoryActivity } from "./types";
 
 // Activities start with the thinnest track (LOD 1) and switch to LOD 3 once the
 // map is zoomed in to at least this (maplibre) zoom level.
@@ -7,13 +7,12 @@ import type { BoundingBox, LodOverrides, TrajectoryActivity } from "./types";
 export const LOD3_MIN_ZOOM = 10;
 export const DETAILED_LOD = 3;
 
+// All-view LOD tracks are fetched per tile of this fixed zoom. It does not follow
+// the map zoom, so zooming in stays inside already fetched tiles; two levels below
+// the switch zoom keeps a viewport at roughly 1-4 tiles.
+export const LOD_TILE_ZOOM = LOD3_MIN_ZOOM - 2;
+
 export const isDetailedZoom = (zoom: number) => zoom >= LOD3_MIN_ZOOM;
-
-// True when `inner` lies entirely within `outer`.
-export const containsBounds = (outer: BoundingBox, inner: BoundingBox) =>
-  outer[0] <= inner[0] && outer[1] <= inner[1] && outer[2] >= inner[2] && outer[3] >= inner[3];
-
-export const bboxToQuery = (bounds: BoundingBox) => bounds.join(",");
 
 // Applies LOD overrides to an activity. The track and elevation are swapped
 // together because elevation[i] belongs to track[i].

@@ -1,16 +1,17 @@
 import type { LodTrajectoryResponse } from "../../../../shared/types/trajectory";
-import { bboxToQuery, DETAILED_LOD } from "../../../domain/lod";
-import type { BoundingBox, LodOverride, LodOverrides } from "../../../domain/types";
+import { DETAILED_LOD } from "../../../domain/lod";
+import { type Tile, tileKey } from "../../../domain/tile";
+import type { LodOverride, LodOverrides } from "../../../domain/types";
 
 const toOverride = (response: LodTrajectoryResponse): LodOverride => ({
   track: response.trajectory.coordinates,
   elevation: response.elevations,
 });
 
-// All view: LOD trajectories of the activities intersecting the viewport.
-export const fetchTrajectoriesInBounds = async (bounds: BoundingBox, signal: AbortSignal): Promise<LodOverrides> => {
-  const query = new URLSearchParams({ lod: String(DETAILED_LOD), bbox: bboxToQuery(bounds) });
-  const res = await fetch(`/api/trajectories?${query}`, { signal });
+// All view: LOD trajectories of the activities intersecting a map tile.
+export const fetchTrajectoriesInTile = async (tile: Tile): Promise<LodOverrides> => {
+  const query = new URLSearchParams({ lod: String(DETAILED_LOD), tile: tileKey(tile) });
+  const res = await fetch(`/api/trajectories?${query}`);
   if (!res.ok) throw new Error(`Failed to fetch trajectories: ${res.status}`);
 
   const trajectories = (await res.json()) as LodTrajectoryResponse[];

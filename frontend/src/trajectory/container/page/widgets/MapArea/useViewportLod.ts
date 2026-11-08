@@ -1,27 +1,34 @@
 import * as Sentry from "@sentry/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { containsBounds, isDetailedZoom } from "../../../../domain/lod";
-import type { BoundingBox, MapViewport } from "../../../../domain/types";
-import {
-  fetchActivityTrajectory,
-  fetchTrajectoriesInBounds,
-} from "../../helper/fetchTrajectories";
+import { isDetailedZoom, LOD_TILE_ZOOM } from "../../../../domain/lod";
+import { tileKey, tilesCovering } from "../../../../domain/tile";
+import type { LodOverrides, MapViewport } from "../../../../domain/types";
+import { fetchActivityTrajectory, fetchTrajectoriesInTile } from "../../helper/fetchTrajectories";
 import { useTrajectoryPageState } from "../../state/useTrajectoryPageState";
 
 const VIEWPORT_DEBOUNCE_MS = 300;
 
 type ReportedViewport = { activeId: string; viewport: MapViewport };
 
+const logError = (e: unknown) =>
+  Sentry.captureException(
+    new Error("Failed to fetch LOD trajectories: " + (e instanceof Error ? e.message : String(e))),
+  );
+
 // Switches the shown trajectories to a higher LOD while the map is zoomed in.
-// - All view: only activities intersecting the viewport are fetched (bbox).
+// - All view: the activities in the map tiles covering the viewport are fetched
+//   tile by tile (stable, cacheable requests). Fetched tiles are kept until the
+//   map zooms back out or the selection changes, so panning back or zooming in
+//   does not refetch.
 // - Single view: the selected activity is fetched, independent of the viewport.
-// Anything outside the current view is dropped back to the base (LOD 1) track.
+// Anything not covered falls back to the base (LOD 1) track.
 export const useViewportLod = () => {
   const { activeId, viewMode, onLodOverridesChange } = useTrajectoryPageState();
   const [reported, setReported] = useState<ReportedViewport | null>(null);
   const activeIdRef = useRef(activeId);
   activeIdRef.current = activeId;
   const timerRef = useRef<number | null>(null);
+  const tileCacheRef = useRef<Map<string, LodOverrides>>(new Map());
 
   const cancelPending = () => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
@@ -42,57 +49,58 @@ export const useViewportLod = () => {
   const viewport = reported?.activeId === activeId ? reported.viewport : null;
 
   const detailed = viewport !== null && isDetailedZoom(viewport.zoom);
-  // The bbox the currently held All-view LOD tracks were fetched for. Zooming in
-  // stays inside it, so no request is needed; panning or zooming out leaves it.
-  const fetchedRef = useRef<{ activeId: string; bounds: BoundingBox } | null>(
-    null,
-  );
   const viewportRef = useRef(viewport);
   viewportRef.current = viewport;
-  // Single view depends only on the selection; All view re-fetches as the bbox changes.
+  // All view re-evaluates only when the covering tiles change; single view only on selection.
   const requestKey =
-    viewMode === "all" ? (viewport?.bounds.join(",") ?? "") : activeId;
+    viewMode === "all" && viewport
+      ? tilesCovering(viewport.bounds, LOD_TILE_ZOOM).map(tileKey).join(",")
+      : activeId;
 
   useEffect(() => {
     const current = viewportRef.current;
     if (!detailed || !current) {
-      fetchedRef.current = null;
+      tileCacheRef.current.clear();
       onLodOverridesChange({});
       return;
     }
 
-    const fetched = fetchedRef.current;
-    if (
-      viewMode === "all" &&
-      fetched?.activeId === activeId &&
-      containsBounds(fetched.bounds, current.bounds)
-    ) {
+    if (viewMode === "single") {
+      const controller = new AbortController();
+      fetchActivityTrajectory(activeId, controller.signal)
+        .then(onLodOverridesChange)
+        .catch((e) => {
+          if (!controller.signal.aborted) logError(e);
+        });
+      return () => controller.abort();
+    }
+
+    const cache = tileCacheRef.current;
+    const tiles = tilesCovering(current.bounds, LOD_TILE_ZOOM);
+    const apply = () => onLodOverridesChange(Object.assign({}, ...tiles.map((tile) => cache.get(tileKey(tile)))));
+
+    const missing = tiles.filter((tile) => !cache.has(tileKey(tile)));
+    if (missing.length === 0) {
+      apply();
       return;
     }
 
-    const controller = new AbortController();
-    const request =
-      viewMode === "all"
-        ? fetchTrajectoriesInBounds(current.bounds, controller.signal)
-        : fetchActivityTrajectory(activeId, controller.signal);
-
-    request
-      .then((overrides) => {
-        if (viewMode === "all")
-          fetchedRef.current = { activeId, bounds: current.bounds };
-        onLodOverridesChange(overrides);
+    // Tile data does not depend on the viewport, so finished tiles are cached even
+    // if the viewport has moved on; only a request that is still current updates the display.
+    let stale = false;
+    Promise.all(
+      missing.map(async (tile) => {
+        cache.set(tileKey(tile), await fetchTrajectoriesInTile(tile));
+      }),
+    )
+      .then(() => {
+        if (!stale) apply();
       })
-      .catch((e) => {
-        if (controller.signal.aborted) return;
-        Sentry.captureException(
-          new Error(
-            "Failed to fetch LOD trajectories: " +
-              (e instanceof Error ? e.message : String(e)),
-          ),
-        );
-      });
+      .catch(logError);
 
-    return () => controller.abort();
+    return () => {
+      stale = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailed, requestKey, viewMode, activeId]);
 
