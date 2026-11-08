@@ -1,11 +1,13 @@
 import { Button, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import type { TrajectoryActivity } from "../../../domain/types";
+import { ALL_ACTIVITY_ID, type TrajectoryActivity } from "../../../domain/types";
 import { ActivityCard } from "../activity_card/ActivityCard";
+import { AllActivityCard } from "../activity_card/AllActivityCard";
 
 type TrajectorySideBarProps = {
   activities: TrajectoryActivity[];
-  activeId: string | null;
+  // ALL_ACTIVITY_ID while the All card is selected.
+  activeId: string;
   canUpload: boolean;
   onSelectActivity: (activityId: string) => void;
   onUpload: () => void;
@@ -65,6 +67,11 @@ export const TrajectorySideBar = ({
           + new activity
         </NewActivityButton>
       )}
+      <AllActivityCard
+        active={activeId === ALL_ACTIVITY_ID}
+        count={activities.length}
+        onSelect={() => onSelectActivity(ALL_ACTIVITY_ID)}
+      />
       {activities.map((activity) => (
         <ActivityCard
           active={activity.id === activeId}

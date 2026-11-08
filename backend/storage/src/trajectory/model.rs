@@ -3,6 +3,7 @@ use geo_types::{Coord, Geometry, LineString};
 use geozero::wkb;
 use usecase::model::trajectory::{Coordinate, LodTrajectory};
 
+#[derive(sqlx::FromRow)]
 pub struct LodTrajectoryRow {
     pub id: i64,
     pub activity_id: i64,

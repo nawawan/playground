@@ -67,6 +67,7 @@ export const useGenerateProps = (): HomePageProps => {
         contents: [
             { id: "maze", title: "Maze Creator", description: "迷路作成するやつ", to: "/maze" },
             { id: "blogs", title: "ブログ", description: "日々の出来事をつらつらと", to: "/blogs" },
+            { id: "trajectory", title: "Trajectory", description: "走ったり漕いだりした記録", to: "/trajectory" },
         ],
         latestPosts,
         isLatestPostsLoading: isLoading,

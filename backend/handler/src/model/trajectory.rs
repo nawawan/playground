@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use usecase::model::trajectory::{Coordinate, RawTrajectory};
+use usecase::model::trajectory::{Coordinate, LodTrajectory, RawTrajectory, Tile};
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
@@ -133,5 +133,119 @@ impl From<Vec<Coordinate>> for LineString {
                 .map(|c| [c.longitude, c.latitude])
                 .collect(),
         }
+    }
+}
+
+/// A trajectory of one activity at one LOD level.
+///
+/// `elevations` is only present for the single-activity endpoint; the bulk
+/// endpoint leaves it out to keep the payload small.
+#[derive(Serialize, Clone)]
+pub struct LodTrajectoryResponse {
+    pub activity_id: i64,
+    pub lod: i64,
+    pub trajectory: LineString,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub elevations: Option<Vec<f64>>,
+}
+
+impl LodTrajectoryResponse {
+    pub fn new(trajectory: LodTrajectory, with_elevations: bool) -> Self {
+        Self {
+            activity_id: trajectory.activity_id,
+            // zoom_from/zoom_to of LOD n are (2n - 1, 2n).
+            lod: (trajectory.zoom_from + 1) / 2,
+            elevations: with_elevations.then_some(trajectory.elevations),
+            trajectory: trajectory.coordinates.into(),
+        }
+    }
+}
+
+pub const DEFAULT_LOD: i64 = 1;
+pub const MAX_LOD: i64 = 4;
+
+pub fn validate_lod(lod: Option<i64>) -> Result<i64, String> {
+    let lod = lod.unwrap_or(DEFAULT_LOD);
+    if (DEFAULT_LOD..=MAX_LOD).contains(&lod) {
+        Ok(lod)
+    } else {
+        Err(format!("lod must be between {DEFAULT_LOD} and {MAX_LOD}"))
+    }
+}
+
+/// Highest tile zoom accepted; keeps `2^z` well inside `i32` and rejects nonsense.
+pub const MAX_TILE_ZOOM: u32 = 18;
+
+/// Parses a slippy-map tile `z/x/y` (XYZ scheme, `y` counted from the north).
+pub fn parse_tile(raw: &str) -> Result<Tile, String> {
+    let invalid = || "tile must be z/x/y, e.g. 8/227/100".to_string();
+    let mut parts = raw.split('/');
+    let (Some(z), Some(x), Some(y), None) =
+        (parts.next(), parts.next(), parts.next(), parts.next())
+    else {
+        return Err(invalid());
+    };
+    let z: u32 = z.parse().map_err(|_| invalid())?;
+    let x: u32 = x.parse().map_err(|_| invalid())?;
+    let y: u32 = y.parse().map_err(|_| invalid())?;
+
+    if z > MAX_TILE_ZOOM {
+        return Err(format!("tile zoom must be at most {MAX_TILE_ZOOM}"));
+    }
+    let tiles_per_side = 1u32 << z;
+    if x >= tiles_per_side || y >= tiles_per_side {
+        return Err(format!(
+            "tile x and y must be less than {tiles_per_side} at zoom {z}"
+        ));
+    }
+
+    Ok(Tile { z, x, y })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_tile_accepts_valid_input() {
+        assert_eq!(
+            parse_tile("8/227/100"),
+            Ok(Tile {
+                z: 8,
+                x: 227,
+                y: 100
+            })
+        );
+        assert_eq!(parse_tile("0/0/0"), Ok(Tile { z: 0, x: 0, y: 0 }));
+        assert_eq!(
+            parse_tile("18/262143/0"),
+            Ok(Tile {
+                z: 18,
+                x: 262143,
+                y: 0
+            })
+        );
+    }
+
+    #[test]
+    fn parse_tile_rejects_invalid_input() {
+        assert!(parse_tile("8/227").is_err());
+        assert!(parse_tile("8/227/100/1").is_err());
+        assert!(parse_tile("a/b/c").is_err());
+        assert!(parse_tile("8/-1/100").is_err());
+        // x / y out of range for the zoom
+        assert!(parse_tile("0/1/0").is_err());
+        assert!(parse_tile("8/256/0").is_err());
+        assert!(parse_tile("8/0/256").is_err());
+        // zoom too high
+        assert!(parse_tile("19/0/0").is_err());
+    }
+
+    #[test]
+    fn validate_lod_defaults_and_bounds() {
+        assert_eq!(validate_lod(None), Ok(1));
+        assert_eq!(validate_lod(Some(3)), Ok(3));
+        assert!(validate_lod(Some(0)).is_err());
+        assert!(validate_lod(Some(5)).is_err());
     }
 }
