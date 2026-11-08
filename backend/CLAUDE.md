@@ -66,6 +66,10 @@ cargo make -p backend create-uuid
 | POST | `/api/blogs` | Create blog (auth required) |
 | GET | `/api/blogs` | List blogs |
 | POST | `/api/blogs/images` | Upload blog image (auth required) |
+| GET | `/api/activities` | List activities (with the thinnest LOD trajectory) |
+| POST | `/api/activities` | Create an activity from a GPX body (admin only) |
+| GET | `/api/activities/{id}/trajectory?lod=` | One activity's trajectory at a LOD (1-4, default 1), with elevations |
+| GET | `/api/trajectories?lod=&bbox=minLng,minLat,maxLng,maxLat` | Trajectories at a LOD, optionally only those intersecting `bbox` (no elevations) |
 
 ## Code Conventions
 

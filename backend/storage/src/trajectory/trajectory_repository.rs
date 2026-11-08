@@ -3,7 +3,7 @@ use chrono::NaiveDateTime;
 use geo_types::{Coord, Geometry, LineString};
 use geozero::wkb;
 use tracing::error;
-use usecase::model::trajectory::Coordinate;
+use usecase::model::trajectory::{BoundingBox, Coordinate};
 use uuid::Uuid;
 
 use crate::repository::Repository;
@@ -98,6 +98,8 @@ impl TrajectoryRepository for Repository {
         activity_id: i64,
         zoom_level: i64,
     ) -> Result<LodTrajectory, RepoError> {
+        // Each activity has exactly one row per LOD band, so `fetch_one` is
+        // enough; a missing row means the activity (or the band) doesn't exist.
         let trajectory: LodTrajectoryRow = sqlx::query_as!(
             LodTrajectoryRow,
             r#"
@@ -107,9 +109,15 @@ impl TrajectoryRepository for Repository {
             activity_id,
             zoom_level * 2 - 1,
             zoom_level * 2,
-        ).fetch_one(&self.pool).await.map_err(|e| {
-            error!("Failed to get trajectory: {}", e);
-            RepoError::Internal(format!("Failed to get trajectory from activity id: {}", activity_id))
+        ).fetch_one(&self.pool).await.map_err(|e| match e {
+            sqlx::Error::RowNotFound => RepoError::NotFound(format!(
+                "Trajectory of activity id: {} (lod: {}) not found",
+                activity_id, zoom_level
+            )),
+            e => {
+                error!("Failed to get trajectory: {}", e);
+                RepoError::Internal(format!("Failed to get trajectory from activity id: {}", activity_id))
+            }
         })?;
 
         let lod_trajectory = trajectory.try_into().map_err(|e| {
@@ -120,6 +128,55 @@ impl TrajectoryRepository for Repository {
             ))
         })?;
         Ok(lod_trajectory)
+    }
+
+    async fn list_trajectories(
+        &self,
+        lod_level: i64,
+        bbox: Option<BoundingBox>,
+    ) -> Result<Vec<LodTrajectory>, RepoError> {
+        let mut builder = sqlx::QueryBuilder::new(
+            "SELECT id, activity_id, trajectory AS coordinates, recorded_ats, elevations, heart_rates, zoom_from, zoom_to
+             FROM trajectory_lod
+             WHERE zoom_from <= ",
+        );
+        builder
+            .push_bind(lod_level * 2 - 1)
+            .push(" AND ")
+            .push_bind(lod_level * 2)
+            .push(" <= zoom_to");
+
+        if let Some(bbox) = bbox {
+            builder.push(" AND ST_Intersects(trajectory, ST_MakeEnvelope(");
+            builder
+                .push_bind(bbox.min_lng)
+                .push(", ")
+                .push_bind(bbox.min_lat)
+                .push(", ")
+                .push_bind(bbox.max_lng)
+                .push(", ")
+                .push_bind(bbox.max_lat)
+                .push(", 4326))");
+        }
+        builder.push(" ORDER BY activity_id");
+
+        let rows: Vec<LodTrajectoryRow> = builder
+            .build_query_as::<LodTrajectoryRow>()
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| {
+                error!("Failed to list trajectories: {}", e);
+                RepoError::Internal("Failed to list trajectories".to_string())
+            })?;
+
+        rows.into_iter()
+            .map(|row| {
+                LodTrajectory::try_from(row).map_err(|e| {
+                    error!("Failed to convert trajectory row to domain model: {}", e);
+                    RepoError::Internal("Failed to convert trajectory row".to_string())
+                })
+            })
+            .collect()
     }
 
     async fn create_activity(

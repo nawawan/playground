@@ -80,13 +80,20 @@ fn create_blog_router(service: Arc<Service>) -> Router {
 }
 
 fn create_trajectory_router(service: Arc<Service>) -> Router {
+    let activity_routers = Router::new()
+        .route("/", get(Handler::list_activities).post(Handler::upload_gpx))
+        .route("/{id}/trajectory", get(Handler::get_activity_trajectory))
+        .fallback(api_fallback)
+        .with_state(service.clone());
+
     let trajectory_routers = Router::new()
-        .route("/upload", post(Handler::upload_gpx))
-        .route("/", get(Handler::list_activities))
+        .route("/", get(Handler::list_trajectories))
         .fallback(api_fallback)
         .with_state(service);
 
-    Router::new().nest("/trajectory", trajectory_routers)
+    Router::new()
+        .nest("/activities", activity_routers)
+        .nest("/trajectories", trajectory_routers)
 }
 
 fn create_health_router(pool: PgPool) -> Router {

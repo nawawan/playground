@@ -34,6 +34,15 @@ pub struct TrajectoryView {
     pub started_at: NaiveDateTime,
 }
 
+/// Axis-aligned bounding box in WGS84 (lng/lat degrees).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BoundingBox {
+    pub min_lng: f64,
+    pub min_lat: f64,
+    pub max_lng: f64,
+    pub max_lat: f64,
+}
+
 #[derive(Clone, Copy)]
 pub struct Coordinate {
     pub latitude: f64,
