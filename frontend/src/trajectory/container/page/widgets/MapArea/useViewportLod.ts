@@ -1,8 +1,11 @@
 import * as Sentry from "@sentry/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { isDetailedZoom } from "../../../../domain/lod";
-import type { MapViewport } from "../../../../domain/types";
-import { fetchActivityTrajectory, fetchTrajectoriesInBounds } from "../../helper/fetchTrajectories";
+import { containsBounds, isDetailedZoom } from "../../../../domain/lod";
+import type { BoundingBox, MapViewport } from "../../../../domain/types";
+import {
+  fetchActivityTrajectory,
+  fetchTrajectoriesInBounds,
+} from "../../helper/fetchTrajectories";
 import { useTrajectoryPageState } from "../../state/useTrajectoryPageState";
 
 const VIEWPORT_DEBOUNCE_MS = 300;
@@ -39,15 +42,31 @@ export const useViewportLod = () => {
   const viewport = reported?.activeId === activeId ? reported.viewport : null;
 
   const detailed = viewport !== null && isDetailedZoom(viewport.zoom);
+  // The bbox the currently held All-view LOD tracks were fetched for. Zooming in
+  // stays inside it, so no request is needed; panning or zooming out leaves it.
+  const fetchedRef = useRef<{ activeId: string; bounds: BoundingBox } | null>(
+    null,
+  );
   const viewportRef = useRef(viewport);
   viewportRef.current = viewport;
   // Single view depends only on the selection; All view re-fetches as the bbox changes.
-  const requestKey = viewMode === "all" ? (viewport?.bounds.join(",") ?? "") : activeId;
+  const requestKey =
+    viewMode === "all" ? (viewport?.bounds.join(",") ?? "") : activeId;
 
   useEffect(() => {
     const current = viewportRef.current;
     if (!detailed || !current) {
+      fetchedRef.current = null;
       onLodOverridesChange({});
+      return;
+    }
+
+    const fetched = fetchedRef.current;
+    if (
+      viewMode === "all" &&
+      fetched?.activeId === activeId &&
+      containsBounds(fetched.bounds, current.bounds)
+    ) {
       return;
     }
 
@@ -57,12 +76,21 @@ export const useViewportLod = () => {
         ? fetchTrajectoriesInBounds(current.bounds, controller.signal)
         : fetchActivityTrajectory(activeId, controller.signal);
 
-    request.then(onLodOverridesChange).catch((e) => {
-      if (controller.signal.aborted) return;
-      Sentry.captureException(
-        new Error("Failed to fetch LOD trajectories: " + (e instanceof Error ? e.message : String(e))),
-      );
-    });
+    request
+      .then((overrides) => {
+        if (viewMode === "all")
+          fetchedRef.current = { activeId, bounds: current.bounds };
+        onLodOverridesChange(overrides);
+      })
+      .catch((e) => {
+        if (controller.signal.aborted) return;
+        Sentry.captureException(
+          new Error(
+            "Failed to fetch LOD trajectories: " +
+              (e instanceof Error ? e.message : String(e)),
+          ),
+        );
+      });
 
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps

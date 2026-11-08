@@ -7,6 +7,10 @@ export const DETAILED_LOD = 3;
 
 export const isDetailedZoom = (zoom: number) => zoom >= LOD3_MIN_ZOOM;
 
+// True when `inner` lies entirely within `outer`.
+export const containsBounds = (outer: BoundingBox, inner: BoundingBox) =>
+  outer[0] <= inner[0] && outer[1] <= inner[1] && outer[2] >= inner[2] && outer[3] >= inner[3];
+
 export const bboxToQuery = (bounds: BoundingBox) => bounds.join(",");
 
 // Applies LOD overrides to an activity. The track and elevation are swapped
