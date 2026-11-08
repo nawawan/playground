@@ -3,7 +3,7 @@ use chrono::NaiveDateTime;
 use geo_types::{Coord, Geometry, LineString};
 use geozero::wkb;
 use tracing::error;
-use usecase::model::trajectory::{BoundingBox, Coordinate};
+use usecase::model::trajectory::{Coordinate, Tile};
 use uuid::Uuid;
 
 use crate::repository::Repository;
@@ -133,7 +133,7 @@ impl TrajectoryRepository for Repository {
     async fn list_trajectories(
         &self,
         lod_level: i64,
-        bbox: Option<BoundingBox>,
+        tile: Option<Tile>,
     ) -> Result<Vec<LodTrajectory>, RepoError> {
         let mut builder = sqlx::QueryBuilder::new(
             "SELECT id, activity_id, trajectory AS coordinates, recorded_ats, elevations, heart_rates, zoom_from, zoom_to
@@ -146,17 +146,18 @@ impl TrajectoryRepository for Repository {
             .push_bind(lod_level * 2)
             .push(" <= zoom_to");
 
-        if let Some(bbox) = bbox {
-            builder.push(" AND ST_Intersects(trajectory, ST_MakeEnvelope(");
+        if let Some(tile) = tile {
+            // ST_TileEnvelope uses the same XYZ scheme as maplibre/OSM and returns
+            // a Web Mercator (3857) box, so bring it to the stored SRID (4326).
+            // Its arguments are `integer`, so they must be bound as i32.
+            builder.push(" AND ST_Intersects(trajectory, ST_Transform(ST_TileEnvelope(");
             builder
-                .push_bind(bbox.min_lng)
+                .push_bind(tile.z as i32)
                 .push(", ")
-                .push_bind(bbox.min_lat)
+                .push_bind(tile.x as i32)
                 .push(", ")
-                .push_bind(bbox.max_lng)
-                .push(", ")
-                .push_bind(bbox.max_lat)
-                .push(", 4326))");
+                .push_bind(tile.y as i32)
+                .push("), 4326))");
         }
         builder.push(" ORDER BY activity_id");
 

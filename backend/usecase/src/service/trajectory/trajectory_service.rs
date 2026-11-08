@@ -1,6 +1,6 @@
 use crate::errors::app_error::AppError;
 use crate::model::activity::Activity;
-use crate::model::trajectory::{BoundingBox, LodTrajectory, RawTrajectory};
+use crate::model::trajectory::{LodTrajectory, RawTrajectory, Tile};
 use crate::service::service::Service;
 use crate::service::trajectory::helper;
 
@@ -28,7 +28,7 @@ pub trait TrajectoryService {
     async fn list_trajectories(
         &self,
         lod_level: i64,
-        bbox: Option<BoundingBox>,
+        tile: Option<Tile>,
     ) -> Result<Vec<LodTrajectory>, AppError>;
 }
 
@@ -104,9 +104,9 @@ impl TrajectoryService for Service {
     async fn list_trajectories(
         &self,
         lod_level: i64,
-        bbox: Option<BoundingBox>,
+        tile: Option<Tile>,
     ) -> Result<Vec<LodTrajectory>, AppError> {
-        let trajectories = self.repository.list_trajectories(lod_level, bbox).await?;
+        let trajectories = self.repository.list_trajectories(lod_level, tile).await?;
         Ok(trajectories)
     }
 }

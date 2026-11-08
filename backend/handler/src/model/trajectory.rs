@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use usecase::model::trajectory::{BoundingBox, Coordinate, LodTrajectory, RawTrajectory};
+use usecase::model::trajectory::{Coordinate, LodTrajectory, RawTrajectory, Tile};
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
@@ -173,41 +173,33 @@ pub fn validate_lod(lod: Option<i64>) -> Result<i64, String> {
     }
 }
 
-/// Parses `minLng,minLat,maxLng,maxLat`.
-pub fn parse_bbox(raw: &str) -> Result<BoundingBox, String> {
-    let values = raw
-        .split(',')
-        .map(|v| v.trim().parse::<f64>())
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|_| "bbox must be numbers: minLng,minLat,maxLng,maxLat".to_string())?;
-    let [min_lng, min_lat, max_lng, max_lat] = values[..] else {
-        return Err("bbox must have 4 values: minLng,minLat,maxLng,maxLat".to_string());
+/// Highest tile zoom accepted; keeps `2^z` well inside `i32` and rejects nonsense.
+pub const MAX_TILE_ZOOM: u32 = 18;
+
+/// Parses a slippy-map tile `z/x/y` (XYZ scheme, `y` counted from the north).
+pub fn parse_tile(raw: &str) -> Result<Tile, String> {
+    let invalid = || "tile must be z/x/y, e.g. 8/227/100".to_string();
+    let mut parts = raw.split('/');
+    let (Some(z), Some(x), Some(y), None) =
+        (parts.next(), parts.next(), parts.next(), parts.next())
+    else {
+        return Err(invalid());
     };
+    let z: u32 = z.parse().map_err(|_| invalid())?;
+    let x: u32 = x.parse().map_err(|_| invalid())?;
+    let y: u32 = y.parse().map_err(|_| invalid())?;
 
-    if ![min_lng, min_lat, max_lng, max_lat]
-        .iter()
-        .all(|v| v.is_finite())
-    {
-        return Err("bbox must be finite numbers".to_string());
+    if z > MAX_TILE_ZOOM {
+        return Err(format!("tile zoom must be at most {MAX_TILE_ZOOM}"));
     }
-    if !(-90.0..=90.0).contains(&min_lat) || !(-90.0..=90.0).contains(&max_lat) {
-        return Err("bbox latitude must be between -90 and 90".to_string());
-    }
-    if min_lat > max_lat {
-        return Err("bbox minLat must be <= maxLat".to_string());
-    }
-    // The viewport may extend past the antimeridian when the map is wrapped,
-    // so longitudes are only required to be ordered, not clamped.
-    if min_lng > max_lng {
-        return Err("bbox minLng must be <= maxLng".to_string());
+    let tiles_per_side = 1u32 << z;
+    if x >= tiles_per_side || y >= tiles_per_side {
+        return Err(format!(
+            "tile x and y must be less than {tiles_per_side} at zoom {z}"
+        ));
     }
 
-    Ok(BoundingBox {
-        min_lng,
-        min_lat,
-        max_lng,
-        max_lat,
-    })
+    Ok(Tile { z, x, y })
 }
 
 #[cfg(test)]
@@ -215,27 +207,38 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_bbox_accepts_valid_input() {
-        let bbox = parse_bbox("139.0, 35.0,140.0,36.0").unwrap();
+    fn parse_tile_accepts_valid_input() {
         assert_eq!(
-            bbox,
-            BoundingBox {
-                min_lng: 139.0,
-                min_lat: 35.0,
-                max_lng: 140.0,
-                max_lat: 36.0
-            }
+            parse_tile("8/227/100"),
+            Ok(Tile {
+                z: 8,
+                x: 227,
+                y: 100
+            })
+        );
+        assert_eq!(parse_tile("0/0/0"), Ok(Tile { z: 0, x: 0, y: 0 }));
+        assert_eq!(
+            parse_tile("18/262143/0"),
+            Ok(Tile {
+                z: 18,
+                x: 262143,
+                y: 0
+            })
         );
     }
 
     #[test]
-    fn parse_bbox_rejects_invalid_input() {
-        assert!(parse_bbox("1,2,3").is_err());
-        assert!(parse_bbox("a,b,c,d").is_err());
-        assert!(parse_bbox("140,35,139,36").is_err());
-        assert!(parse_bbox("139,36,140,35").is_err());
-        assert!(parse_bbox("139,-91,140,35").is_err());
-        assert!(parse_bbox("139,35,NaN,36").is_err());
+    fn parse_tile_rejects_invalid_input() {
+        assert!(parse_tile("8/227").is_err());
+        assert!(parse_tile("8/227/100/1").is_err());
+        assert!(parse_tile("a/b/c").is_err());
+        assert!(parse_tile("8/-1/100").is_err());
+        // x / y out of range for the zoom
+        assert!(parse_tile("0/1/0").is_err());
+        assert!(parse_tile("8/256/0").is_err());
+        assert!(parse_tile("8/0/256").is_err());
+        // zoom too high
+        assert!(parse_tile("19/0/0").is_err());
     }
 
     #[test]

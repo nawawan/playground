@@ -10,7 +10,7 @@ use crate::error::UsecaseError;
 use crate::extractor::AuthorizedUser;
 use crate::handler::Handler;
 use crate::model::activity::ActivityResponse;
-use crate::model::trajectory::{Gpx, LodTrajectoryResponse, Trajectory, parse_bbox, validate_lod};
+use crate::model::trajectory::{Gpx, LodTrajectoryResponse, Trajectory, parse_tile, validate_lod};
 use usecase::service::service::Service;
 use usecase::service::trajectory::trajectory_service::TrajectoryService;
 #[derive(Deserialize)]
@@ -21,7 +21,7 @@ pub struct LodQuery {
 #[derive(Deserialize)]
 pub struct ListTrajectoriesQuery {
     lod: Option<i64>,
-    bbox: Option<String>,
+    tile: Option<String>,
 }
 
 impl Handler {
@@ -90,14 +90,14 @@ impl Handler {
         Query(query): Query<ListTrajectoriesQuery>,
     ) -> Result<Json<Vec<LodTrajectoryResponse>>, UsecaseError> {
         let lod = validate_lod(query.lod).map_err(|e| UsecaseError::bad_request(&e))?;
-        let bbox = query
-            .bbox
+        let tile = query
+            .tile
             .as_deref()
-            .map(parse_bbox)
+            .map(parse_tile)
             .transpose()
             .map_err(|e| UsecaseError::bad_request(&e))?;
 
-        let trajectories = state.0.list_trajectories(lod, bbox).await.map_err(|e| {
+        let trajectories = state.0.list_trajectories(lod, tile).await.map_err(|e| {
             error!(e.message);
             UsecaseError { error: e }
         })?;

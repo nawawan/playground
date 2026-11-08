@@ -69,7 +69,7 @@ cargo make -p backend create-uuid
 | GET | `/api/activities` | List activities (with the thinnest LOD trajectory) |
 | POST | `/api/activities` | Create an activity from a GPX body (admin only) |
 | GET | `/api/activities/{id}/trajectory?lod=` | One activity's trajectory at a LOD (1-4, default 1), with elevations |
-| GET | `/api/trajectories?lod=&bbox=minLng,minLat,maxLng,maxLat` | Trajectories at a LOD, optionally only those intersecting `bbox` (no elevations) |
+| GET | `/api/trajectories?lod=&tile=z/x/y` | Trajectories at a LOD, optionally only those intersecting the slippy-map tile `z/x/y` (XYZ, y from the north; no elevations) |
 
 ## Code Conventions
 
