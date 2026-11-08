@@ -7,6 +7,7 @@ use usecase::model::trajectory::Coordinate;
 use uuid::Uuid;
 
 use crate::repository::Repository;
+use crate::trajectory::model::LodTrajectoryRow;
 use usecase::errors::repo_error::RepoError;
 use usecase::model::{activity::Activity, trajectory::LodTrajectory};
 use usecase::repository::trajectory::TrajectoryRepository;
@@ -95,10 +96,30 @@ impl TrajectoryRepository for Repository {
     async fn get_trajectory(
         &self,
         activity_id: i64,
-        zoom_level: i32,
+        zoom_level: i64,
     ) -> Result<LodTrajectory, RepoError> {
-        // Implementation for getting a trajectory
-        Err(RepoError::NotFound(format!("a")))
+        let trajectory: LodTrajectoryRow = sqlx::query_as!(
+            LodTrajectoryRow,
+            r#"
+            SELECT id, activity_id, trajectory AS "coordinates!: _", recorded_ats, elevations, heart_rates, zoom_from, zoom_to FROM trajectory_lod
+            WHERE activity_id = $1 AND zoom_from <= $2 AND $3 <= zoom_to
+            "#,
+            activity_id,
+            zoom_level * 2 - 1,
+            zoom_level * 2,
+        ).fetch_one(&self.pool).await.map_err(|e| {
+            error!("Failed to get trajectory: {}", e);
+            RepoError::Internal(format!("Failed to get trajectory from activity id: {}", activity_id))
+        })?;
+
+        let lod_trajectory = trajectory.try_into().map_err(|e| {
+            error!("Failed to convert trajectory row to domain model: {}", e);
+            RepoError::Internal(format!(
+                "Failed to convert trajectory row to domain model from activity id: {}",
+                activity_id
+            ))
+        })?;
+        Ok(lod_trajectory)
     }
 
     async fn create_activity(
@@ -127,25 +148,20 @@ impl TrajectoryRepository for Repository {
         activity.id = record.id;
         Ok(activity)
     }
-    async fn get_activity(&self, activity_id: String) -> Result<Activity, RepoError> {
+    async fn get_activity(&self, activity_id: i64) -> Result<Activity, RepoError> {
         // Implementation for getting an activity
         Err(RepoError::NotFound(format!(
             "Activity with id: {} not found",
             activity_id
         )))
     }
-    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, RepoError> {
-        let user_id: Uuid = user_id
-            .parse()
-            .map_err(|_| RepoError::Internal("Invalid user id".to_string()))?;
-
+    async fn list_activities(&self) -> Result<Vec<Activity>, RepoError> {
         let mut builder = sqlx::QueryBuilder::new(
             "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, t.trajectory, t.elevations
              FROM activity a
              INNER JOIN trajectory_lod t ON t.activity_id = a.id AND t.zoom_from = ",
         );
         builder.push_bind(THIN_TRAJECTORY_ZOOM_FROM);
-        builder.push(" WHERE a.user_id = ").push_bind(user_id);
 
         let records: Vec<ActivityRow> = builder
             .build_query_as::<ActivityRow>()

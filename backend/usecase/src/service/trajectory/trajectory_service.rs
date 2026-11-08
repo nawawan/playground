@@ -18,8 +18,13 @@ pub trait TrajectoryService {
         trajectory: RawTrajectory,
         user_id: Uuid,
     ) -> Result<Activity, AppError>;
-    async fn get_activity(&self, activity_id: String) -> Result<Activity, AppError>;
-    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, AppError>;
+    async fn get_activity(&self, activity_id: i64) -> Result<Activity, AppError>;
+    async fn list_activities(&self) -> Result<Vec<Activity>, AppError>;
+    async fn get_trajectory(
+        &self,
+        activity_id: i64,
+        lod_level: i64,
+    ) -> Result<LodTrajectory, AppError>;
 }
 
 #[async_trait]
@@ -72,12 +77,23 @@ impl TrajectoryService for Service {
 
         Ok(activity)
     }
-    async fn get_activity(&self, activity_id: String) -> Result<Activity, AppError> {
+    async fn get_activity(&self, activity_id: i64) -> Result<Activity, AppError> {
         let activity = self.repository.get_activity(activity_id).await?;
         Ok(activity)
     }
-    async fn list_activities(&self, user_id: String) -> Result<Vec<Activity>, AppError> {
-        let activities = self.repository.list_activities(user_id).await?;
+    async fn list_activities(&self) -> Result<Vec<Activity>, AppError> {
+        let activities = self.repository.list_activities().await?;
         Ok(activities)
+    }
+    async fn get_trajectory(
+        &self,
+        activity_id: i64,
+        lod_level: i64,
+    ) -> Result<LodTrajectory, AppError> {
+        let trajectory = self
+            .repository
+            .get_trajectory(activity_id, lod_level)
+            .await?;
+        Ok(trajectory)
     }
 }

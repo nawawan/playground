@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 
 use super::geo::{douglas_peucker_simplify, haversine_distance};
 use crate::model::trajectory::{Coordinate, LodTrajectory, RawTrajectory};
@@ -36,13 +36,10 @@ pub fn thin_out_raw_trajectory_by_lod(trajectory: &RawTrajectory, lod: usize) ->
     LodTrajectory {
         id: 0,
         activity_id: 0,
-        name: trajectory.name.clone(),
-        trajectory_type: trajectory.trajectory_type.clone(),
         coordinates: thinned_coordinates,
         elevations: thinned_elevations,
         heart_rates: thinned_heart_rates,
         recorded_ats: thinned_recorded_ats,
-        started_at: trajectory.started_at,
         zoom_from,
         zoom_to,
     }
