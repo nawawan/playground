@@ -3,11 +3,13 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TrajectoryPage } from "./TrajectoryPage";
 import { Header } from "../components/header/Header";
 import { ImagePanel } from "../components/image_panel/ImagePanel";
+import { AllMapArea } from "../components/map_area/AllMapArea";
 import { MapArea } from "../components/map_area/MapArea";
 import { TrajectoryDetail } from "../components/trajectory_detail/TrajectoryDetail";
 import { TrajectoryHeight } from "../components/trajectory_height/TrajectoryHeight";
 import { TrajectorySideBar } from "../components/trajectory_side_bar/TrajectorySideBar";
 import { trajectoryActivities as mockActivities } from "../../domain/mockData";
+import { ALL_ACTIVITY_ID } from "../../domain/types";
 import { sampleActivities } from "./fixtures/sampleActivity";
 
 const trajectoryActivities = [...sampleActivities, ...mockActivities];
@@ -21,6 +23,7 @@ const meta = {
   // render で上書きしない story 用の既定値
   args: {
     status: "ready",
+    viewMode: "single",
     Header: null,
     ImagePanel: null,
     MapArea: null,
@@ -62,6 +65,7 @@ const MockedTrajectoryPage = ({ canUpload }: { canUpload: boolean }) => {
   return (
     <TrajectoryPage
       status="ready"
+      viewMode="single"
       Header={<Header canUpload={canUpload} onUpload={() => undefined} />}
       ImagePanel={
         <ImagePanel
@@ -118,4 +122,35 @@ export const Loading: Story = {
 
 export const Empty: Story = {
   args: { status: "empty" },
+};
+
+// All カード選択時: 地図のみ（高度グラフ・詳細・写真パネルは出さない）
+export const AllView: Story = {
+  render: () => (
+    <TrajectoryPage
+      status="ready"
+      viewMode="all"
+      Header={<Header canUpload={false} onUpload={() => undefined} />}
+      ImagePanel={null}
+      MapArea={
+        <AllMapArea
+          mapStyle="terrain"
+          onViewportChange={() => undefined}
+          tracks={trajectoryActivities.map(({ id, track }) => ({ id, track }))}
+        />
+      }
+      TrajectoryDetail={null}
+      TrajectoryHeight={null}
+      TrajectorySideBar={
+        <TrajectorySideBar
+          activeId={ALL_ACTIVITY_ID}
+          activities={trajectoryActivities}
+          canUpload={false}
+          onSelectActivity={() => undefined}
+          onUpload={() => undefined}
+        />
+      }
+      UploadModal={null}
+    />
+  ),
 };

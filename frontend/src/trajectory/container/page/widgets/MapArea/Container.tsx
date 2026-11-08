@@ -1,7 +1,11 @@
 import { Box, Button, ButtonGroup } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useMemo } from "react";
+import { AllMapArea } from "../../../../presentation/components/map_area/AllMapArea";
 import { MapArea } from "../../../../presentation/components/map_area/MapArea";
+import { applyLodOverride } from "../../../../domain/lod";
 import { useTrajectoryPageState } from "../../state/useTrajectoryPageState";
+import { useViewportLod } from "./useViewportLod";
 import type { MapStyleKey } from "../../../../domain/types";
 
 const MapShell = styled(Box)({
@@ -37,9 +41,15 @@ const MAP_STYLE_LABELS: Record<MapStyleKey, string> = {
 };
 
 export const MapAreaContainer = () => {
-  const { activeActivity, activePhotoId, here, mapStyle, onMapStyleChange, onSelectPhoto } = useTrajectoryPageState();
+  const { activities, activeActivity, activePhotoId, here, lodOverrides, mapStyle, viewMode, onMapStyleChange, onSelectPhoto } =
+    useTrajectoryPageState();
+  const { onViewportChange } = useViewportLod();
+  const allTracks = useMemo(
+    () => activities.map((activity) => applyLodOverride(activity, lodOverrides)),
+    [activities, lodOverrides],
+  );
 
-  if (!activeActivity) return null;
+  if (viewMode === "single" && !activeActivity) return null;
 
   return (
     <MapShell>
@@ -60,13 +70,20 @@ export const MapAreaContainer = () => {
           </Button>
         ))}
       </StyleSwitcher>
-      <MapArea
-        activePhotoId={activePhotoId}
-        activity={activeActivity}
-        here={here}
-        mapStyle={mapStyle}
-        onPhotoSelect={onSelectPhoto}
-      />
+      {viewMode === "all" ? (
+        <AllMapArea mapStyle={mapStyle} onViewportChange={onViewportChange} tracks={allTracks} />
+      ) : (
+        activeActivity && (
+          <MapArea
+            activePhotoId={activePhotoId}
+            activity={activeActivity}
+            here={here}
+            mapStyle={mapStyle}
+            onPhotoSelect={onSelectPhoto}
+            onViewportChange={onViewportChange}
+          />
+        )
+      )}
     </MapShell>
   );
 };

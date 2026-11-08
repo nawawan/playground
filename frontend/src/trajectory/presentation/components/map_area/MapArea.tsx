@@ -1,11 +1,10 @@
 import { Box } from "@mui/material";
-import { AttributionControl, LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+import { AttributionControl, Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { StyleSpecification } from "@maplibre/maplibre-gl-style-spec";
 import { useEffect, useRef, useState } from "react";
 import { pointAt } from "../../../domain/geo";
-import type { LngLat, MapStyleKey, TrajectoryActivity } from "../../../domain/types";
+import type { LngLat, MapStyleKey, MapViewport, TrajectoryActivity } from "../../../domain/types";
+import { boundsOf, MAP_STYLE_SOURCES } from "./maplibre";
 
 type MapAreaProps = {
   activity: TrajectoryActivity;
@@ -13,39 +12,11 @@ type MapAreaProps = {
   here: number;
   mapStyle: MapStyleKey;
   onPhotoSelect: (photoId: string) => void;
+  // Fired when the map stops moving (after pan / zoom / fit).
+  onViewportChange?: (viewport: MapViewport) => void;
   // Optional overlays used to compare a thinned track against the original.
   referenceTrack?: LngLat[];
   showCheckpoints?: boolean;
-};
-
-// maplibre-gl v6 loads its worker as a separate ESM file that imports a shared
-// chunk. Vite serves neither from the bundle (404), so GeoJSON sources never
-// load. Let Vite bundle the worker with its deps and point maplibre to it.
-setWorkerUrl(maplibreWorkerUrl);
-
-// Free-for-prototyping tile sources. OpenTopoMap/OpenStreetMap raster tiles
-// have usage policies that make them unsuitable for real production traffic
-// — swap for MapTiler/Stadia/self-hosted tiles before this app sees real load.
-const rasterStyle = (tileUrl: string, attribution: string): StyleSpecification => ({
-  version: 8,
-  sources: {
-    base: {
-      type: "raster",
-      tiles: [tileUrl],
-      tileSize: 256,
-      attribution,
-    },
-  },
-  layers: [
-    { id: "bg", type: "background", paint: { "background-color": "#f4f4f5" } },
-    { id: "base", type: "raster", source: "base" },
-  ],
-});
-
-const MAP_STYLE_SOURCES: Record<MapStyleKey, () => StyleSpecification | string> = {
-  terrain: () =>
-    rasterStyle("https://a.tile.opentopomap.org/{z}/{x}/{y}.png", "© OpenTopoMap (CC-BY-SA), © OpenStreetMap"),
-  streets: () => rasterStyle("https://tile.openstreetmap.org/{z}/{x}/{y}.png", "© OpenStreetMap contributors"),
 };
 
 const TRACK_SOURCE_ID = "trajectory-track";
@@ -123,15 +94,13 @@ const addTrackLayers = (map: MapLibreMap, activity: TrajectoryActivity, overlays
   }
 };
 
-const boundsOf = (track: LngLat[]) =>
-  track.reduce((bounds, point) => bounds.extend(point), new LngLatBounds(track[0], track[0]));
-
 export const MapArea = ({
   activity,
   activePhotoId,
   here,
   mapStyle,
   onPhotoSelect,
+  onViewportChange,
   referenceTrack,
   showCheckpoints,
 }: MapAreaProps) => {
@@ -143,6 +112,8 @@ export const MapArea = ({
   const photoMarkersRef = useRef<{ id: string; element: HTMLDivElement; marker: Marker }[]>([]);
   const onPhotoSelectRef = useRef(onPhotoSelect);
   onPhotoSelectRef.current = onPhotoSelect;
+  const onViewportChangeRef = useRef(onViewportChange);
+  onViewportChangeRef.current = onViewportChange;
   const mapStyleRef = useRef(mapStyle);
   mapStyleRef.current = mapStyle;
   const appliedStyleRef = useRef(mapStyle);
@@ -167,6 +138,10 @@ export const MapArea = ({
     map.addControl(new AttributionControl({ compact: true }), "bottom-right");
     map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
     map.on("load", () => setReady(true));
+    map.on("moveend", () => {
+      const [[west, south], [east, north]] = map.getBounds().toArray();
+      onViewportChangeRef.current?.({ zoom: map.getZoom(), bounds: [west, south, east, north] });
+    });
     mapRef.current = map;
 
     return () => {

@@ -3,10 +3,14 @@ import { styled } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import "./TrajectoryPage.css";
 
+export type TrajectoryViewMode = "all" | "single";
+
 export type TrajectoryPageStatus = "loading" | "empty" | "ready";
 
 type TrajectoryPageProps = {
   status: TrajectoryPageStatus;
+  // "all" shows only the map; the height graph and the detail / image panels are for a single activity.
+  viewMode: TrajectoryViewMode;
   Header: ReactNode;
   ImagePanel: ReactNode;
   MapArea: ReactNode;
@@ -67,6 +71,7 @@ const StatusColumn = styled(Stack)({
 
 export const TrajectoryPage = ({
   status,
+  viewMode,
   Header,
   ImagePanel,
   MapArea,
@@ -83,12 +88,14 @@ export const TrajectoryPage = ({
         <>
           <CenterColumn>
             {MapArea}
-            {TrajectoryHeight}
+            {viewMode === "single" && TrajectoryHeight}
           </CenterColumn>
-          <RightColumn>
-            {TrajectoryDetail}
-            {ImagePanel}
-          </RightColumn>
+          {viewMode === "single" && (
+            <RightColumn>
+              {TrajectoryDetail}
+              {ImagePanel}
+            </RightColumn>
+          )}
         </>
       ) : (
         <StatusColumn>

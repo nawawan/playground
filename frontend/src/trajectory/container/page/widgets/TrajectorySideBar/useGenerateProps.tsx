@@ -9,7 +9,8 @@ export const useGenerateProps = () => {
     useEffect(() => {
         const initializeData = async() => {
         try {
-                const res = await fetch('/api/admin/trajectory/trajectories');
+                const res = await fetch('/api/activities');
+                if (!res.ok) throw new Error(`status ${res.status}`);
                 const activityTrajectries = (await res.json()) as ActivityResponse[];
                 addActivities(activityTrajectries.map(toTrajectoryActivity))
             } catch (e) {
