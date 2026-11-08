@@ -13,6 +13,8 @@ pub fn thin_out_raw_trajectory_by_lod(trajectory: &RawTrajectory, lod: usize) ->
 
     let picked_up_indices = douglas_peucker_simplify(&trajectory.coordinates, epsiron);
     let cap = picked_up_indices.len();
+    // Heart rate is optional: it is either empty or aligned with the coordinates.
+    let has_heart_rates = trajectory.heart_rates.len() == trajectory.coordinates.len();
 
     let mut thinned_coordinates = Vec::with_capacity(cap);
     let mut thinned_elevations = Vec::with_capacity(cap);
@@ -22,7 +24,9 @@ pub fn thin_out_raw_trajectory_by_lod(trajectory: &RawTrajectory, lod: usize) ->
     picked_up_indices.iter().for_each(|&idx| {
         thinned_coordinates.push(trajectory.coordinates[idx].clone());
         thinned_elevations.push(trajectory.elevations[idx]);
-        thinned_heart_rates.push(trajectory.heart_rates[idx]);
+        if has_heart_rates {
+            thinned_heart_rates.push(trajectory.heart_rates[idx]);
+        }
         thinned_recorded_ats.push(trajectory.recorded_ats[idx]);
     });
 
@@ -78,4 +82,40 @@ pub fn calculate_duration(recorded_ats: &Vec<NaiveDateTime>) -> i64 {
     let end = recorded_ats.last().unwrap();
 
     (end.and_utc().timestamp() - start.and_utc().timestamp()) / 60
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn raw_trajectory(heart_rates: Vec<i64>) -> RawTrajectory {
+        let n = 5;
+        RawTrajectory {
+            name: "test".to_string(),
+            trajectory_type: "running".to_string(),
+            coordinates: (0..n)
+                .map(|i| Coordinate {
+                    latitude: 35.0 + i as f64 * 0.001,
+                    longitude: 139.0 + (i % 2) as f64 * 0.001,
+                })
+                .collect(),
+            elevations: vec![10.0; n],
+            heart_rates,
+            recorded_ats: vec![chrono::NaiveDateTime::default(); n],
+            started_at: chrono::NaiveDateTime::default(),
+        }
+    }
+
+    #[test]
+    fn thins_trajectory_without_heart_rates() {
+        let lod = thin_out_raw_trajectory_by_lod(&raw_trajectory(vec![]), 3);
+        assert!(!lod.coordinates.is_empty());
+        assert!(lod.heart_rates.is_empty());
+    }
+
+    #[test]
+    fn keeps_heart_rates_aligned_with_coordinates() {
+        let lod = thin_out_raw_trajectory_by_lod(&raw_trajectory(vec![100, 110, 120, 130, 140]), 3);
+        assert_eq!(lod.heart_rates.len(), lod.coordinates.len());
+    }
 }

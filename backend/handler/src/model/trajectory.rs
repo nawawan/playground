@@ -88,19 +88,22 @@ impl From<Gpx> for Trajectory {
             .map(|trpt| trpt.elevation)
             .collect::<Vec<_>>();
 
+        // Heart rate is optional (e.g. activities recorded without a sensor).
+        // Keep it aligned with the other per-point vectors: either every point
+        // has a value, or the whole series is dropped (empty).
         let heart_rates = gpx
             .track
             .track_segments
             .trkpt
             .iter()
-            .filter_map(|trpt| {
-                trpt.extensions.as_ref().and_then(|ext| {
-                    ext.track_point_extension
-                        .as_ref()
-                        .and_then(|tpe| tpe.heart_rate)
-                })
+            .map(|trpt| {
+                trpt.extensions
+                    .as_ref()
+                    .and_then(|ext| ext.track_point_extension.as_ref())
+                    .and_then(|tpe| tpe.heart_rate)
             })
-            .collect::<Vec<_>>();
+            .collect::<Option<Vec<_>>>()
+            .unwrap_or_default();
 
         let recorded_ats = gpx
             .track
@@ -248,5 +251,46 @@ mod tests {
         assert_eq!(validate_lod(Some(3)), Ok(3));
         assert!(validate_lod(Some(0)).is_err());
         assert!(validate_lod(Some(5)).is_err());
+    }
+
+    fn trkpt(hr: Option<i64>) -> String {
+        let extensions = hr.map_or(String::new(), |hr| {
+            format!(
+                "<extensions><TrackPointExtension><hr>{hr}</hr></TrackPointExtension></extensions>"
+            )
+        });
+        format!(
+            r#"<trkpt lat="35.0" lon="139.0"><ele>10.0</ele><time>2026-01-01T00:00:00Z</time>{extensions}</trkpt>"#
+        )
+    }
+
+    fn parse(heart_rates: &[Option<i64>]) -> Trajectory {
+        let points = heart_rates.iter().map(|hr| trkpt(*hr)).collect::<String>();
+        let xml = format!(
+            r#"<gpx><metadata><time>2026-01-01T00:00:00Z</time></metadata>
+            <trk><name>run</name><type>running</type><trkseg>{points}</trkseg></trk></gpx>"#
+        );
+        Trajectory::from(quick_xml::de::from_str::<Gpx>(&xml).unwrap())
+    }
+
+    #[test]
+    fn heart_rates_are_empty_without_a_sensor() {
+        let raw = parse(&[None, None, None]).trajectory;
+        assert_eq!(raw.coordinates.len(), 3);
+        assert!(raw.heart_rates.is_empty());
+    }
+
+    #[test]
+    fn heart_rates_are_kept_when_every_point_has_one() {
+        let raw = parse(&[Some(100), Some(110), Some(120)]).trajectory;
+        assert_eq!(raw.heart_rates, vec![100, 110, 120]);
+    }
+
+    #[test]
+    fn heart_rates_are_dropped_when_any_point_misses_one() {
+        // A partial series would be misaligned with coordinates, so drop it.
+        let raw = parse(&[Some(100), None, Some(120)]).trajectory;
+        assert_eq!(raw.coordinates.len(), 3);
+        assert!(raw.heart_rates.is_empty());
     }
 }
