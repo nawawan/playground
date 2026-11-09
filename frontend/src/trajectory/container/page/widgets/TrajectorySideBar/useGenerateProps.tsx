@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import * as Sentry from "@sentry/react";
-import { toTrajectoryActivity, type ActivityResponse } from "../../../../../shared/types/trajectory";
+import type { ActivityResponse } from "../../../../../shared/types/trajectory";
+import { toTrajectoryActivity } from "../../../../domain/activityMapper";
 import { useTrajectoryPageState } from "../../state/useTrajectoryPageState";
 
 
@@ -19,5 +20,7 @@ export const useGenerateProps = () => {
             }
         }
         initializeData();
+        // 初回マウント時のみ取得する(addActivities は毎回再生成されるため依存に入れない)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 };

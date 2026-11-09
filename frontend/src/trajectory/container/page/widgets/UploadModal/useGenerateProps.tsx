@@ -1,6 +1,7 @@
 import { useTrajectoryPageState } from "../../state/useTrajectoryPageState";
 import { type UploadModalProps } from "../../../../presentation/components/upload_modal/UploadModal";
-import { type ActivityResponse, toTrajectoryActivity } from "../../../../../shared/types/trajectory";
+import type { ActivityResponse } from "../../../../../shared/types/trajectory";
+import { toTrajectoryActivity } from "../../../../domain/activityMapper";
 
 import * as Sentry from '@sentry/react';
 import { useState } from "react";
