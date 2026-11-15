@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import type {
+  CameraTimeZone,
   LodOverrides,
   MapStyleKey,
   PhotoUploadStatus,
@@ -42,7 +43,7 @@ type TrajectoryPageState = {
   // ---- admin ----
   onCreateTravel: (name: string) => Promise<void>;
   onChangeTravel: (activityId: string, travelId: string | null) => Promise<void>;
-  onUploadPhotos: (files: File[], clockOffsetSeconds: number) => Promise<void>;
+  onUploadPhotos: (files: File[], timeZone: CameraTimeZone) => Promise<void>;
   onStartPlacing: (photoId: string) => void;
   onCancelPlacing: () => void;
   // `at`: where on the elevation chart (0..1) the photo was put.

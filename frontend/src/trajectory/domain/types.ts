@@ -20,6 +20,10 @@ export type TrajectoryPhoto = {
   at: number | null;
 };
 
+// The time zone the camera clock was set to. EXIF times carry no time zone; this is
+// used for photos whose EXIF has no offset of its own.
+export type CameraTimeZone = "JST" | "UTC";
+
 export type PhotoUploadStatus = {
   uploading: boolean;
   // files that could not be stored, with the reason

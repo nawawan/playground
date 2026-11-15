@@ -104,14 +104,29 @@ export const Upload: Story = {
     const photo = new File(["x"], "IMG_0001.jpg", { type: "image/jpeg" });
     const notAPhoto = new File(["x"], "notes.txt", { type: "text/plain" });
 
-    // The camera clock is 90 seconds slow.
-    const offset = canvas.getByRole("textbox", { name: "カメラの時計のずれ（秒）" });
-    await userEvent.clear(offset);
-    await userEvent.type(offset, "90");
+    // JST is selected at first; only images are sent.
+    await expect(canvas.getByRole("button", { name: "JST" })).toHaveAttribute("aria-pressed", "true");
     await userEvent.upload(input, [photo, notAPhoto]);
+    await expect(args.onUploadFiles).toHaveBeenLastCalledWith([photo], "JST");
+  },
+};
 
-    // Only images are sent.
-    await expect(args.onUploadFiles).toHaveBeenCalledWith([photo], 90);
+// The camera was set to UTC.
+export const UploadWithUtcCamera: Story = {
+  args: { activity: nasu, activePhotoId: null, canEdit: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const photo = new File(["x"], "IMG_0002.jpg", { type: "image/jpeg" });
+
+    await userEvent.click(canvas.getByRole("button", { name: "UTC" }));
+    await expect(canvas.getByRole("button", { name: "UTC" })).toHaveAttribute("aria-pressed", "true");
+    await expect(canvas.getByRole("button", { name: "JST" })).toHaveAttribute("aria-pressed", "false");
+    await userEvent.upload(canvas.getByTestId("photo-input"), photo);
+    await expect(args.onUploadFiles).toHaveBeenLastCalledWith([photo], "UTC");
+
+    // Clicking the selected one again does not leave nothing selected.
+    await userEvent.click(canvas.getByRole("button", { name: "UTC" }));
+    await expect(canvas.getByRole("button", { name: "UTC" })).toHaveAttribute("aria-pressed", "true");
   },
 };
 

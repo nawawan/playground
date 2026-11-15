@@ -7,6 +7,7 @@ import { distanceFromAt, withPhotos } from "../../domain/photoPosition";
 import { composeTravel, isTravelSelectionId, travelIdOfSelection, travelSelectionId } from "../../domain/travel";
 import {
   ALL_ACTIVITY_ID,
+  type CameraTimeZone,
   type LodOverrides,
   type MapStyleKey,
   type PhotoUploadStatus,
@@ -129,7 +130,7 @@ export const useGenerateTrajectoryPageProps = () => {
     }
   };
 
-  const uploadPhotosAction = async (files: File[], clockOffsetSeconds: number) => {
+  const uploadPhotosAction = async (files: File[], timeZone: CameraTimeZone) => {
     // Photos belong to one activity, so only a single activity can be the target.
     if (viewMode !== "single" || files.length === 0) return;
     const activityId = activeId;
@@ -137,7 +138,7 @@ export const useGenerateTrajectoryPageProps = () => {
     const failures: PhotoUploadStatus["failures"] = [];
     for (const file of files) {
       try {
-        const item = await uploadPhoto(activityId, file, clockOffsetSeconds);
+        const item = await uploadPhoto(activityId, file, timeZone);
         if (item.photo) {
           const stored = toTrajectoryPhoto(item.photo);
           setPhotos((prev) => [...prev.filter((photo) => photo.id !== stored.id), stored]);

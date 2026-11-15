@@ -6,7 +6,7 @@ import {
   type PhotoUploadItemResponse,
   type TravelResponse,
 } from "../../../../shared/types/trajectory";
-import type { TrajectoryPhoto, Travel } from "../../../domain/types";
+import type { CameraTimeZone, TrajectoryPhoto, Travel } from "../../../domain/types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -50,14 +50,14 @@ export const setActivityTravel = async (activityId: string, travelId: string | n
 };
 
 // One photo per request (Cloud Run rejects requests over 32MB).
-// `clockOffsetSeconds` is added to the shooting time to correct a camera whose clock is off.
+// `timeZone` is the time zone of the camera clock, for photos whose EXIF has no offset.
 export const uploadPhoto = async (
   activityId: string,
   file: File,
-  clockOffsetSeconds: number,
+  timeZone: CameraTimeZone,
 ): Promise<PhotoUploadItemResponse> => {
   const form = new FormData();
-  form.append("time_offset_seconds", String(clockOffsetSeconds));
+  form.append("time_zone", timeZone);
   form.append("image", file, file.name);
   const res = await fetch(`/api/admin/activities/${encodeURIComponent(activityId)}/photos`, {
     method: "POST",

@@ -33,7 +33,7 @@ export const ImagePanelContainer = ({ canUpload }: ImagePanelContainerProps) => 
       onDeletePhoto={(photoId) => void onDeletePhoto(photoId)}
       onPhotoSelect={onSelectPhoto}
       onStartPlacing={onStartPlacing}
-      onUploadFiles={(files, offset) => void onUploadPhotos(files, offset)}
+      onUploadFiles={(files, timeZone) => void onUploadPhotos(files, timeZone)}
       placingPhotoId={placingPhotoId}
       uploadStatus={photoUpload}
     />

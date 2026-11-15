@@ -1,9 +1,9 @@
-import { Box, Button, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Paper, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useRef, useState } from "react";
 import { formatKm, photoLabel, photoPlace } from "../../../domain/format";
 import { elevationAt, formatKmAt } from "../../../domain/geo";
-import type { PhotoUploadStatus, TrajectoryActivity, TrajectoryPhoto } from "../../../domain/types";
+import type { CameraTimeZone, PhotoUploadStatus, TrajectoryActivity, TrajectoryPhoto } from "../../../domain/types";
 
 type ImagePanelProps = {
   activity: TrajectoryActivity;
@@ -15,7 +15,7 @@ type ImagePanelProps = {
   // The photo whose position is being chosen on the elevation chart.
   placingPhotoId?: string | null;
   uploadStatus?: PhotoUploadStatus;
-  onUploadFiles?: (files: File[], clockOffsetSeconds: number) => void;
+  onUploadFiles?: (files: File[], timeZone: CameraTimeZone) => void;
   onStartPlacing?: (photoId: string) => void;
   onCancelPlacing?: () => void;
   onDeletePhoto?: (photoId: string) => void;
@@ -252,17 +252,16 @@ const PhotoTile = ({ photo, active, placing, canEdit, onSelect, onStartPlacing, 
 
 type PhotoUploaderProps = {
   status: PhotoUploadStatus;
-  onUploadFiles: (files: File[], clockOffsetSeconds: number) => void;
+  onUploadFiles: (files: File[], timeZone: CameraTimeZone) => void;
 };
 
 const PhotoUploader = ({ status, onUploadFiles }: PhotoUploaderProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [offset, setOffset] = useState("0");
-  const clockOffset = Number.isFinite(Number(offset)) ? Math.trunc(Number(offset)) : 0;
+  const [timeZone, setTimeZone] = useState<CameraTimeZone>("JST");
 
   const submit = (list: FileList | null) => {
     const files = Array.from(list ?? []).filter((file) => file.type.startsWith("image/"));
-    if (files.length > 0) onUploadFiles(files, clockOffset);
+    if (files.length > 0) onUploadFiles(files, timeZone);
   };
 
   return (
@@ -300,16 +299,26 @@ const PhotoUploader = ({ status, onUploadFiles }: PhotoUploaderProps) => {
         type="file"
       />
       <Stack alignItems="center" direction="row" spacing={1}>
-        <Typography component="label" htmlFor="clock-offset" sx={{ color: "var(--ink-soft)", fontSize: 11, flex: 1 }}>
-          カメラの時計のずれ（秒・遅れているなら＋）
+        <Typography component="span" id="camera-time-zone-label" sx={{ color: "var(--ink-soft)", fontSize: 11, flex: 1 }}>
+          カメラの時刻の設定（写真に時刻帯の情報があればそちらを優先）
         </Typography>
-        <TextField
-          id="clock-offset"
-          onChange={(event) => setOffset(event.target.value)}
+        <ToggleButtonGroup
+          aria-labelledby="camera-time-zone-label"
+          exclusive
+          onChange={(_, next: CameraTimeZone | null) => next && setTimeZone(next)}
           size="small"
-          slotProps={{ htmlInput: { "aria-label": "カメラの時計のずれ（秒）", inputMode: "numeric", style: { padding: "4px 8px", width: 56 } } }}
-          value={offset}
-        />
+          value={timeZone}
+        >
+          {(["JST", "UTC"] as const).map((zone) => (
+            <ToggleButton
+              key={zone}
+              sx={{ fontSize: 11, fontWeight: 700, padding: "2px 10px" }}
+              value={zone}
+            >
+              {zone}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </Stack>
       {status.failures.length > 0 && (
         <Stack role="alert" spacing={0.5} sx={{ color: "var(--pin)", fontSize: 12 }}>
