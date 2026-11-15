@@ -5,10 +5,6 @@ use std::io::Cursor;
 use chrono::{NaiveDate, NaiveDateTime};
 use exif::{In, Reader, Tag, Value};
 
-/// EXIF `DateTimeOriginal` has no time zone. When `OffsetTimeOriginal` is
-/// missing, assume Japan Standard Time.
-pub const DEFAULT_UTC_OFFSET_SECONDS: i64 = 9 * 3600;
-
 #[derive(Debug, Default, PartialEq)]
 pub struct PhotoMetadata {
     /// `(lng, lat)` in degrees.
@@ -22,14 +18,13 @@ pub struct PhotoMetadata {
 }
 
 impl PhotoMetadata {
-    /// The shooting time in UTC. `clock_offset_seconds` is added to correct a
-    /// camera whose clock is off.
-    pub fn taken_at_utc(&self, clock_offset_seconds: i64) -> Option<NaiveDateTime> {
+    /// The shooting time in UTC. EXIF times have no time zone: the camera's own
+    /// `OffsetTimeOriginal` is used when present, otherwise `camera_utc_offset_seconds`
+    /// (the time zone the user says the camera was set to).
+    pub fn taken_at_utc(&self, camera_utc_offset_seconds: i64) -> Option<NaiveDateTime> {
         let local = self.taken_at_local?;
-        let offset = self
-            .utc_offset_seconds
-            .unwrap_or(DEFAULT_UTC_OFFSET_SECONDS);
-        local.checked_add_signed(chrono::Duration::seconds(clock_offset_seconds - offset))
+        let offset = self.utc_offset_seconds.unwrap_or(camera_utc_offset_seconds);
+        local.checked_add_signed(chrono::Duration::seconds(-offset))
     }
 }
 
@@ -139,7 +134,7 @@ mod tests {
     }
 
     #[test]
-    fn converts_taken_at_with_the_camera_offset() {
+    fn the_offset_in_exif_wins_over_the_chosen_time_zone() {
         let m = PhotoMetadata {
             taken_at_local: Some(local(18)),
             utc_offset_seconds: Some(9 * 3600),
@@ -147,30 +142,29 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(m.taken_at_utc(0), Some(local(9)));
+        assert_eq!(m.taken_at_utc(9 * 3600), Some(local(9)));
     }
 
     #[test]
-    fn assumes_jst_without_an_offset() {
+    fn uses_the_chosen_time_zone_without_an_offset() {
         let m = PhotoMetadata {
             taken_at_local: Some(local(18)),
             orientation: 1,
             ..Default::default()
         };
-        assert_eq!(m.taken_at_utc(0), Some(local(9)));
+        // The camera was set to JST: 18:00 JST is 09:00 UTC.
+        assert_eq!(m.taken_at_utc(9 * 3600), Some(local(9)));
+        // The camera was set to UTC: 18:00 is already UTC.
+        assert_eq!(m.taken_at_utc(0), Some(local(18)));
     }
 
     #[test]
-    fn applies_the_clock_offset() {
+    fn no_shooting_time_gives_nothing() {
         let m = PhotoMetadata {
-            taken_at_local: Some(local(18)),
             orientation: 1,
             ..Default::default()
         };
-        // The camera is 10 minutes slow.
-        assert_eq!(
-            m.taken_at_utc(600),
-            Some(local(9) + chrono::Duration::minutes(10))
-        );
+        assert_eq!(m.taken_at_utc(0), None);
     }
 
     #[test]

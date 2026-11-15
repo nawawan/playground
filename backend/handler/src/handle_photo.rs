@@ -10,12 +10,14 @@ use crate::handler::Handler;
 use crate::model::photo::{
     ListPhotosQuery, PhotoResponse, PhotoUploadItemResponse, PlacePhotoRequest,
 };
+use usecase::model::photo::CameraTimeZone;
 use usecase::service::photo::photo_service::{PhotoService, PhotoUploadFile};
 use usecase::service::service::Service;
 
 impl Handler {
-    /// Multipart: one or more `image` files and an optional `time_offset_seconds`
-    /// text field (added to the shooting time to correct the camera clock).
+    /// Multipart: one or more `image` files and an optional `time_zone` text field
+    /// (`JST` by default, or `UTC`): the time zone the camera clock was set to, used
+    /// for photos whose EXIF has no offset of its own.
     pub async fn upload_photos(
         user: AuthorizedUser,
         state: State<Arc<Service>>,
@@ -25,7 +27,7 @@ impl Handler {
         helper::validate_admin(&user)?;
 
         let mut files = Vec::new();
-        let mut clock_offset_seconds = 0i64;
+        let mut camera_time_zone = CameraTimeZone::default();
         while let Some(field) = multipart
             .next_field()
             .await
@@ -40,14 +42,13 @@ impl Handler {
                         .map_err(|e| UsecaseError::bad_request(&e.body_text()))?;
                     files.push(PhotoUploadFile { file_name, data });
                 }
-                Some("time_offset_seconds") => {
+                Some("time_zone") => {
                     let text = field
                         .text()
                         .await
                         .map_err(|e| UsecaseError::bad_request(&e.body_text()))?;
-                    clock_offset_seconds = text.trim().parse().map_err(|_| {
-                        UsecaseError::bad_request("time_offset_seconds must be an integer")
-                    })?;
+                    camera_time_zone = CameraTimeZone::try_from(text.as_str())
+                        .map_err(|e| UsecaseError::bad_request(&e))?;
                 }
                 _ => {}
             }
@@ -58,7 +59,7 @@ impl Handler {
 
         let service = state.0.clone();
         let results = service
-            .upload_photos(activity_id, files, clock_offset_seconds)
+            .upload_photos(activity_id, files, camera_time_zone)
             .await?;
         let host = &service.config.host;
         Ok(Json(

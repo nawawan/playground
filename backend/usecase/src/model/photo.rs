@@ -34,6 +34,36 @@ impl TryFrom<&str> for PositionSource {
     }
 }
 
+/// The time zone the camera clock was set to. It is only used for photos whose EXIF
+/// has no `OffsetTimeOriginal`: EXIF times carry no time zone of their own.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum CameraTimeZone {
+    #[default]
+    Jst,
+    Utc,
+}
+
+impl CameraTimeZone {
+    pub fn utc_offset_seconds(&self) -> i64 {
+        match self {
+            CameraTimeZone::Jst => 9 * 3600,
+            CameraTimeZone::Utc => 0,
+        }
+    }
+}
+
+impl TryFrom<&str> for CameraTimeZone {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.trim().to_ascii_uppercase().as_str() {
+            "JST" => Ok(CameraTimeZone::Jst),
+            "UTC" => Ok(CameraTimeZone::Utc),
+            other => Err(format!("unsupported time zone: {other} (JST or UTC)")),
+        }
+    }
+}
+
 /// A position on an activity, in meters from its start.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PhotoPosition {
@@ -55,4 +85,23 @@ pub struct Photo {
     pub exif_lat: Option<f64>,
     /// UTC, camera clock offset applied.
     pub taken_at: Option<NaiveDateTime>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_the_camera_time_zone() {
+        assert_eq!(CameraTimeZone::try_from("JST"), Ok(CameraTimeZone::Jst));
+        assert_eq!(CameraTimeZone::try_from(" utc "), Ok(CameraTimeZone::Utc));
+        assert!(CameraTimeZone::try_from("PST").is_err());
+        assert!(CameraTimeZone::try_from("").is_err());
+    }
+
+    #[test]
+    fn defaults_to_jst() {
+        assert_eq!(CameraTimeZone::default().utc_offset_seconds(), 9 * 3600);
+        assert_eq!(CameraTimeZone::Utc.utc_offset_seconds(), 0);
+    }
 }
