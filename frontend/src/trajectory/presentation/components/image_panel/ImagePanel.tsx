@@ -210,7 +210,7 @@ const PhotoTile = ({ photo, active, placing, canEdit, onSelect, onStartPlacing, 
           type="button"
           sx={placing ? { background: "var(--pin)", "&:hover": { background: "var(--pin)" } } : undefined}
         >
-          {placing ? "選択中…（取り消す）" : "置き場所を選ぶ"}
+          {placing ? "選択中…（取消）" : "置き場所を選ぶ"}
         </Pill>
       )}
       {canEdit && !unplaced && active && (
@@ -218,7 +218,7 @@ const PhotoTile = ({ photo, active, placing, canEdit, onSelect, onStartPlacing, 
           aria-label="位置を置き直す"
           disableRipple
           onClick={placing ? onCancelPlacing : onStartPlacing}
-          sx={{ bottom: 8, right: 8 }}
+          sx={{ left: 30, top: 8 }}
           type="button"
         >
           {placing ? "取り消す" : "置き直す"}
