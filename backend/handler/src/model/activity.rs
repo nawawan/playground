@@ -4,25 +4,6 @@ use usecase::model::activity::Activity;
 
 use crate::model::trajectory::LineString;
 
-mod option_id_string {
-    use serde::{Deserialize, Deserializer, Serializer, de};
-
-    pub fn serialize<S: Serializer>(id: &Option<i64>, serializer: S) -> Result<S::Ok, S::Error> {
-        match id {
-            Some(id) => serializer.serialize_str(&id.to_string()),
-            None => serializer.serialize_none(),
-        }
-    }
-
-    pub fn deserialize<'de, D: Deserializer<'de>>(
-        deserializer: D,
-    ) -> Result<Option<i64>, D::Error> {
-        Option::<String>::deserialize(deserializer)?
-            .map(|id| id.parse().map_err(de::Error::custom))
-            .transpose()
-    }
-}
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ActivityResponse {
     #[serde(with = "super::id_string")]
@@ -33,7 +14,7 @@ pub struct ActivityResponse {
     pub elevation_gain: f64,
     pub start_time: NaiveDateTime,
     /// `null` for a standalone activity.
-    #[serde(with = "option_id_string")]
+    #[serde(with = "super::id_string::option")]
     pub travel_id: Option<i64>,
     pub trajectory: Option<LineString>,
     pub elevations: Vec<f64>,
