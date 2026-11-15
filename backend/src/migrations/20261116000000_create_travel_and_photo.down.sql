@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS photo;
+DROP INDEX IF EXISTS activity_travel_id_idx;
+ALTER TABLE activity DROP COLUMN IF EXISTS travel_id;
+DROP TABLE IF EXISTS travel;

@@ -45,6 +45,14 @@ cargo test --workspace
 cargo make -p backend create-uuid
 ```
 
+## Testing external APIs (R2 / S3, Cloudflare, etc.)
+
+Do not write code-level tests (unit tests, mocks, in-process stubs) for calls to external APIs such as R2. A mock only proves the code matches our assumption of the API, not that the API behaves that way. Verify them end to end instead: run the real flow against the dev environment (after the PR deploys, e.g. dev.nawawan.com) and check the actual result.
+
+- Keep the logic around the external call (EXIF parsing, position calculation, key naming, ...) in pure functions and unit test those.
+- Test the database layer against a real database (`#[sqlx::test]`).
+- Never point local tests or experiments at a real production bucket / database.
+
 ## Key Environment Variables
 
 | Variable | Purpose |
