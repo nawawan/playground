@@ -31,6 +31,9 @@ const HeightRoot = styled(Stack)({
 const HeaderRow = styled(Stack)({
   alignItems: "flex-start",
   justifyContent: "space-between",
+  // The left side swaps between the label and the placing message; this keeps the
+  // row (and the map / chart around it) from changing height when it does.
+  minHeight: 34,
 });
 
 const Label = styled(Typography)({
@@ -53,9 +56,9 @@ const PlacingBanner = styled(Stack)({
   borderRadius: 8,
   color: "#fff",
   fontSize: 12,
-  gap: 10,
-  justifyContent: "space-between",
-  padding: "6px 10px",
+  gap: 8,
+  height: 28,
+  padding: "0 4px 0 10px",
 });
 
 const StatNumber = styled(Typography)({
@@ -107,7 +110,21 @@ export const TrajectoryHeight = ({
   return (
     <HeightRoot spacing={0.75}>
       <HeaderRow direction="row">
-        <Label>ELEVATION PROFILE · drag or hover to scrub</Label>
+        {placing ? (
+          <PlacingBanner direction="row">
+            <span>写真を置く位置をクリックしてください</span>
+            <Button
+              disableRipple
+              onClick={onCancelPlacing}
+              sx={{ color: "#fff", fontSize: 12, padding: "0 6px", textDecoration: "underline" }}
+              type="button"
+            >
+              キャンセル
+            </Button>
+          </PlacingBanner>
+        ) : (
+          <Label>ELEVATION PROFILE · drag or hover to scrub</Label>
+        )}
         <Stack direction="row" spacing={2.5}>
           <StatGroup>
             <StatNumber>{minElevation}m</StatNumber>
@@ -122,19 +139,6 @@ export const TrajectoryHeight = ({
           </StatGroup>
         </Stack>
       </HeaderRow>
-      {placing && (
-        <PlacingBanner direction="row">
-          <span>写真を置く位置をクリックしてください</span>
-          <Button
-            disableRipple
-            onClick={onCancelPlacing}
-            sx={{ color: "#fff", fontSize: 12, padding: "0 6px", textDecoration: "underline" }}
-            type="button"
-          >
-            キャンセル
-          </Button>
-        </PlacingBanner>
-      )}
       <Box
         aria-label={placing ? "elevation chart (choose a photo position)" : "elevation chart"}
         onPointerDown={press}

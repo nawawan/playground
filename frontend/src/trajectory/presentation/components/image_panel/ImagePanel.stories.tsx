@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Box } from "@mui/material";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { ImagePanel } from "./ImagePanel";
 import { listedActivities, trajectoryActivities } from "../../../domain/mockData";
+import "../../page/TrajectoryPage.css";
 
 const meta = {
   title: "Trajectory/Components/ImagePanel",
   component: ImagePanel,
   decorators: [
     (Story) => (
-      <Box sx={{ background: "#fff", height: 760, maxWidth: 360 }}>
+      <Box className="trajectory-page" sx={{ background: "#fff", height: 760, maxWidth: 360 }}>
         <Story />
       </Box>
     ),
@@ -144,7 +145,13 @@ export const Delete: Story = {
     await userEvent.click(first);
     await expect(args.onDeletePhoto).not.toHaveBeenCalled();
 
-    await userEvent.click(canvas.getByRole("button", { name: "本当に削除する" }));
+    // The confirming button is red with white text. (The hover colour is a CSS :hover rule,
+    // which simulated events cannot trigger: it is checked by hand in the browser.)
+    const confirm = canvas.getByRole("button", { name: "本当に削除する" });
+    await waitFor(() => expect(getComputedStyle(confirm).backgroundColor).toBe("rgb(211, 59, 59)"));
+    await expect(getComputedStyle(confirm).color).toBe("rgb(255, 255, 255)");
+
+    await userEvent.click(confirm);
     await expect(args.onDeletePhoto).toHaveBeenCalledTimes(1);
   },
 };

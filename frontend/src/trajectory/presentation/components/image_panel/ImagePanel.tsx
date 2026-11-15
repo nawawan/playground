@@ -233,10 +233,17 @@ const PhotoTile = ({ photo, active, placing, canEdit, onSelect, onStartPlacing, 
             if (confirmingDelete) onDelete?.();
             else setConfirmingDelete(true);
           }}
-          sx={{ right: 8, top: 8, ...(confirmingDelete ? { background: "var(--pin)", color: "#fff" } : {}) }}
+          sx={{
+            right: 8,
+            top: 8,
+            // The confirming state keeps its red background on hover (the plain hover is white).
+            ...(confirmingDelete
+              ? { background: "var(--pin)", color: "#fff", "&:hover": { background: "var(--pin)" } }
+              : {}),
+          }}
           type="button"
         >
-          {confirmingDelete ? "削除する?" : "✕"}
+          {confirmingDelete ? "削除?" : "✕"}
         </CornerButton>
       )}
     </Tile>

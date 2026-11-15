@@ -86,3 +86,44 @@ export const Placing: Story = {
     await expect(args.onCancelPlacing).toHaveBeenCalled();
   },
 };
+
+// Entering / leaving the placing mode must not move the map or the chart around it.
+const PlacingToggle = () => {
+  const [placingPhotoId, setPlacingPhotoId] = useState<string | null>(null);
+  return (
+    <div>
+      <button onClick={() => setPlacingPhotoId((current) => (current ? null : "n2"))} type="button">
+        toggle placing
+      </button>
+      <div data-testid="chart-root">
+        <TrajectoryHeight
+          activePhotoId={null}
+          activity={listedActivities[0]}
+          here={0.5}
+          onHereChange={() => undefined}
+          onPhotoSelect={() => undefined}
+          placingPhotoId={placingPhotoId}
+        />
+      </div>
+    </div>
+  );
+};
+
+export const PlacingDoesNotShiftTheLayout: Story = {
+  args: { activePhotoId: null, activity: listedActivities[0] },
+  render: () => <PlacingToggle />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const root = canvas.getByTestId("chart-root");
+    const height = () => root.getBoundingClientRect().height;
+    const before = height();
+
+    await userEvent.click(canvas.getByRole("button", { name: "toggle placing" }));
+    await expect(canvas.getByText("写真を置く位置をクリックしてください")).toBeInTheDocument();
+    await expect(height()).toBe(before);
+
+    await userEvent.click(canvas.getByRole("button", { name: "toggle placing" }));
+    await expect(canvas.queryByText("写真を置く位置をクリックしてください")).not.toBeInTheDocument();
+    await expect(height()).toBe(before);
+  },
+};
