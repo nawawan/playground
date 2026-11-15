@@ -2,7 +2,8 @@ import { TrajectoryHeight } from "../../../../presentation/components/trajectory
 import { useTrajectoryPageState } from "../../state/useTrajectoryPageState";
 
 export const TrajectoryHeightContainer = () => {
-  const { activeActivity, activePhotoId, here, onHereChange, onSelectPhoto } = useTrajectoryPageState();
+  const { activeActivity, activePhotoId, here, placingPhotoId, onCancelPlacing, onHereChange, onPlacePhoto, onSelectPhoto } =
+    useTrajectoryPageState();
 
   if (!activeActivity) return null;
 
@@ -11,8 +12,11 @@ export const TrajectoryHeightContainer = () => {
       activePhotoId={activePhotoId}
       activity={activeActivity}
       here={here}
+      onCancelPlacing={onCancelPlacing}
       onHereChange={onHereChange}
       onPhotoSelect={onSelectPhoto}
+      onPlacePhoto={(at) => void onPlacePhoto(at)}
+      placingPhotoId={placingPhotoId}
     />
   );
 };

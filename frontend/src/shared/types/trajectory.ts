@@ -1,4 +1,9 @@
-import { type TrajectoryActivity } from "../../trajectory/domain/types";
+import {
+    type PhotoPositionSource,
+    type TrajectoryActivity,
+    type TrajectoryPhoto,
+    type Travel,
+} from "../../trajectory/domain/types";
 
 export type LineString = {
   type: "LineString";
@@ -14,6 +19,8 @@ export type ActivityResponse = {
     duration: number;
     elevation_gain: number;
     start_time: string;
+    // null for a standalone activity. string: ids exceed Number.MAX_SAFE_INTEGER.
+    travel_id: string | null;
     trajectory:  LineString | null;
     elevations: number[];
 };
@@ -42,5 +49,47 @@ export const toTrajectoryActivity = (activity: ActivityResponse): TrajectoryActi
     zoom: 1,
     track: activity.trajectory?.coordinates ?? [],
     elevation: activity.elevations ?? [],
+    travelId: activity.travel_id ?? null,
     photos: [],
+});
+
+export type TravelResponse = {
+    id: string;
+    name: string;
+};
+
+export const toTravel = (travel: TravelResponse): Travel => ({ id: travel.id, name: travel.name });
+
+export type PhotoResponse = {
+    id: string;
+    activity_id: string;
+    url: string;
+    thumbnail_url: string;
+    // Meters from the start of the activity. null while the photo is not placed.
+    distance_m: number | null;
+    lng: number | null;
+    lat: number | null;
+    position_source: PhotoPositionSource | null;
+    taken_at: string | null;
+};
+
+// One entry per uploaded file: either `photo` or `error` is set.
+export type PhotoUploadItemResponse = {
+    file_name: string;
+    photo: PhotoResponse | null;
+    error: string | null;
+};
+
+export const toTrajectoryPhoto = (photo: PhotoResponse): TrajectoryPhoto => ({
+    id: photo.id,
+    activityId: photo.activity_id,
+    url: photo.url,
+    thumbnailUrl: photo.thumbnail_url,
+    distanceM: photo.distance_m,
+    lng: photo.lng,
+    lat: photo.lat,
+    source: photo.position_source,
+    takenAt: photo.taken_at,
+    // Resolved against the track that is currently shown (see domain/photoPosition).
+    at: null,
 });

@@ -20,9 +20,9 @@ const TrajectoryPageContent = ({ canUpload }: { canUpload: boolean }) => {
   return (
     <TrajectoryPage
       Header={<HeaderContainer canUpload={canUpload} />}
-      ImagePanel={<ImagePanelContainer />}
+      ImagePanel={<ImagePanelContainer canUpload={canUpload} />}
       MapArea={<MapAreaContainer />}
-      TrajectoryDetail={<TrajectoryDetailContainer />}
+      TrajectoryDetail={<TrajectoryDetailContainer canUpload={canUpload} />}
       TrajectoryHeight={<TrajectoryHeightContainer />}
       TrajectorySideBar={<TrajectorySideBarContainer canUpload={canUpload} />}
       UploadModal={canUpload ? <UploadModalContainer /> : null}

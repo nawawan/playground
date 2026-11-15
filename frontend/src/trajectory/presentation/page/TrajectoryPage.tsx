@@ -3,13 +3,13 @@ import { styled } from "@mui/material/styles";
 import type { ReactNode } from "react";
 import "./TrajectoryPage.css";
 
-export type TrajectoryViewMode = "all" | "single";
+export type TrajectoryViewMode = "all" | "travel" | "single";
 
 export type TrajectoryPageStatus = "loading" | "empty" | "ready";
 
 type TrajectoryPageProps = {
   status: TrajectoryPageStatus;
-  // "all" shows only the map; the height graph and the detail / image panels are for a single activity.
+  // "all" shows only the map; the height graph and the detail / image panels are for one activity or one travel.
   viewMode: TrajectoryViewMode;
   Header: ReactNode;
   ImagePanel: ReactNode;
@@ -88,9 +88,9 @@ export const TrajectoryPage = ({
         <>
           <CenterColumn>
             {MapArea}
-            {viewMode === "single" && TrajectoryHeight}
+            {viewMode !== "all" && TrajectoryHeight}
           </CenterColumn>
-          {viewMode === "single" && (
+          {viewMode !== "all" && (
             <RightColumn>
               {TrajectoryDetail}
               {ImagePanel}

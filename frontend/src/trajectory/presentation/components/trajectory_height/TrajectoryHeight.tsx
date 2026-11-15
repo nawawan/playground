@@ -1,5 +1,6 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { photoLabel } from "../../../domain/format";
 import { clamp, elevationAt, formatKmAt } from "../../../domain/geo";
 import type { TrajectoryActivity } from "../../../domain/types";
 
@@ -9,6 +10,11 @@ type TrajectoryHeightProps = {
   here: number;
   onHereChange: (here: number) => void;
   onPhotoSelect: (photoId: string) => void;
+  // While set, clicking the chart puts that photo there instead of moving the cursor.
+  placingPhotoId?: string | null;
+  // `at`: where on the chart (0..1) was clicked.
+  onPlacePhoto?: (at: number) => void;
+  onCancelPlacing?: () => void;
 };
 
 const SVG_WIDTH = 100;
@@ -41,6 +47,17 @@ const StatCaption = styled(Typography)({
   fontSize: 11,
 });
 
+const PlacingBanner = styled(Stack)({
+  alignItems: "center",
+  background: "var(--ink)",
+  borderRadius: 8,
+  color: "#fff",
+  fontSize: 12,
+  gap: 10,
+  justifyContent: "space-between",
+  padding: "6px 10px",
+});
+
 const StatNumber = styled(Typography)({
   color: "var(--ink)",
   fontSize: 13,
@@ -53,7 +70,11 @@ export const TrajectoryHeight = ({
   here,
   onHereChange,
   onPhotoSelect,
+  placingPhotoId = null,
+  onPlacePhoto,
+  onCancelPlacing,
 }: TrajectoryHeightProps) => {
+  const placing = placingPhotoId !== null;
   const hasElevation = activity.elevation.length > 0;
   const minElevation = hasElevation ? Math.min(...activity.elevation) : 0;
   const maxElevation = hasElevation ? Math.max(...activity.elevation) : 0;
@@ -71,9 +92,16 @@ export const TrajectoryHeight = ({
   const km = Math.trunc(activity.km / 1000);
   const hereKm = formatKmAt(km, here);
 
-  const scrub = (event: React.PointerEvent<HTMLDivElement>) => {
+  const atOf = (event: React.PointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    onHereChange(clamp((event.clientX - rect.left) / rect.width));
+    return clamp((event.clientX - rect.left) / rect.width);
+  };
+
+  const scrub = (event: React.PointerEvent<HTMLDivElement>) => onHereChange(atOf(event));
+
+  const press = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (placing) onPlacePhoto?.(atOf(event));
+    else scrub(event);
   };
 
   return (
@@ -94,9 +122,24 @@ export const TrajectoryHeight = ({
           </StatGroup>
         </Stack>
       </HeaderRow>
+      {placing && (
+        <PlacingBanner direction="row">
+          <span>写真を置く位置をクリックしてください</span>
+          <Button
+            disableRipple
+            onClick={onCancelPlacing}
+            sx={{ color: "#fff", fontSize: 12, padding: "0 6px", textDecoration: "underline" }}
+            type="button"
+          >
+            キャンセル
+          </Button>
+        </PlacingBanner>
+      )}
       <Box
-        onPointerDown={scrub}
+        aria-label={placing ? "elevation chart (choose a photo position)" : "elevation chart"}
+        onPointerDown={press}
         onPointerMove={scrub}
+        role="application"
         sx={{
           cursor: "crosshair",
           height: 92,
@@ -139,21 +182,27 @@ export const TrajectoryHeight = ({
             </>
           )}
         </svg>
-        {activity.photos.map((photo) => (
-          <Button
-            aria-label={photo.caption}
-            className="trajectory-height__photo"
-            disableRipple
-            key={photo.id}
-            onClick={(event) => {
-              event.stopPropagation();
-              onPhotoSelect(photo.id);
-            }}
-            style={{ left: `${photo.at * 100}%` }}
-            sx={activePhotoId === photo.id ? { background: "var(--pin)" } : undefined}
-            type="button"
-          />
-        ))}
+        {/* A photo that is not placed yet has no position on the chart. */}
+        {activity.photos.map((photo) =>
+          photo.at === null ? null : (
+            <span className="trajectory-height__photo-wrap" key={photo.id} style={{ left: `${photo.at * 100}%` }}>
+              <Button
+                aria-label={photoLabel(photo)}
+                className={`trajectory-height__photo${activePhotoId === photo.id ? " is-active" : ""}`}
+                disableRipple
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onPhotoSelect(photo.id);
+                }}
+                onPointerDown={(event) => event.stopPropagation()}
+                type="button"
+              />
+              <span aria-hidden="true" className="trajectory-height__photo-preview">
+                <img alt="" src={photo.thumbnailUrl} />
+              </span>
+            </span>
+          ),
+        )}
         <Box
           style={{ left: `${here * 100}%` }}
           sx={{ borderLeft: "1.5px solid var(--pin)", bottom: 0, pointerEvents: "none", position: "absolute", top: 0 }}
@@ -173,6 +222,7 @@ export const TrajectoryHeight = ({
             top: -2,
             transform: "translateX(8px)",
             whiteSpace: "nowrap",
+            zIndex: 3,
           }}
         >
           {hereElevation}m · {hereKm}km
