@@ -13,6 +13,9 @@ pub struct ActivityResponse {
     pub duration: i64,
     pub elevation_gain: f64,
     pub start_time: NaiveDateTime,
+    /// `null` for a standalone activity.
+    #[serde(with = "super::id_string::option")]
+    pub travel_id: Option<i64>,
     pub trajectory: Option<LineString>,
     pub elevations: Vec<f64>,
 }
@@ -26,6 +29,7 @@ impl From<Activity> for ActivityResponse {
             duration: activity.duration,
             elevation_gain: activity.elevation_gain,
             start_time: activity.start_time,
+            travel_id: activity.travel_id,
             elevations: activity.thin_elevation.unwrap_or_default(),
             trajectory: activity
                 .thin_trajectory

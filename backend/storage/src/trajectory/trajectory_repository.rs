@@ -25,8 +25,21 @@ struct ActivityRow {
     distance: f64,
     elevation: f64,
     duration: i64,
+    travel_id: Option<i64>,
     trajectory: wkb::Decode<Geometry<f64>>,
     elevations: Vec<f64>,
+}
+
+#[derive(sqlx::FromRow)]
+struct ActivitySummaryRow {
+    id: i64,
+    user_id: Uuid,
+    name: String,
+    started_at: NaiveDateTime,
+    distance: f64,
+    elevation: f64,
+    duration: i64,
+    travel_id: Option<i64>,
 }
 
 fn geometry_to_coordinates(geometry: Geometry<f64>) -> Vec<Coordinate> {
@@ -207,15 +220,35 @@ impl TrajectoryRepository for Repository {
         Ok(activity)
     }
     async fn get_activity(&self, activity_id: i64) -> Result<Activity, RepoError> {
-        // Implementation for getting an activity
-        Err(RepoError::NotFound(format!(
-            "Activity with id: {} not found",
-            activity_id
-        )))
+        let row: Option<ActivitySummaryRow> = sqlx::query_as(
+            "SELECT id, user_id, name, started_at, distance, elevation, duration, travel_id
+             FROM activity WHERE id = $1",
+        )
+        .bind(activity_id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| {
+            error!("Failed to get activity: {}", e);
+            RepoError::Internal("Failed to get activity".to_string())
+        })?;
+
+        row.map(|record| Activity {
+            id: record.id,
+            user_id: record.user_id,
+            name: record.name,
+            start_time: record.started_at,
+            distance: record.distance,
+            elevation_gain: record.elevation,
+            duration: record.duration,
+            travel_id: record.travel_id,
+            thin_trajectory: None,
+            thin_elevation: None,
+        })
+        .ok_or_else(|| RepoError::NotFound(format!("Activity with id: {} not found", activity_id)))
     }
     async fn list_activities(&self) -> Result<Vec<Activity>, RepoError> {
         let mut builder = sqlx::QueryBuilder::new(
-            "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, t.trajectory, t.elevations
+            "SELECT a.id, a.user_id, a.name, a.started_at, a.distance, a.elevation, a.duration, a.travel_id, t.trajectory, t.elevations
              FROM activity a
              INNER JOIN trajectory_lod t ON t.activity_id = a.id AND t.zoom_from = ",
         );
@@ -240,6 +273,7 @@ impl TrajectoryRepository for Repository {
                 distance: record.distance,
                 elevation_gain: record.elevation,
                 duration: record.duration,
+                travel_id: record.travel_id,
                 thin_trajectory: record.trajectory.geometry.map(geometry_to_coordinates),
                 thin_elevation: Some(record.elevations),
             })

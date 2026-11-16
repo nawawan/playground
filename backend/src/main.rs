@@ -7,6 +7,7 @@ use axum::{
     extract::{DefaultBodyLimit, State},
     http::StatusCode,
     routing::get,
+    routing::patch,
     routing::post,
     routing::put,
 };
@@ -91,6 +92,10 @@ fn create_blog_router(service: Arc<Service>) -> Router {
 // Cloud Run rejects requests over 32MB, so stay below that.
 const GPX_UPLOAD_BODY_LIMIT: usize = 30 * 1024 * 1024;
 
+// A photo upload is one request; Cloud Run rejects requests over 32MB. The
+// per-file limit (20MB) is enforced by the photo service.
+const PHOTO_UPLOAD_BODY_LIMIT: usize = 30 * 1024 * 1024;
+
 fn create_trajectory_router(service: Arc<Service>) -> Router {
     let activity_routers = Router::new()
         .route(
@@ -99,7 +104,32 @@ fn create_trajectory_router(service: Arc<Service>) -> Router {
                 .post(Handler::upload_gpx)
                 .layer(DefaultBodyLimit::max(GPX_UPLOAD_BODY_LIMIT)),
         )
+        .route("/{id}", patch(Handler::update_activity))
         .route("/{id}/trajectory", get(Handler::get_activity_trajectory))
+        .route(
+            "/{id}/photos",
+            get(Handler::list_activity_photos)
+                .post(Handler::upload_photos)
+                .layer(DefaultBodyLimit::max(PHOTO_UPLOAD_BODY_LIMIT)),
+        )
+        .fallback(api_fallback)
+        .with_state(service.clone());
+
+    let travel_routers = Router::new()
+        .route("/", get(Handler::list_travels).post(Handler::create_travel))
+        .route(
+            "/{id}",
+            patch(Handler::update_travel).delete(Handler::delete_travel),
+        )
+        .fallback(api_fallback)
+        .with_state(service.clone());
+
+    let photo_routers = Router::new()
+        .route("/", get(Handler::list_photos))
+        .route(
+            "/{id}",
+            patch(Handler::place_photo).delete(Handler::delete_photo),
+        )
         .fallback(api_fallback)
         .with_state(service.clone());
 
@@ -111,6 +141,8 @@ fn create_trajectory_router(service: Arc<Service>) -> Router {
     Router::new()
         .nest("/activities", activity_routers)
         .nest("/trajectories", trajectory_routers)
+        .nest("/travels", travel_routers)
+        .nest("/photos", photo_routers)
 }
 
 fn create_user_router(service: Arc<Service>) -> Router {

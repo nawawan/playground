@@ -12,6 +12,7 @@ pub struct Activity {
     pub duration: i64,
     pub elevation_gain: f64,
     pub start_time: NaiveDateTime,
+    pub travel_id: Option<i64>,
     pub thin_trajectory: Option<Vec<Coordinate>>,
     pub thin_elevation: Option<Vec<f64>>,
 }

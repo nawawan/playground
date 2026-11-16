@@ -59,6 +59,7 @@ impl TrajectoryService for Service {
             duration: duration,
             elevation_gain: elevation,
             start_time: trajectory.started_at,
+            travel_id: None,
             thin_trajectory: None,
             thin_elevation: None,
         };
