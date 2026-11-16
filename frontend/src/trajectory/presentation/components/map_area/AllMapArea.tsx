@@ -116,8 +116,10 @@ export const AllMapArea = ({ tracks, mapStyle, onViewportChange }: AllMapAreaPro
     if (appliedStyleRef.current === mapStyle) return;
     appliedStyleRef.current = mapStyle;
 
-    map.setStyle(MAP_STYLE_SOURCES[mapStyle]());
+    // `diff: false`: a diff patches the style in place without "style.load" and drops the
+    // track layers (see MapArea).
     map.once("style.load", () => syncTracks(map, tracksRef.current));
+    map.setStyle(MAP_STYLE_SOURCES[mapStyle](), { diff: false });
   }, [mapStyle, ready]);
 
   useEffect(() => {

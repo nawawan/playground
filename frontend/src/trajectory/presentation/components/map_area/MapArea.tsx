@@ -169,8 +169,11 @@ export const MapArea = ({
     if (appliedStyleRef.current === mapStyle) return;
     appliedStyleRef.current = mapStyle;
 
-    map.setStyle(MAP_STYLE_SOURCES[mapStyle]());
+    // `diff: false`: with the default (a diff against the current style) MapLibre patches the
+    // style in place, never fires "style.load", and drops the track layers we added, since
+    // they are not part of the new style. A full replacement fires it once the style is ready.
     map.once("style.load", () => addTrackLayers(map, activityRef.current, overlaysRef.current));
+    map.setStyle(MAP_STYLE_SOURCES[mapStyle](), { diff: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapStyle]);
 
