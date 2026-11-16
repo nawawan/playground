@@ -300,7 +300,7 @@ const PhotoUploader = ({ status, onUploadFiles }: PhotoUploaderProps) => {
       />
       <Stack alignItems="center" direction="row" spacing={1}>
         <Typography component="span" id="camera-time-zone-label" sx={{ color: "var(--ink-soft)", fontSize: 11, flex: 1 }}>
-          カメラの時刻の設定（写真に時刻帯の情報があればそちらを優先）
+          カメラの時刻帯
         </Typography>
         <ToggleButtonGroup
           aria-labelledby="camera-time-zone-label"
