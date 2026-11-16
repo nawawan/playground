@@ -1,16 +1,27 @@
 import { Button, Stack, Typography } from "@mui/material";
+import { useState } from "react";
 import { styled } from "@mui/material/styles";
-import { ALL_ACTIVITY_ID, type TrajectoryActivity } from "../../../domain/types";
+import type { YearGroup } from "../../../domain/entries";
+import { travelSelectionId } from "../../../domain/travel";
+import { ALL_ACTIVITY_ID } from "../../../domain/types";
 import { ActivityCard } from "../activity_card/ActivityCard";
 import { AllActivityCard } from "../activity_card/AllActivityCard";
+import { TravelCard } from "../activity_card/TravelCard";
+import { YearHeader } from "../activity_card/YearHeader";
 
 type TrajectorySideBarProps = {
-  activities: TrajectoryActivity[];
-  // ALL_ACTIVITY_ID while the All card is selected.
+  // Activities grouped by year, travels and standalone activities mixed (see buildYearGroups).
+  groups: YearGroup[];
+  // all activities, for the "All" card
+  totalCount: number;
+  // ALL_ACTIVITY_ID while the All card is selected; a travel's selection id while a travel is.
   activeId: string;
-  canUpload: boolean;
+  // Admin: GPX upload and travel creation.
+  canEdit: boolean;
   onSelectActivity: (activityId: string) => void;
+  onSelectTravel: (travelId: string) => void;
   onUpload: () => void;
+  onNewTravel: () => void;
 };
 
 const SideBarRoot = styled(Stack)({
@@ -39,7 +50,13 @@ const ActivityList = styled(Stack)({
   padding: "8px 12px 16px",
 });
 
+const AdminButtons = styled(Stack)({
+  flexDirection: "row",
+  gap: 8,
+});
+
 const NewActivityButton = styled(Button)({
+  flex: 1,
   background: "transparent",
   border: "1.5px dashed var(--ink-faint)",
   borderRadius: 10,
@@ -50,36 +67,82 @@ const NewActivityButton = styled(Button)({
   padding: "14px 12px",
 });
 
+const groupContainsActive = (group: YearGroup, activeId: string) =>
+  group.entries.some((entry) =>
+    entry.kind === "activity"
+      ? entry.activity.id === activeId
+      : travelSelectionId(entry.travel.id) === activeId || entry.children.some((child) => child.id === activeId),
+  );
+
 export const TrajectorySideBar = ({
-  activities,
+  groups,
+  totalCount,
   activeId,
-  canUpload,
+  canEdit,
   onSelectActivity,
+  onSelectTravel,
   onUpload,
-}: TrajectorySideBarProps) => (
-  <SideBarRoot>
-    <SideBarHead>
-      <SideBarTitle>ACTIVITIES</SideBarTitle>
-    </SideBarHead>
-    <ActivityList spacing={1}>
-      {canUpload && (
-        <NewActivityButton disableRipple type="button" onClick={onUpload}>
-          + new activity
-        </NewActivityButton>
-      )}
-      <AllActivityCard
-        active={activeId === ALL_ACTIVITY_ID}
-        count={activities.length}
-        onSelect={() => onSelectActivity(ALL_ACTIVITY_ID)}
-      />
-      {activities.map((activity) => (
-        <ActivityCard
-          active={activity.id === activeId}
-          activity={activity}
-          key={activity.id}
-          onSelect={onSelectActivity}
+  onNewTravel,
+}: TrajectorySideBarProps) => {
+  // Only the newest year (and the year of the selection) is open at first; a year the
+  // user opened or closed by hand stays as they left it.
+  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
+
+  return (
+    <SideBarRoot>
+      <SideBarHead>
+        <SideBarTitle>Activities</SideBarTitle>
+      </SideBarHead>
+      <ActivityList spacing={1}>
+        {canEdit && (
+          <AdminButtons>
+            <NewActivityButton disableRipple type="button" onClick={onUpload}>
+              + new activity
+            </NewActivityButton>
+            <NewActivityButton disableRipple type="button" onClick={onNewTravel}>
+              + new travel
+            </NewActivityButton>
+          </AdminButtons>
+        )}
+        <AllActivityCard
+          active={activeId === ALL_ACTIVITY_ID}
+          count={totalCount}
+          onSelect={() => onSelectActivity(ALL_ACTIVITY_ID)}
         />
-      ))}
-    </ActivityList>
-  </SideBarRoot>
-);
+        {groups.map((group, index) => {
+          const open = overrides[group.year] ?? (index === 0 || groupContainsActive(group, activeId));
+          return (
+            <Stack key={group.year} spacing={1}>
+              <YearHeader
+                activityCount={group.activityCount}
+                distance={group.distance}
+                onToggle={() => setOverrides((prev) => ({ ...prev, [group.year]: !open }))}
+                open={open}
+                year={group.year}
+              />
+              {open &&
+                group.entries.map((entry) =>
+                  entry.kind === "activity" ? (
+                    <ActivityCard
+                      active={entry.activity.id === activeId}
+                      activity={entry.activity}
+                      key={`activity-${entry.activity.id}`}
+                      onSelect={onSelectActivity}
+                    />
+                  ) : (
+                    <TravelCard
+                      activeId={activeId}
+                      entry={entry}
+                      key={`travel-${entry.travel.id}`}
+                      onSelectActivity={onSelectActivity}
+                      onSelectTravel={onSelectTravel}
+                    />
+                  ),
+                )}
+            </Stack>
+          );
+        })}
+      </ActivityList>
+    </SideBarRoot>
+  );
+};

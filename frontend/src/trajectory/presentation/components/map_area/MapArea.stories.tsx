@@ -3,6 +3,7 @@ import { Box } from "@mui/material";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { MapArea } from "./MapArea";
 import { trajectoryActivities } from "../../../domain/mockData";
+import "../../page/TrajectoryPage.css";
 
 const meta = {
   title: "Trajectory/Components/MapArea",
@@ -44,4 +45,38 @@ export const Default: Story = {
     onPhotoSelect: () => undefined,
   },
   render: () => <InteractiveMapArea />,
+};
+
+// Switching the style must keep the track. The map is a canvas, so this one is checked by eye.
+const StyleSwitchMapArea = () => {
+  const activity = trajectoryActivities[0];
+  const [mapStyle, setMapStyle] = useState<"terrain" | "streets">("terrain");
+
+  return (
+    <>
+      <button onClick={() => setMapStyle((current) => (current === "terrain" ? "streets" : "terrain"))} type="button">
+        switch style ({mapStyle})
+      </button>
+      <Box sx={{ height: 480 }}>
+        <MapArea
+          activePhotoId={null}
+          activity={activity}
+          here={0.5}
+          mapStyle={mapStyle}
+          onPhotoSelect={() => undefined}
+        />
+      </Box>
+    </>
+  );
+};
+
+export const StyleSwitch: Story = {
+  args: {
+    activePhotoId: null,
+    activity: trajectoryActivities[0],
+    here: 0.5,
+    mapStyle: "terrain",
+    onPhotoSelect: () => undefined,
+  },
+  render: () => <StyleSwitchMapArea />,
 };

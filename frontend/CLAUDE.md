@@ -8,6 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm run dev          # Start Vite dev server (localhost:5173)
 pnpm run build        # TypeScript check + Vite build
 pnpm run lint         # ESLint
+pnpm test             # Vitest: unit tests (*.test.ts) + every story (its `play` function is the test)
+pnpm run test:unit    # only the unit tests
+pnpm run test:stories # only the stories (needs `pnpm exec playwright install chromium` once)
 pnpm run formatter    # Prettier format src/
 pnpm start            # Storybook dev server (localhost:6006)
 pnpm run build-storybook  # Build Storybook static site
@@ -16,7 +19,7 @@ pnpm run deploy       # Deploy to production (Cloudflare Workers)
 pnpm run preview      # Deploy to preview environment
 ```
 
-No test runner is configured via `pnpm test`; Vitest runs through the Storybook addon.
+Stories run as tests through the Storybook Vitest addon (`pnpm run test:stories`).
 
 ## Architecture
 

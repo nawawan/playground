@@ -20,10 +20,13 @@ const logError = (e: unknown) =>
 //   tile by tile (stable, cacheable requests). Fetched tiles are kept until the
 //   map zooms back out or the selection changes, so panning back or zooming in
 //   does not refetch.
-// - Single view: the selected activity is fetched, independent of the viewport.
+// - Single / travel view: the selected activity (or every activity of the travel)
+//   is fetched, independent of the viewport.
 // Anything not covered falls back to the base (LOD 1) track.
 export const useViewportLod = () => {
-  const { activeId, viewMode, onLodOverridesChange } = useTrajectoryPageState();
+  const { activeId, selectedActivityIds, viewMode, onLodOverridesChange } = useTrajectoryPageState();
+  const selectedIdsRef = useRef(selectedActivityIds);
+  selectedIdsRef.current = selectedActivityIds;
   const [reported, setReported] = useState<ReportedViewport | null>(null);
   const activeIdRef = useRef(activeId);
   activeIdRef.current = activeId;
@@ -65,10 +68,10 @@ export const useViewportLod = () => {
       return;
     }
 
-    if (viewMode === "single") {
+    if (viewMode !== "all") {
       const controller = new AbortController();
-      fetchActivityTrajectory(activeId, controller.signal)
-        .then(onLodOverridesChange)
+      Promise.all(selectedIdsRef.current.map((id) => fetchActivityTrajectory(id, controller.signal)))
+        .then((fetched) => onLodOverridesChange(Object.assign({}, ...fetched)))
         .catch((e) => {
           if (!controller.signal.aborted) logError(e);
         });

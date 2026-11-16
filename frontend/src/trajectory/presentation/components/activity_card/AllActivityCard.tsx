@@ -11,6 +11,7 @@ const CardButton = styled(Button)({
   alignItems: "stretch",
   background: "var(--paper)",
   borderRadius: 10,
+  color: "var(--ink)",
   cursor: "pointer",
   flexDirection: "column",
   gap: 4,

@@ -70,19 +70,19 @@
 }
 
 .trajectory-map-area__photo-marker {
-  background: var(--muted-dot);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E") center / 60% no-repeat var(--muted-dot);
   border: 2px solid var(--paper);
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   cursor: pointer;
-  height: 14px;
-  width: 14px;
+  height: 22px;
+  width: 22px;
 }
 
 .trajectory-map-area__photo-marker.is-active {
-  background: var(--pin);
-  height: 18px;
-  width: 18px;
+  background-color: var(--pin);
+  height: 26px;
+  width: 26px;
 }
 
 .trajectory-map-area__here {
@@ -107,19 +107,58 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.trajectory-height__photo {
-  background: var(--muted-dot);
+.trajectory-page .trajectory-height__photo {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E") center / 60% no-repeat var(--muted-dot);
   border: 2px solid var(--paper);
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   cursor: pointer;
-  height: 14px;
+  height: 20px;
   padding: 0;
   position: absolute;
   top: 4px;
   transform: translateX(-50%);
-  width: 14px;
+  width: 20px;
   z-index: 2;
+}
+
+.trajectory-page .trajectory-height__photo.is-active {
+  background-color: var(--pin);
+}
+
+/* The thumbnail of the photo, shown above its marker on hover / focus. */
+.trajectory-height__photo-preview {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  bottom: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  display: none;
+  left: 50%;
+  overflow: hidden;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 120px;
+  z-index: 5;
+}
+
+.trajectory-height__photo-preview img {
+  display: block;
+  height: 80px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.trajectory-height__photo-wrap {
+  height: 0;
+  position: absolute;
+  top: 0;
+  width: 0;
+}
+
+.trajectory-height__photo-wrap:hover .trajectory-height__photo-preview,
+.trajectory-height__photo-wrap:focus-within .trajectory-height__photo-preview {
+  display: block;
 }
 
 @media (max-width: 1100px) {

@@ -49,7 +49,7 @@ export const MapAreaContainer = () => {
     [activities, lodOverrides],
   );
 
-  if (viewMode === "single" && !activeActivity) return null;
+  if (viewMode !== "all" && !activeActivity) return null;
 
   return (
     <MapShell>

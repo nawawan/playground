@@ -3,6 +3,7 @@ import { AttributionControl, Map as MapLibreMap, Marker, NavigationControl } fro
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import { pointAt } from "../../../domain/geo";
+import { photoLabel } from "../../../domain/format";
 import type { LngLat, MapStyleKey, MapViewport, TrajectoryActivity } from "../../../domain/types";
 import { boundsOf, MAP_STYLE_SOURCES } from "./maplibre";
 
@@ -54,7 +55,8 @@ const addTrackLayers = (map: MapLibreMap, activity: TrajectoryActivity, overlays
     type: "geojson",
     data: {
       type: "Feature",
-      geometry: { type: "LineString", coordinates: activity.track },
+      // A travel is drawn day by day so no line is drawn across the gaps.
+      geometry: { type: "MultiLineString", coordinates: activity.segments ?? [activity.track] },
       properties: {},
     },
   });
@@ -167,8 +169,11 @@ export const MapArea = ({
     if (appliedStyleRef.current === mapStyle) return;
     appliedStyleRef.current = mapStyle;
 
-    map.setStyle(MAP_STYLE_SOURCES[mapStyle]());
+    // `diff: false`: with the default (a diff against the current style) MapLibre patches the
+    // style in place, never fires "style.load", and drops the track layers we added, since
+    // they are not part of the new style. A full replacement fires it once the style is ready.
     map.once("style.load", () => addTrackLayers(map, activityRef.current, overlaysRef.current));
+    map.setStyle(MAP_STYLE_SOURCES[mapStyle](), { diff: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapStyle]);
 
@@ -194,16 +199,22 @@ export const MapArea = ({
     ];
 
     photoMarkersRef.current.forEach(({ marker }) => marker.remove());
-    photoMarkersRef.current = activity.photos.map((photo) => {
+    // Photos that are not placed yet have no position to show.
+    photoMarkersRef.current = activity.photos.flatMap((photo) => {
+      if (photo.at === null) return [];
       const el = document.createElement("div");
       el.className = "trajectory-map-area__photo-marker";
-      el.setAttribute("aria-label", photo.caption);
+      el.setAttribute("role", "button");
+      el.setAttribute("aria-label", photoLabel(photo));
       el.addEventListener("click", (event) => {
         event.stopPropagation();
         onPhotoSelectRef.current(photo.id);
       });
-      const marker = new Marker({ element: el }).setLngLat(pointAt(activity.track, photo.at)).addTo(map);
-      return { id: photo.id, element: el, marker };
+      // The stored position is already snapped to the track.
+      const lngLat: LngLat =
+        photo.lng !== null && photo.lat !== null ? [photo.lng, photo.lat] : pointAt(activity.track, photo.at);
+      const marker = new Marker({ element: el }).setLngLat(lngLat).addTo(map);
+      return [{ id: photo.id, element: el, marker }];
     });
   }, [activity, ready, referenceTrack, showCheckpoints]);
 

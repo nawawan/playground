@@ -9,6 +9,8 @@ import blogs from './backend/pages/blogs';
 import admin from './backend/pages/admin';
 import activities from './backend/pages/activities';
 import trajectories from './backend/pages/trajectories';
+import travels from './backend/pages/travels';
+import photos from './backend/pages/photos';
 import users from './backend/pages/users';
 import { BlogService } from './backend/service/BlogService';
 import { escapeHtml, serializeInitialData, toExcerpt } from './backend/util/html';
@@ -179,6 +181,8 @@ app.get('/blogs/:id', async (c) => {
 app.route('/api/blogs', blogs);
 app.route('/api/activities', activities);
 app.route('/api/trajectories', trajectories);
+app.route('/api/travels', travels);
+app.route('/api/photos', photos);
 app.route('/api/users', users);
 app.route('/api/admin', admin);
 

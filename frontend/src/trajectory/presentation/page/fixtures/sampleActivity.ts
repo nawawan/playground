@@ -45,6 +45,7 @@ const createSampleActivity = (
     zoom: 11,
     track,
     elevation,
+    travelId: null,
     photos: [],
   };
 };
