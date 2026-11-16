@@ -44,14 +44,11 @@ export const NewTravelDialog = ({ open, onClose, onCreate }: NewTravelDialogProp
           label="travel の名前"
           margin="dense"
           onChange={(event) => setName(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") void create();
-          }}
           slotProps={{ htmlInput: { maxLength: 100 } }}
           value={name}
         />
         <Typography sx={{ color: "var(--ink-soft)", fontSize: 12, marginTop: 1 }}>
-          作成後、activity の「所属する travel」から追加します。activity が無い travel は一覧に表示されません。
+          activity を追加すると一覧に表示されます。
         </Typography>
         {failed && (
           <Typography role="alert" sx={{ color: "var(--pin)", fontSize: 13, marginTop: 1 }}>
